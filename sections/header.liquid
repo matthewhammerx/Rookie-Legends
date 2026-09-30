@@ -1174,6 +1174,13 @@
     display: none !important;
   }
 }
+/* The body is white under the dark sections. Give the page canvas the
+   site's black so iPhone Safari tints its toolbars black, including after
+   the mobile menu closes, and overscroll areas stay dark. */
+html {
+  background-color: #000;
+}
+
 /* Mobile drawer - Sell my collection button */
 @media screen and (max-width: 749px) {
   .menu-drawer a[href="/pages/sell-my-collection"]:not([class*='rl-fm']),
