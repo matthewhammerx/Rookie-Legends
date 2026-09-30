@@ -2,60 +2,123 @@
 <div
   class="glow-marquee-{{ section.id }} glow-marquee section section--full-width color-{{ section.settings.color_scheme }}"
 >
-  <div class="glow-marquee__ambient" aria-hidden="true"></div>
-
-  <div class="glow-marquee__viewport">
-    <div
-      class="glow-marquee__track"
-      data-marquee-track
-      data-marquee-duration="{{ section.settings.speed }}"
-      style="animation-duration: {{ section.settings.speed }}s;"
-    >
-      {% for i in (1..2) %}
-        <div
-          class="glow-marquee__set"
-          {% if i == 1 %}
-            data-marquee-set
-          {% endif %}
-          aria-hidden="{% if i == 2 %}true{% else %}false{% endif %}"
-        >
-          {% for block in section.blocks %}
-            <span class="glow-marquee__item">
-              {% if block.settings.text != blank %}
-                <span class="glow-marquee__text">{{ block.settings.text }}</span>
-              {% endif %}
-              {% if block.settings.badge_text != blank %}
-                <span class="glow-marquee__badge">{{ block.settings.badge_text }}</span>
-              {% endif %}
-            </span>
-          {% endfor %}
-        </div>
-      {% endfor %}
+  <div class="glow-marquee__band">
+    <div class="glow-marquee__viewport">
+      <div
+        class="glow-marquee__track"
+        data-marquee-track
+        data-marquee-duration="{{ section.settings.speed }}"
+        style="animation-duration: {{ section.settings.speed }}s;"
+      >
+        {% for i in (1..2) %}
+          <div
+            class="glow-marquee__set"
+            {% if i == 1 %}
+              data-marquee-set
+            {% endif %}
+            aria-hidden="{% if i == 2 %}true{% else %}false{% endif %}"
+          >
+            {% for block in section.blocks %}
+              <span class="glow-marquee__item" {{ block.shopify_attributes }}>
+                {%- assign icon = block.settings.icon | default: 'none' -%}
+                {%- if icon != 'none' -%}
+                  <span class="glow-marquee__icon">
+                    {%- case icon -%}
+                    {%- when 'truck' -%}
+                      <svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M3 6h11v9H3z'/><path d='M14 9h4l3 3v3h-7'/><circle cx='7' cy='17' r='1.8'/><circle cx='17' cy='17' r='1.8'/></svg>
+                    {%- when 'gift' -%}
+                      <svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><rect x='3.5' y='8' width='17' height='4' rx='1'/><path d='M5 12v8h14v-8M12 8v12'/><path d='M12 8c-1.5-3-5-3.5-5-1.2C7 8 9.5 8 12 8zm0 0c1.5-3 5-3.5 5-1.2C17 8 14.5 8 12 8z'/></svg>
+                    {%- when 'shield' -%}
+                      <svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z'/><path d='M9 12l2 2 4-4'/></svg>
+                    {%- when 'star' -%}
+                      <svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1 5.9L12 16.9l-5.2 2.8 1-5.9-4.3-4.1 5.9-.8z'/></svg>
+                    {%- when 'bolt' -%}
+                      <svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M13 3L5 13h6l-1 8 8-10h-6z'/></svg>
+                    {%- when 'globe' -%}
+                      <svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><circle cx='12' cy='12' r='8.5'/><path d='M3.5 12h17M12 3.5c2.5 2.6 3.5 5.5 3.5 8.5s-1 5.9-3.5 8.5c-2.5-2.6-3.5-5.5-3.5-8.5s1-5.9 3.5-8.5z'/></svg>
+                    {%- when 'card' -%}
+                      <svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><rect x='5' y='3' width='14' height='18' rx='2'/><path d='M9 8h6M9 12h6M9 16h3'/></svg>
+                    {%- when 'lock' -%}
+                      <svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><rect x='5' y='10' width='14' height='10' rx='2'/><path d='M8 10V7a4 4 0 0 1 8 0v3'/></svg>
+                    {%- when 'chat' -%}
+                      <svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M4 5h16v11H9l-5 4z'/></svg>
+                    {%- endcase -%}
+                  </span>
+                {%- endif -%}
+                {% if block.settings.text != blank %}
+                  <span class="glow-marquee__text">{{ block.settings.text }}</span>
+                {% endif %}
+                {% if block.settings.badge_text != blank %}
+                  <span class="glow-marquee__badge">{{ block.settings.badge_text }}</span>
+                {% endif %}
+              </span>
+              <span class="glow-marquee__sep" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 1.5c.6 5.6 4.9 9.9 10.5 10.5-5.6.6-9.9 4.9-10.5 10.5C11.4 16.9 7.1 12.6 1.5 12 7.1 11.4 11.4 7.1 12 1.5z"/></svg>
+              </span>
+            {% endfor %}
+          </div>
+        {% endfor %}
+      </div>
     </div>
   </div>
 </div>
 
 <style>
   .glow-marquee-{{ section.id }} {
+    --gm-accent: {{ section.settings.accent_color }};
+    --gm-accent-light: color-mix(in srgb, var(--gm-accent) 55%, #ffffff);
+
     position: relative;
     z-index: 1;
     overflow: hidden;
     padding-block: {{ section.settings.padding_top }}px {{ section.settings.padding_bottom }}px;
   }
 
-  .glow-marquee-{{ section.id }} .glow-marquee__ambient {
+  /* Slim band framed by hairlines that fade out at both ends */
+  .glow-marquee-{{ section.id }} .glow-marquee__band {
+    position: relative;
+    padding-block: 16px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgb(255 255 255 / 0.025) 20%,
+      rgb(255 255 255 / 0.025) 80%,
+      transparent
+    );
+  }
+
+  .glow-marquee-{{ section.id }} .glow-marquee__band::before,
+  .glow-marquee-{{ section.id }} .glow-marquee__band::after {
+    content: '';
     position: absolute;
-    inset: 0;
-    background: radial-gradient(65% 90% at 50% 50%, {{ section.settings.accent_color }}22, transparent 75%);
-    pointer-events: none;
-    z-index: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      color-mix(in srgb, var(--gm-accent) 80%, transparent) 25%,
+      rgb(255 255 255 / 0.45) 50%,
+      color-mix(in srgb, var(--gm-accent) 80%, transparent) 75%,
+      transparent 100%
+    );
+    opacity: 0.55;
+  }
+
+  .glow-marquee-{{ section.id }} .glow-marquee__band::before {
+    top: 0;
+  }
+
+  .glow-marquee-{{ section.id }} .glow-marquee__band::after {
+    bottom: 0;
   }
 
   .glow-marquee-{{ section.id }} .glow-marquee__viewport {
     position: relative;
-    z-index: 1;
     overflow: hidden;
     width: 100%;
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
   }
 
   .glow-marquee-{{ section.id }} .glow-marquee__track {
@@ -69,6 +132,10 @@
     backface-visibility: hidden;
   }
 
+  .glow-marquee-{{ section.id }} .glow-marquee__viewport:hover .glow-marquee__track {
+    animation-play-state: paused;
+  }
+
   .glow-marquee-{{ section.id }} .glow-marquee__set {
     display: flex;
     align-items: center;
@@ -77,30 +144,61 @@
   .glow-marquee-{{ section.id }} .glow-marquee__item {
     display: inline-flex;
     align-items: center;
-    gap: 16px;
+    gap: 12px;
+    padding-inline: 26px;
     white-space: nowrap;
-    padding-inline: 32px;
+    color: #ffffff;
     font-family: var(--font-heading--family, inherit);
-    font-weight: 700;
-    font-size: clamp(1.2rem, 1.05rem + 0.9vw, 1.7rem);
-    background: linear-gradient(160deg, #ffffff 20%, {{ section.settings.accent_color }} 130%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
+    font-weight: 600;
+    font-size: clamp(0.95rem, 0.85rem + 0.45vw, 1.2rem);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .glow-marquee-{{ section.id }} .glow-marquee__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: none;
+    width: 30px;
+    height: 30px;
+    border-radius: 9px;
+    color: var(--gm-accent-light);
+    background: color-mix(in srgb, var(--gm-accent) 16%, transparent);
+    border: 1px solid color-mix(in srgb, var(--gm-accent) 45%, transparent);
+  }
+
+  .glow-marquee-{{ section.id }} .glow-marquee__icon svg {
+    width: 16px;
+    height: 16px;
   }
 
   .glow-marquee-{{ section.id }} .glow-marquee__badge {
     display: inline-flex;
     align-items: center;
-    padding: 9px 22px;
-    border-radius: 999px;
-    font-size: 0.88rem;
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-family: var(--font-body--family, inherit);
+    font-size: 0.62em;
     font-weight: 700;
-    letter-spacing: 0.02em;
-    color: #ffffff;
-    background: linear-gradient(165deg, rgba(40, 20, 34, 0.85), rgba(20, 10, 18, 0.75));
-    border: 1px solid {{ section.settings.accent_color }}66;
-    box-shadow: 0 0 24px -6px {{ section.settings.accent_color }}80;
+    letter-spacing: 0.16em;
+    color: var(--gm-accent-light);
+    background: color-mix(in srgb, var(--gm-accent) 10%, transparent);
+    border: 1px solid color-mix(in srgb, var(--gm-accent) 50%, transparent);
+  }
+
+  .glow-marquee-{{ section.id }} .glow-marquee__sep {
+    display: inline-flex;
+    flex: none;
+    width: 11px;
+    height: 11px;
+    color: var(--gm-accent-light);
+    filter: drop-shadow(0 0 6px var(--gm-accent));
+  }
+
+  .glow-marquee-{{ section.id }} .glow-marquee__sep svg {
+    width: 100%;
+    height: 100%;
   }
 
   @keyframes glowMarqueeScroll-{{ section.id }} {
@@ -120,6 +218,11 @@
     .glow-marquee-{{ section.id }} .glow-marquee__set[aria-hidden='true'] {
       display: none;
     }
+  }
+
+  /* Power-saving lite mode: hold the strip still */
+  html.rl-lite .glow-marquee-{{ section.id }} .glow-marquee__track {
+    animation-play-state: paused;
   }
 </style>
 
@@ -196,7 +299,7 @@
     {
       "type": "color",
       "id": "accent_color",
-      "label": "Accent color (badge, glow, text)",
+      "label": "Accent color (icons, lines, badge)",
       "default": "#eb00ca"
     },
     {
@@ -236,6 +339,24 @@
       "name": "Item",
       "settings": [
         {
+          "type": "select",
+          "id": "icon",
+          "label": "Icon",
+          "options": [
+            { "value": "none", "label": "None" },
+            { "value": "truck", "label": "Truck (shipping)" },
+            { "value": "gift", "label": "Gift" },
+            { "value": "shield", "label": "Shield (authentic)" },
+            { "value": "star", "label": "Star" },
+            { "value": "bolt", "label": "Lightning" },
+            { "value": "globe", "label": "Globe" },
+            { "value": "card", "label": "Trading card" },
+            { "value": "lock", "label": "Lock (secure)" },
+            { "value": "chat", "label": "Chat (support)" }
+          ],
+          "default": "none"
+        },
+        {
           "type": "text",
           "id": "text",
           "label": "Text"
@@ -244,7 +365,7 @@
           "type": "text",
           "id": "badge_text",
           "label": "Badge text",
-          "info": "Optional — shown as a glass pill next to the text."
+          "info": "Optional — shown as a small tag next to the text."
         }
       ]
     }
@@ -256,15 +377,15 @@
         {
           "type": "item",
           "settings": {
-            "text": "Fast & reliable shipping",
-            "badge_text": "we are legends"
+            "icon": "truck",
+            "text": "Fast & reliable shipping"
           }
         },
         {
           "type": "item",
           "settings": {
-            "text": "Free shipping on US & CAD orders $350+",
-            "badge_text": "we are legends"
+            "icon": "gift",
+            "text": "Free shipping on US & CAD orders $350+"
           }
         }
       ]

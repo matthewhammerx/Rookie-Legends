@@ -986,6 +986,7 @@
         "item_Act46x": {
           "type": "item",
           "settings": {
+            "icon": "truck",
             "text": "Fast & reliable shipping",
             "badge_text": "we are legends"
           }
@@ -993,6 +994,7 @@
         "item_H3YDBn": {
           "type": "item",
           "settings": {
+            "icon": "gift",
             "text": "Free shipping on US & CAD orders $350+",
             "badge_text": "we are legends"
           }
