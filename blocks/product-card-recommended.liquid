@@ -112,6 +112,20 @@
     mask-image: linear-gradient(to top, black 0%, transparent var(--prc-card-blur-fade));
   }
 
+  /* Phones: frosted glass instead of a live blur. A live masked
+     backdrop-filter on every card is very heavy on mobile GPUs; this is a
+     static milky tint + fine grain with the same upward fade. */
+  @media screen and (max-width: 749px) {
+    .prc__card-blur {
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+      background:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.11 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url%28%23n%29'/%3E%3C/svg%3E") 0 0 / 160px 160px,
+        linear-gradient(to top, rgb(255 255 255 / 0.15) 0%, rgb(255 255 255 / 0.08) 55%, rgb(255 255 255 / 0.03) 100%);
+      box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.1);
+    }
+  }
+
   .prc__card-badge {
     position: absolute;
     top: 10px;
