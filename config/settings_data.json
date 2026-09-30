@@ -38,7 +38,7 @@
     "badge_sold_out_text": "#ffffff",
     "badge_sale_bg": "#eb00ca",
     "badge_sale_text": "#ffffff",
-    "badge_sold_out_style": "foil",
+    "badge_sold_out_style": "neon",
     "badge_sale_style": "foil",
     "badge_sale_show_percent": true,
     "button_border_radius_primary": 100,
