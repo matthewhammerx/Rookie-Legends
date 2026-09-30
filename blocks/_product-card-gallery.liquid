@@ -12,29 +12,41 @@
       "
     >
       {%- if product.available == false or product.compare_at_price > product.price -%}
+        {%- liquid
+          if product.available == false
+            assign badge_type = 'sold-out'
+            assign badge_scheme = settings.badge_sold_out_color_scheme
+            assign badge_style = settings.badge_sold_out_style | default: 'classic'
+            assign badge_bg = settings.badge_sold_out_bg
+            assign badge_text = settings.badge_sold_out_text
+            assign badge_label = 'content.product_badge_sold_out' | t
+          else
+            assign badge_type = 'sale'
+            assign badge_scheme = settings.badge_sale_color_scheme
+            assign badge_style = settings.badge_sale_style | default: 'classic'
+            assign badge_bg = settings.badge_sale_bg
+            assign badge_text = settings.badge_sale_text
+            assign badge_label = 'content.product_badge_sale' | t
+            if settings.badge_sale_show_percent and product.compare_at_price > 0
+              assign savings = product.compare_at_price | minus: product.price
+              assign percent = savings | times: 100 | divided_by: product.compare_at_price
+              if percent > 0
+                assign badge_label = 'content.product_badge_sale_percent' | t: percent: percent
+              endif
+            endif
+          endif
+        -%}
         <div
           class="
             product-badges__badge product-badges__badge--rectangle
-            {% if product.available == false %} color-{{ settings.badge_sold_out_color_scheme }}{% elsif product.compare_at_price > product.price %} color-{{ settings.badge_sale_color_scheme }}{% endif %}
+            product-badges__badge--{{ badge_type }} product-badges__badge--style-{{ badge_style }}
+            color-{{ badge_scheme }}
           "
-          {%- liquid
-            if product.available == false
-              assign badge_bg = settings.badge_sold_out_bg
-              assign badge_text = settings.badge_sold_out_text
-            else
-              assign badge_bg = settings.badge_sale_bg
-              assign badge_text = settings.badge_sale_text
-            endif
-          -%}
           {% if badge_bg != blank %}
             style="--color-background: {{ badge_bg }};{% if badge_text != blank %} --color-foreground: {{ badge_text }};{% endif %}"
           {%- endif %}
         >
-          {%- if product.available == false -%}
-            {{ 'content.product_badge_sold_out' | t }}
-          {%- elsif product.compare_at_price > product.price -%}
-            {{ 'content.product_badge_sale' | t }}
-          {%- endif -%}
+          <span class="product-badges__label">{{ badge_label }}</span>
         </div>
       {%- endif -%}
     </div>
@@ -97,6 +109,101 @@
   .product-badges__badge--rectangle {
     padding-block: var(--badge-rectangle-padding-block);
     padding-inline: var(--badge-rectangle-padding-inline);
+  }
+
+  /* ---- Badge designs (Theme settings > Badges > Badge design) ---- */
+  .product-badges__badge[class*='--style-']:not(.product-badges__badge--style-classic) {
+    --badge-font-size: var(--font-size--xs);
+
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    line-height: 1.1;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  /* Pill: fully rounded with a soft drop shadow */
+  .product-badges__badge.product-badges__badge--style-pill {
+    border-radius: 999px;
+    padding: 0.45em 1em;
+    box-shadow: 0 4px 12px rgb(0 0 0 / 0.35);
+  }
+
+  /* Slash tag: sharp, sporty, with an angled trailing edge */
+  .product-badges__badge.product-badges__badge--style-tag {
+    border-radius: 0;
+    padding: 0.45em 1.35em 0.45em 0.8em;
+    clip-path: polygon(0 0, 100% 0, calc(100% - 0.7em) 100%, 0 100%);
+    font-style: italic;
+    box-shadow: inset 4px 0 0 rgb(0 0 0 / 0.25);
+  }
+
+  /* Stamp: tilted, double-bordered, like a grading slab stamp */
+  .product-badges__badge.product-badges__badge--style-stamp {
+    border-radius: 3px;
+    padding: 0.5em 0.9em;
+    letter-spacing: 0.18em;
+    transform: rotate(-6deg);
+    box-shadow:
+      inset 0 0 0 2px var(--color-background),
+      inset 0 0 0 3.5px var(--color-foreground),
+      0 4px 12px rgb(0 0 0 / 0.35);
+  }
+
+  /* Outline: dark glass with a colored border and text */
+  .product-badges__badge.product-badges__badge--style-outline {
+    border-radius: 999px;
+    padding: 0.4em 0.95em;
+    color: var(--color-background);
+    background: rgb(0 0 0 / 0.6);
+    border: 2px solid var(--color-background);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+  }
+
+  /* Holo foil: animated sheen, like a refractor card */
+  .product-badges__badge.product-badges__badge--style-foil {
+    position: relative;
+    overflow: hidden;
+    border-radius: 6px;
+    padding: 0.45em 0.95em;
+    border: 1px solid rgb(255 255 255 / 0.55);
+    box-shadow: 0 0 14px color-mix(in srgb, var(--color-background) 55%, transparent);
+  }
+
+  .product-badges__badge--style-foil::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      110deg,
+      transparent 25%,
+      rgb(255 255 255 / 0.15) 38%,
+      rgb(120 230 255 / 0.45) 45%,
+      rgb(255 150 245 / 0.45) 52%,
+      rgb(255 255 255 / 0.15) 60%,
+      transparent 72%
+    );
+    background-size: 250% 100%;
+    animation: product-badge-foil 3.2s ease-in-out infinite;
+    pointer-events: none;
+  }
+
+  .product-badges__badge--style-foil .product-badges__label {
+    position: relative;
+    z-index: 1;
+  }
+
+  @keyframes product-badge-foil {
+    0% { background-position: 150% 0; }
+    60%, 100% { background-position: -100% 0; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .product-badges__badge--style-foil::after {
+      animation: none;
+      background-position: 50% 0;
+    }
   }
 {% endstylesheet %}
 

@@ -1507,6 +1507,45 @@
       },
       {
         "type": "header",
+        "content": "Badge design"
+      },
+      {
+        "type": "select",
+        "id": "badge_sold_out_style",
+        "label": "Sold out badge style",
+        "options": [
+          { "value": "classic", "label": "Classic (uses corner radius)" },
+          { "value": "pill", "label": "Pill" },
+          { "value": "tag", "label": "Slash tag" },
+          { "value": "stamp", "label": "Stamp" },
+          { "value": "outline", "label": "Outline" },
+          { "value": "foil", "label": "Holo foil" }
+        ],
+        "default": "stamp"
+      },
+      {
+        "type": "select",
+        "id": "badge_sale_style",
+        "label": "Sale badge style",
+        "options": [
+          { "value": "classic", "label": "Classic (uses corner radius)" },
+          { "value": "pill", "label": "Pill" },
+          { "value": "tag", "label": "Slash tag" },
+          { "value": "stamp", "label": "Stamp" },
+          { "value": "outline", "label": "Outline" },
+          { "value": "foil", "label": "Holo foil" }
+        ],
+        "default": "tag"
+      },
+      {
+        "type": "checkbox",
+        "id": "badge_sale_show_percent",
+        "label": "Show % off on sale badge",
+        "info": "Shows e.g. \"25% OFF\" instead of \"Sale\".",
+        "default": true
+      },
+      {
+        "type": "header",
         "content": "t:names.typography"
       },
       {
