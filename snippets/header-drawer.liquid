@@ -52,7 +52,6 @@
     data-skip-node-update="true"
     class="menu-drawer-container"
     ref="details"
-    scroll-lock
   >
     <summary
       class="header__icon header__icon--menu header__icon--summary"
@@ -259,6 +258,28 @@
             },
             true
           );
+
+          // Scroll lock without html{overflow:hidden}: that stops iPhone Safari
+          // drawing the page under its toolbar. Block page scrolling while the
+          // menu is open, but let the menu card itself scroll.
+          function menuOpen() {
+            var d = document.getElementById('Details-menu-drawer-container');
+            return !!(d && d.open);
+          }
+          function blockScroll(e) {
+            if (!menuOpen()) return;
+            // Allow it inside anything in the menu that can scroll (card, currency list)
+            var el = e.target instanceof Element ? e.target : null;
+            var drawer = el && el.closest('.menu-drawer');
+            while (drawer && el && el !== drawer) {
+              var oy = getComputedStyle(el).overflowY;
+              if ((oy === 'auto' || oy === 'scroll') && el.scrollHeight > el.clientHeight + 1) return;
+              el = el.parentElement;
+            }
+            e.preventDefault();
+          }
+          document.addEventListener('touchmove', blockScroll, { passive: false });
+          document.addEventListener('wheel', blockScroll, { passive: false });
 
           document.addEventListener('click', function (e) {
             var open = e.target.closest && e.target.closest('[data-rl-fm-open]');
@@ -1297,14 +1318,6 @@
     visibility: hidden;
     opacity: 0;
     transition: opacity 0.2s ease, visibility 0.2s ease;
-  }
-
-  /* The page canvas is white under the dark sections. While the menu locks
-     scrolling, iPhone Safari shows its toolbar again and uncovers it at the
-     bottom, so paint it dark while the menu is open. */
-  html:has(#Details-menu-drawer-container[open] .rl-fm),
-  html:has(#Details-menu-drawer-container[open] .rl-fm) body {
-    background-color: #0a0a0c !important;
   }
 
   /* Tap anywhere outside the menu to close it */
