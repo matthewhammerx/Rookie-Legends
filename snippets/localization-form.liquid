@@ -677,9 +677,16 @@
     vertical-align: middle;
   }
 
-  .localization-form__list-item:has(.rl-flag) {
+  .localization-form__list-item:has(.rl-flag):not([hidden]) {
     display: flex;
     align-items: center;
+    gap: 12px;
+    padding: 9px 12px;
+  }
+
+  /* Search hides non-matching countries with [hidden]; keep it hidden */
+  .localization-form__list-item[hidden] {
+    display: none !important;
   }
 
   :is(dropdown-localization-component, .menu-drawer) .localization-form__list-item,
@@ -710,7 +717,16 @@
     color: #fff !important;
   }
 
+  /* While searching, the theme wraps the NON-matching parts of a name in
+     <mark>: dim those so the typed match stands out in white */
   :is(dropdown-localization-component, .menu-drawer) .localization-form__list-item .country mark {
-    color: var(--rl-pink, #ff2fb1) !important;
+    color: rgb(255 255 255 / 0.45) !important;
+    background: none;
+    font-weight: inherit;
+  }
+
+  :is(dropdown-localization-component, .menu-drawer) .is-searching .localization-form__list-item .country {
+    color: #fff !important;
+    font-weight: 700;
   }
 {% endstylesheet %}
