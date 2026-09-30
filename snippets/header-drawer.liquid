@@ -232,6 +232,24 @@
             if (card) card.scrollTop = 0;
           }
 
+          // Drop the menu out from under the header row, not over the announcement bar
+          function placeMenu() {
+            var header = document.getElementById('header-component');
+            if (!header) return;
+            var bottom = Math.max(0, Math.round(header.getBoundingClientRect().bottom));
+            document.documentElement.style.setProperty('--rl-fm-top', bottom + 8 + 'px');
+          }
+          placeMenu();
+          window.addEventListener('resize', placeMenu);
+
+          document.addEventListener(
+            'click',
+            function (e) {
+              if (e.target.closest && e.target.closest('#Details-menu-drawer-container > summary')) placeMenu();
+            },
+            true
+          );
+
           document.addEventListener('click', function (e) {
             var open = e.target.closest && e.target.closest('[data-rl-fm-open]');
             if (open) {
@@ -247,7 +265,11 @@
             'toggle',
             function (e) {
               var d = e.target;
-              if (!(d instanceof HTMLDetailsElement) || d.open) return;
+              if (!(d instanceof HTMLDetailsElement)) return;
+              if (d.open) {
+                if (d.id === 'Details-menu-drawer-container') placeMenu();
+                return;
+              }
               var nav = d.querySelector(':scope > .menu-drawer [data-rl-fm]');
               if (nav) setTimeout(function () { showView(nav, 'main', false); }, 300);
             },
@@ -1222,13 +1244,14 @@
     --rl-glass: rgb(24 17 29 / 0.62);
     --rl-glass-border: rgb(255 255 255 / 0.12);
 
-    top: calc(10px + env(safe-area-inset-top, 0px)) !important;
+    /* --rl-fm-top = just under the header row (set by the script on open) */
+    top: var(--rl-fm-top, calc(10px + env(safe-area-inset-top, 0px))) !important;
     left: 10px !important;
     right: 10px;
     width: auto !important;
     max-width: 480px !important;
     height: auto !important;
-    max-height: calc(100dvh - 20px);
+    max-height: calc(100dvh - var(--rl-fm-top, 10px) - 10px);
     padding: 0 !important;
     gap: 8px;
     overflow: visible !important;
@@ -1262,6 +1285,8 @@
   .menu-drawer-container[open]:has(.rl-fm) .menu-drawer__backdrop {
     position: fixed;
     inset: 0;
+    /* Leave the header itself (and the announcement bar) undimmed */
+    top: calc(var(--rl-fm-top, 0px) - 8px);
     z-index: 999998 !important;
     background: rgb(0 0 0 / 0.45) !important;
     animation: rl-fm-fade 0.28s ease both;
@@ -1354,7 +1379,7 @@
   /* ---- Glass card ---- */
   .rl-fm__card {
     min-height: 0;
-    max-height: calc(100dvh - 20px - 54px - 8px - 62px);
+    max-height: calc(100dvh - var(--rl-fm-top, 10px) - 10px - 54px - 8px - 62px);
     padding: 10px;
     overflow-y: auto;
     overscroll-behavior: contain;
