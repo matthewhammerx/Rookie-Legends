@@ -202,6 +202,8 @@
       }
 
       function moveTo(clientX, clientY, snap) {
+        // Lite mode (power saving): no glow tracking
+        if (window.rlIsLite && window.rlIsLite()) return;
         var pos = pointerPercent(tile, clientX, clientY);
         target.x = pos.x;
         target.y = pos.y;
@@ -221,6 +223,7 @@
         moveTo(e.clientX, e.clientY, false);
       });
       tile.addEventListener('pointerdown', function (e) {
+        if (window.rlIsLite && window.rlIsLite()) return;
         moveTo(e.clientX, e.clientY, true);
         tile.classList.add('is-active');
       });

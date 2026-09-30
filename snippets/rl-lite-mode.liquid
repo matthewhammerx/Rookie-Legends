@@ -102,9 +102,24 @@
 <style>
   /* ---- Lite mode: decorative motion off ---- */
 
-  /* Category tiles: no floating */
-  html.rl-lite [class*='collection-tile-grid-'] .collection-item {
+  /* Category tiles: fully static (no float, glow, zoom or spotlight blur) */
+  html.rl-lite [class*='collection-tile-grid-'] .collection-item,
+  html.rl-lite [class*='collection-tile-grid-'] .collection-item * {
     animation: none !important;
+    transition: none !important;
+  }
+
+  html.rl-lite [class*='collection-tile-grid-'] .collection-item {
+    filter: none !important;
+  }
+
+  html.rl-lite [class*='collection-tile-grid-'] .collection-item__frame {
+    transform: none !important;
+  }
+
+  html.rl-lite [class*='collection-tile-grid-'] .collection-item__frame::before,
+  html.rl-lite [class*='collection-tile-grid-'] .collection-item__frame::after {
+    display: none !important;
   }
 
   /* Promo card: static glow */
