@@ -37,12 +37,43 @@
         assign rl_hi = price_filter.max_value.value | plus: 99 | divided_by: 100
       endif
       assign rl_chip = ''
+      assign rl_lo_fmt = rl_lo | times: 100 | money_without_trailing_zeros
+      assign rl_hi_fmt = rl_hi | times: 100 | money_without_trailing_zeros
       if rl_lo != '' and rl_hi != ''
-        assign rl_chip = rl_symbol | append: rl_lo | append: '–' | append: rl_symbol | append: rl_hi
+        assign rl_chip = rl_lo_fmt | append: '–' | append: rl_hi_fmt
       elsif rl_lo != ''
-        assign rl_chip = rl_symbol | append: rl_lo | append: '+'
+        assign rl_chip = rl_lo_fmt | append: '+'
       elsif rl_hi != ''
-        assign rl_chip = 'Under ' | append: rl_symbol | append: rl_hi
+        assign rl_chip = 'Under ' | append: rl_hi_fmt
+      endif
+    elsif deck
+      # Markets where Shopify doesn't offer a price filter (anything but the
+      # store's main market): same picker, filtering the loaded grid in the
+      # browser by each item's local price (data-rl-cost on the grid items).
+      assign rl_top = 0
+      for rl_product in results.products
+        if rl_product.price > rl_top
+          assign rl_top = rl_product.price
+        endif
+      endfor
+      if rl_top > 0
+        assign rl_price = true
+        assign rl_local = true
+        assign rl_symbol = cart.currency.symbol | default: '$'
+        assign rl_top = rl_top | plus: 99 | divided_by: 100
+        assign rl_max = rl_top
+        assign rl_rounded = false
+        assign rl_steps = '10,20,25,50,100,150,200,250,500,1000,1500,2000,2500,5000,10000,15000,20000,25000,50000,100000,150000,200000,250000,500000,1000000,2000000,5000000' | split: ','
+        for n in rl_steps
+          assign rl_n = n | plus: 0
+          if rl_rounded == false and rl_n >= rl_top
+            assign rl_max = rl_n
+            assign rl_rounded = true
+          endif
+        endfor
+        assign rl_lo = ''
+        assign rl_hi = ''
+        assign rl_chip = ''
       endif
     endif
 
@@ -145,15 +176,27 @@
           <div
             class="rl-price"
             data-rl-price
+            data-rl-mode="{% if rl_local %}local{% else %}shopify{% endif %}"
             data-max="{{ rl_max }}"
+            data-currency="{{ cart.currency.iso_code }}"
+            data-locale="{{ request.locale.iso_code }}"
             on:change="rl-none/none"
             on:input="rl-none/none"
             on:keydown="rl-none/none"
           >
             <div class="rl-menu__title">
               <span>Price range</span>
-              {% if rl_chip != '' %}
-                <button type="button" class="rl-price__reset" data-rl-price-reset>Reset</button>
+              {% if rl_chip != '' or rl_local %}
+                <button
+                  type="button"
+                  class="rl-price__reset"
+                  data-rl-price-reset
+                  {% if rl_chip == '' %}
+                    hidden
+                  {% endif %}
+                >
+                  Reset
+                </button>
               {% endif %}
             </div>
             <div class="rl-price__fields">
@@ -164,7 +207,7 @@
                   inputmode="numeric"
                   min="0"
                   max="{{ rl_max }}"
-                  name="{{ price_filter.min_value.param_name }}"
+                  name="{% if rl_local %}rl_min{% else %}{{ price_filter.min_value.param_name }}{% endif %}"
                   value="{{ rl_lo }}"
                   placeholder="0"
                   aria-label="Minimum price"
@@ -179,7 +222,7 @@
                   inputmode="numeric"
                   min="0"
                   max="{{ rl_max }}"
-                  name="{{ price_filter.max_value.param_name }}"
+                  name="{% if rl_local %}rl_max{% else %}{{ price_filter.max_value.param_name }}{% endif %}"
                   value="{{ rl_hi }}"
                   placeholder="{{ rl_max }}"
                   aria-label="Maximum price"
@@ -192,18 +235,65 @@
               <input type="range" min="0" max="{{ rl_max }}" step="1" value="{{ rl_hi | default: rl_max }}" aria-label="Maximum price" data-rl-range-max>
             </div>
             <div class="rl-price__chips">
-              {% if 0 < rl_max %}
-                <button type="button" class="rl-price__chip{% if rl_lo == '' and rl_hi == 50 %} is-active{% endif %}" data-rl-price-chip data-min="" data-max="50">Under {{ rl_symbol }}50</button>
-              {% endif %}
-              {% if 50 < rl_max %}
-                <button type="button" class="rl-price__chip{% if rl_lo == 50 and rl_hi == 150 %} is-active{% endif %}" data-rl-price-chip data-min="50" data-max="150">{{ rl_symbol }}50–{{ rl_symbol }}150</button>
-              {% endif %}
-              {% if 150 < rl_max %}
-                <button type="button" class="rl-price__chip{% if rl_lo == 150 and rl_hi == 500 %} is-active{% endif %}" data-rl-price-chip data-min="150" data-max="500">{{ rl_symbol }}150–{{ rl_symbol }}500</button>
-              {% endif %}
-              {% if 500 < rl_max %}
-                <button type="button" class="rl-price__chip{% if rl_lo == 500 and rl_hi == '' %} is-active{% endif %}" data-rl-price-chip data-min="500" data-max="">{{ rl_symbol }}500+</button>
-              {% endif %}
+              {%- liquid
+                # Quick-pick ranges scaled to this collection's price range in the
+                # shopper's currency: "nice" round numbers near 5%, 20% and 45% of the max.
+                assign rl_nice = '1,2,5,10,20,25,50,100,150,200,250,500,1000,1500,2000,2500,5000,10000,15000,20000,25000,50000,100000,150000,200000,250000,500000,1000000,2000000,5000000' | split: ','
+                assign rl_targets = '5,20,45' | split: ','
+                assign rl_cuts = ''
+                assign rl_prev = 0
+                for pct in rl_targets
+                  assign rl_target = rl_max | times: pct | divided_by: 100
+                  assign rl_pick = 0
+                  for n in rl_nice
+                    assign rl_n = n | plus: 0
+                    if rl_n <= rl_target
+                      assign rl_pick = rl_n
+                    endif
+                  endfor
+                  if rl_pick > rl_prev
+                    assign rl_cuts = rl_cuts | append: rl_pick | append: ','
+                    assign rl_prev = rl_pick
+                  endif
+                endfor
+                assign rl_cuts = rl_cuts | split: ','
+              -%}
+              {%- for cut in rl_cuts -%}
+                {%- liquid
+                  assign rl_c = cut | plus: 0
+                  if forloop.first
+                    assign rl_c_lo = ''
+                  else
+                    assign rl_prev_i = forloop.index0 | minus: 1
+                    assign rl_c_lo = rl_cuts[rl_prev_i] | plus: 0
+                  endif
+                  assign rl_c_label_hi = rl_c | times: 100 | money_without_trailing_zeros
+                -%}
+                <button
+                  type="button"
+                  class="rl-price__chip{% if rl_lo == rl_c_lo and rl_hi == rl_c %} is-active{% endif %}"
+                  data-rl-price-chip
+                  data-min="{{ rl_c_lo }}"
+                  data-max="{{ rl_c }}"
+                >
+                  {%- if rl_c_lo == '' -%}
+                    Under {{ rl_c_label_hi }}
+                  {%- else -%}
+                    {{ rl_c_lo | times: 100 | money_without_trailing_zeros }}–{{ rl_c_label_hi }}
+                  {%- endif -%}
+                </button>
+                {%- if forloop.last -%}
+                  <button
+                    type="button"
+                    class="rl-price__chip{% if rl_lo == rl_c and rl_hi == '' %} is-active{% endif %}"
+                    data-rl-price-chip
+                    data-min="{{ rl_c }}"
+                    data-max=""
+                  >
+                    {{- rl_c_label_hi }}+
+                  </button>
+                {%- endif -%}
+              {%- endfor -%}
             </div>
             <button type="button" class="rl-price__apply" data-rl-price-apply>Show results</button>
           </div>
@@ -308,6 +398,110 @@
         clearChips(root);
       }
 
+      /* ---- Local mode: filter the loaded grid by each item's local price ---- */
+      function fmt(root, n) {
+        try {
+          return new Intl.NumberFormat(root.dataset.locale || undefined, {
+            style: 'currency',
+            currency: root.dataset.currency || 'USD',
+            maximumFractionDigits: 0,
+          }).format(n);
+        } catch (err) {
+          return String(n);
+        }
+      }
+
+      function localRange() {
+        var params = new URL(window.location.href).searchParams;
+        var lo = parseInt(params.get('rl_min'), 10);
+        var hi = parseInt(params.get('rl_max'), 10);
+        return { lo: isNaN(lo) ? '' : lo, hi: isNaN(hi) ? '' : hi };
+      }
+
+      function filterGrid(range) {
+        var active = range.lo !== '' || range.hi !== '';
+        document.querySelectorAll('.product-grid [data-rl-cost]').forEach(function (item) {
+          var price = (parseInt(item.dataset.rlCost, 10) || 0) / 100;
+          var out = active && ((range.lo !== '' && price < range.lo) || (range.hi !== '' && price > range.hi));
+          item.classList.toggle('rl-price-hidden', out);
+        });
+
+        document.querySelectorAll('.product-grid').forEach(function (grid) {
+          var items = grid.querySelectorAll('[data-rl-cost]');
+          var shown = grid.querySelectorAll('[data-rl-cost]:not(.rl-price-hidden)');
+          var pages = parseInt(grid.dataset.lastPage, 10) || 1;
+          var loaded = 0;
+          items.forEach(function (item) {
+            loaded = Math.max(loaded, parseInt(item.dataset.page, 10) || 1);
+          });
+          var empty = grid.parentElement.querySelector('.rl-price-empty');
+          var show = active && items.length > 0 && shown.length === 0 && loaded >= pages;
+          if (show && !empty) {
+            empty = document.createElement('p');
+            empty.className = 'rl-price-empty';
+            empty.textContent = 'No products in this price range.';
+            grid.insertAdjacentElement('afterend', empty);
+          }
+          if (empty) empty.hidden = !show;
+        });
+      }
+
+      function syncLocal() {
+        var roots = document.querySelectorAll('[data-rl-price][data-rl-mode="local"]');
+        if (!roots.length) return;
+        var range = localRange();
+        roots.forEach(function (root) {
+          var p = parts(root);
+          if (document.activeElement !== p.min) p.min.value = range.lo;
+          if (document.activeElement !== p.max) p.max.value = range.hi;
+          p.rMin.value = range.lo === '' ? 0 : Math.min(range.lo, p.top);
+          p.rMax.value = range.hi === '' ? p.top : Math.min(range.hi, p.top);
+          paintSlider(root);
+
+          var text = '';
+          if (range.lo !== '' && range.hi !== '') text = fmt(root, range.lo) + '–' + fmt(root, range.hi);
+          else if (range.lo !== '') text = fmt(root, range.lo) + '+';
+          else if (range.hi !== '') text = 'Under ' + fmt(root, range.hi);
+
+          var reset = root.querySelector('[data-rl-price-reset]');
+          if (reset) reset.hidden = !text;
+
+          root.querySelectorAll('[data-rl-price-chip]').forEach(function (c) {
+            c.classList.toggle('is-active', String(range.lo) === c.dataset.min && String(range.hi) === c.dataset.max);
+          });
+
+          var summary = root.closest('details') && root.closest('details').querySelector('summary');
+          if (summary) {
+            var chip = summary.querySelector('.rl-price-chip');
+            if (text && !chip) {
+              chip = document.createElement('span');
+              chip.className = 'rl-price-chip';
+              var label = summary.querySelector('.facets__label');
+              if (label) label.insertAdjacentElement('afterend', chip);
+              else summary.prepend(chip);
+            }
+            if (chip) {
+              if (text) chip.textContent = text;
+              else chip.remove();
+            }
+          }
+        });
+        filterGrid(range);
+      }
+
+      function applyLocal(root, lo, hi) {
+        var url = new URL(window.location.href);
+        if (lo === '') url.searchParams.delete('rl_min');
+        else url.searchParams.set('rl_min', lo);
+        if (hi === '') url.searchParams.delete('rl_max');
+        else url.searchParams.set('rl_max', hi);
+        history.replaceState(history.state, '', url.toString());
+
+        var details = root.closest('details');
+        if (details) details.removeAttribute('open');
+        syncLocal();
+      }
+
       function apply(root) {
         var p = parts(root);
         var lo = parseInt(p.min.value, 10);
@@ -319,6 +513,11 @@
         }
         p.min.value = !isNaN(lo) && lo > 0 ? lo : '';
         p.max.value = !isNaN(hi) ? hi : '';
+
+        if (root.dataset.rlMode === 'local') {
+          applyLocal(root, p.min.value === '' ? '' : +p.min.value, p.max.value === '' ? '' : +p.max.value);
+          return;
+        }
 
         var details = root.closest('details');
         if (details) details.removeAttribute('open');
@@ -365,11 +564,22 @@
         }
       });
 
+      var syncing = false;
       function paintAll() {
-        document.querySelectorAll('[data-rl-price]').forEach(paintSlider);
+        if (syncing) return;
+        syncing = true;
+        document.querySelectorAll('[data-rl-price][data-rl-mode]').forEach(paintSlider);
+        syncLocal();
+        syncing = false;
       }
       paintAll();
-      new MutationObserver(paintAll).observe(document.body, { childList: true, subtree: true });
+      new MutationObserver(function (records) {
+        // Ignore our own chip / empty-state edits; react to new cards and re-rendered sections
+        var relevant = records.some(function (r) {
+          return !(r.target.closest && r.target.closest('summary, .rl-price-empty'));
+        });
+        if (relevant) paintAll();
+      }).observe(document.body, { childList: true, subtree: true });
     })();
   </script>
 {% endif %}
