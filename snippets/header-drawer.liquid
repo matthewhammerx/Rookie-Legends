@@ -95,15 +95,21 @@
         aria-label="{{ 'accessibility.header_navigation_label' | t }}"
       >
         <div class="rl-fm__bar">
-          <button type="button" class="rl-fm__icon-btn rl-fm__back" data-rl-fm-back aria-label="Back" hidden>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
-          </button>
-          <span class="rl-fm__dot" aria-hidden="true" data-rl-fm-dot></span>
-          <span class="rl-fm__bar-title" data-rl-fm-title>Menu</span>
-          <a class="rl-fm__bar-chip" href="/pages/sell-my-collection">Sell</a>
-          <button type="button" class="rl-fm__icon-btn rl-fm__close" on:click="/close" aria-label="{{ 'actions.close' | t }}">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
-          </button>
+          <span class="rl-fm__bar-side">
+            <button type="button" class="rl-fm__icon-btn rl-fm__close" on:click="/close" aria-label="{{ 'actions.close' | t }}">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+            </button>
+            <button type="button" class="rl-fm__icon-btn rl-fm__back" data-rl-fm-back aria-label="Back" hidden>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+            </button>
+          </span>
+          <span class="rl-fm__bar-center">
+            <span class="rl-fm__dot" aria-hidden="true" data-rl-fm-dot></span>
+            <span class="rl-fm__bar-title" data-rl-fm-title>Menu</span>
+          </span>
+          <span class="rl-fm__bar-side rl-fm__bar-side--end">
+            <a class="rl-fm__bar-chip" href="/pages/sell-my-collection">Sell</a>
+          </span>
         </div>
 
         <div class="rl-fm__card">
@@ -236,8 +242,12 @@
           function placeMenu() {
             var header = document.getElementById('header-component');
             if (!header) return;
-            var bottom = Math.max(0, Math.round(header.getBoundingClientRect().bottom));
-            document.documentElement.style.setProperty('--rl-fm-top', bottom + 8 + 'px');
+            // Sit the 54px bar in the middle of the header row, so it replaces it
+            var r = header.getBoundingClientRect();
+            var top = r.bottom <= 0 ? 8 : Math.round(r.top + (r.height - 54) / 2);
+            var root = document.documentElement.style;
+            root.setProperty('--rl-fm-top', Math.max(8, top) + 'px');
+            root.setProperty('--rl-fm-shade', Math.max(0, Math.round(r.top)) + 'px');
           }
           placeMenu();
           window.addEventListener('resize', placeMenu);
@@ -1244,7 +1254,7 @@
     --rl-glass: rgb(24 17 29 / 0.62);
     --rl-glass-border: rgb(255 255 255 / 0.12);
 
-    /* --rl-fm-top = just under the header row (set by the script on open) */
+    /* --rl-fm-top = over the header row (set by the script on open) */
     top: var(--rl-fm-top, calc(10px + env(safe-area-inset-top, 0px))) !important;
     left: 10px !important;
     right: 10px;
@@ -1281,12 +1291,20 @@
     display: none !important;
   }
 
+  /* While open, the menu bar takes the header's place: hide the logo, icons and burger under it */
+  .header__columns:has(#Details-menu-drawer-container[open] .rl-fm) > .header__column > :not(:has(#Details-menu-drawer-container)),
+  #Details-menu-drawer-container[open]:has(.rl-fm) > summary {
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.2s ease, visibility 0.2s ease;
+  }
+
   /* Tap anywhere outside the menu to close it */
   .menu-drawer-container[open]:has(.rl-fm) .menu-drawer__backdrop {
     position: fixed;
     inset: 0;
-    /* Leave the header itself (and the announcement bar) undimmed */
-    top: calc(var(--rl-fm-top, 0px) - 8px);
+    /* Leave the announcement bar undimmed; the menu bar replaces the header row */
+    top: var(--rl-fm-shade, 0px);
     z-index: 999998 !important;
     background: rgb(0 0 0 / 0.45) !important;
     animation: rl-fm-fade 0.28s ease both;
@@ -1304,17 +1322,37 @@
 
   /* ---- Pill bar ---- */
   .rl-fm__bar {
-    display: flex;
+    display: grid;
+    grid-template-columns: 1fr minmax(0, auto) 1fr;
     align-items: center;
     gap: 8px;
     height: 54px;
-    padding: 0 6px 0 16px;
+    padding: 0 7px;
     border: 1px solid var(--rl-glass-border);
     border-radius: 999px;
-    background: var(--rl-glass);
+    /* A touch more solid than the card: it sits over the header */
+    background: rgb(24 17 29 / 0.86);
     -webkit-backdrop-filter: blur(22px) saturate(160%);
     backdrop-filter: blur(22px) saturate(160%);
     box-shadow: 0 12px 34px rgb(0 0 0 / 0.35);
+  }
+
+  .rl-fm__bar-side {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+  }
+
+  .rl-fm__bar-side--end {
+    justify-content: flex-end;
+  }
+
+  .rl-fm__bar-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-width: 0;
   }
 
   .rl-fm__dot {
@@ -1326,7 +1364,6 @@
   }
 
   .rl-fm__bar-title {
-    flex: 1 1 auto;
     min-width: 0;
     overflow: hidden;
     font-family: var(--font-heading--family, inherit);
@@ -1368,7 +1405,7 @@
   }
 
   .rl-fm__back {
-    margin-left: -10px;
+    margin-left: -8px;
   }
 
   .rl-fm__icon-btn[hidden],
