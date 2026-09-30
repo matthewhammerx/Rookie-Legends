@@ -2450,5 +2450,49 @@
         "default": true
       }
     ]
+  },
+  {
+    "name": "Expanded grid view",
+    "settings": [
+      {
+        "type": "select",
+        "id": "zoom_price_color",
+        "label": "Price color",
+        "options": [
+          {
+            "value": "pink",
+            "label": "Hot pink"
+          },
+          {
+            "value": "frost",
+            "label": "Frost blue"
+          },
+          {
+            "value": "gold",
+            "label": "Gold"
+          },
+          {
+            "value": "white",
+            "label": "White"
+          },
+          {
+            "value": "holo",
+            "label": "Holo gradient"
+          },
+          {
+            "value": "custom",
+            "label": "Custom"
+          }
+        ],
+        "default": "pink"
+      },
+      {
+        "type": "color",
+        "id": "zoom_price_custom",
+        "label": "Custom price color",
+        "default": "#FF2FB1",
+        "visible_if": "{{ settings.zoom_price_color == 'custom' }}"
+      }
+    ]
   }
 ]

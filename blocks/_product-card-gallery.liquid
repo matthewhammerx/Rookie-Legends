@@ -59,7 +59,28 @@
 {% render 'card-gallery', children: children %}
 
 {% # Title and price for the zoomed out grid view %}
-<div class="product-grid-view-zoom-out--details">
+{%- liquid
+  # Expanded (zoom-out) view price color (Theme settings > Expanded grid view)
+  assign rl_zp = settings.zoom_price_color | default: 'pink'
+  case rl_zp
+    when 'pink'
+      assign rl_zp_color = '#ff2fb1'
+    when 'frost'
+      assign rl_zp_color = '#7fdbff'
+    when 'gold'
+      assign rl_zp_color = '#ffd400'
+    when 'white'
+      assign rl_zp_color = '#ffffff'
+    when 'custom'
+      assign rl_zp_color = settings.zoom_price_custom | default: '#ff2fb1'
+    else
+      assign rl_zp_color = '#ff2fb1'
+  endcase
+-%}
+<div
+  class="product-grid-view-zoom-out--details{% if rl_zp == 'holo' %} rl-zoom-price--holo{% endif %}"
+  style="--rl-zoom-price: {{ rl_zp_color }};"
+>
   {% if product == blank %}
     <h3 class="h4">{{ 'content.product_card_placeholder' | t }}</h3>
     <span class="h6">{{ 1999 | money }}</span>
@@ -72,6 +93,28 @@
 </div>
 
 {% stylesheet %}
+  /* Expanded (zoom-out) view: colored prices */
+  .product-grid-view-zoom-out--details .h6 .price,
+  .product-grid-view-zoom-out--details > span.h6 {
+    color: var(--rl-zoom-price, #ff2fb1);
+    font-weight: 800;
+  }
+
+  .product-grid-view-zoom-out--details.rl-zoom-price--holo .h6 .price,
+  .product-grid-view-zoom-out--details.rl-zoom-price--holo > span.h6 {
+    background: linear-gradient(90deg, #ff2fb1, #8b5cff, #3de8ff);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .product-grid-view-zoom-out--details .h6 .compare-at-price {
+    margin-inline-start: 6px;
+    color: rgb(255 255 255 / 0.45);
+    font-weight: 500;
+    text-decoration: line-through;
+  }
+
   .product-badges {
     --badge-inset: max(var(--padding-xs), calc((var(--border-radius) + var(--padding-xs)) * (1 - cos(45deg))));
 
