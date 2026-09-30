@@ -229,22 +229,25 @@
               {% endif %}
             {% endif %}
             {% if block_settings.filter_style == 'horizontal' %}
-              
+              {% if block_settings.enable_sorting or block_settings.enable_grid_density %}
+                {% # Sort + grid view combined into one control deck (styles at the end of this file's stylesheet) %}
+                <div class="rl-deck{% if block_settings.enable_sorting and block_settings.enable_grid_density %} rl-deck--split{% endif %}">
+                  {% if block_settings.enable_sorting %}
+                    {% render 'sorting',
+                      results: results,
+                      sort_by: sort_by,
+                      filter_style: block_settings.filter_style,
+                      suffix: 'desktop',
+                      sort_position: 'desktop',
+                      should_use_select_on_mobile: false,
+                      section_id: section.id
+                    %}
+                  {% endif %}
 
-              {% if block_settings.enable_sorting %}
-                {% render 'sorting',
-                  results: results,
-                  sort_by: sort_by,
-                  filter_style: block_settings.filter_style,
-                  suffix: 'desktop',
-                  sort_position: 'desktop',
-                  should_use_select_on_mobile: false,
-                  section_id: section.id
-                %}
-              {% endif %}
-
-              {% if block_settings.enable_grid_density %}
-                {% render 'grid-density-controls', viewport: 'desktop' %}
+                  {% if block_settings.enable_grid_density %}
+                    {% render 'grid-density-controls', viewport: 'desktop' %}
+                  {% endif %}
+                </div>
               {% endif %}
             {% endif %}
           {% endif %}
@@ -305,29 +308,33 @@
     %}
 
     <div class="facets-mobile-wrapper facets-controls-wrapper{% if child_count > 1 %} facets-mobile-wrapper--multiple-controls{% endif %}">
-      {% if block_settings.enable_filtering == false and block_settings.enable_sorting %}
-        <facets-form-component
-          section-id="{{ section.id }}"
-          id="FacetFiltersForm--{{ section.id }}-mobile-sorting-only"
-        >
-          <form
-            action="{{ results_url }}"
+      {% if child_count > 0 %}
+      <div class="rl-deck{% if child_count > 1 %} rl-deck--split{% endif %}">
+        {% if block_settings.enable_filtering == false and block_settings.enable_sorting %}
+          <facets-form-component
+            section-id="{{ section.id }}"
             id="FacetFiltersForm--{{ section.id }}-mobile-sorting-only"
-            ref="facetsForm"
           >
-            {% render 'sorting',
-              results: results,
-              sort_by: sort_by,
-              filter_style: block_settings.filter_style,
-              sort_position: 'mobile',
-              should_use_select_on_mobile: should_use_select_on_mobile,
-              section_id: section.id
-            %}
-          </form>
-        </facets-form-component>
-      {% endif %}
-      {% if block_settings.enable_grid_density %}
-        {% render 'grid-density-controls', viewport: 'mobile' %}
+            <form
+              action="{{ results_url }}"
+              id="FacetFiltersForm--{{ section.id }}-mobile-sorting-only"
+              ref="facetsForm"
+            >
+              {% render 'sorting',
+                results: results,
+                sort_by: sort_by,
+                filter_style: block_settings.filter_style,
+                sort_position: 'mobile',
+                should_use_select_on_mobile: should_use_select_on_mobile,
+                section_id: section.id
+              %}
+            </form>
+          </facets-form-component>
+        {% endif %}
+        {% if block_settings.enable_grid_density %}
+          {% render 'grid-density-controls', viewport: 'mobile' %}
+        {% endif %}
+      </div>
       {% endif %}
     </div>
   </div>
@@ -1283,6 +1290,486 @@
     border-inline-start: var(--style-border-width) solid var(--color-border);
     height: var(--font-paragraph--size);
     position: absolute;
+  }
+  /* ==========================================================
+     Holo control deck: sort + grid view combined into one bar.
+     Markup: .rl-deck wrapper in this file (desktop + mobile).
+     ========================================================== */
+  @property --rl-deck-angle {
+    syntax: '<angle>';
+    inherits: false;
+    initial-value: 0deg;
+  }
+
+  .facets-block-wrapper--horizontal {
+    background: transparent !important;
+  }
+
+  .facets__form:has(.rl-deck),
+  .facets-mobile-wrapper:has(.rl-deck) {
+    justify-content: center !important;
+  }
+
+  .rl-deck {
+    --rl-pink: #ff2fb1;
+    --rl-violet: #8b5cff;
+    --rl-cyan: #3de8ff;
+    --rl-gold: #ffd84d;
+    --rl-holo: linear-gradient(135deg, var(--rl-pink), var(--rl-violet) 55%, var(--rl-cyan));
+
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    margin-top: 24px;
+    padding: 5px;
+    border: 1.5px solid transparent;
+    border-radius: 18px;
+    color: #fff;
+    background:
+      radial-gradient(120% 160% at 0% 0%, rgb(255 47 177 / 0.14), transparent 55%) padding-box,
+      linear-gradient(#0c0c11, #0c0c11) padding-box,
+      conic-gradient(
+        from var(--rl-deck-angle),
+        var(--rl-pink),
+        var(--rl-violet),
+        var(--rl-cyan),
+        var(--rl-gold),
+        var(--rl-pink)
+      ) border-box;
+    box-shadow:
+      0 12px 32px rgb(0 0 0 / 0.5),
+      0 0 26px rgb(139 92 255 / 0.18);
+    animation: rl-deck-spin 7s linear infinite;
+  }
+
+  @keyframes rl-deck-spin {
+    to { --rl-deck-angle: 360deg; }
+  }
+
+  /* Let the dropdown position against the whole deck */
+  .rl-deck :is(facets-form-component, form, sorting-filter-component, .sorting-filter, accordion-custom, details, .facets__panel) {
+    position: static !important;
+  }
+
+  .rl-deck .sorting-filter::before {
+    display: none !important;
+  }
+
+  .rl-deck .sorting-filter__container {
+    display: none !important;
+  }
+
+  /* ---- Sort trigger ---- */
+  .rl-deck .facets__summary {
+    display: grid !important;
+    grid-template-columns: 36px auto 20px;
+    grid-template-rows: auto auto;
+    column-gap: 11px;
+    align-items: center;
+    height: auto !important;
+    min-height: 46px;
+    padding: 4px 12px 4px 4px !important;
+    margin: 0 !important;
+    border: 0 !important;
+    border-radius: 13px;
+    background: transparent !important;
+    box-shadow: none !important;
+    cursor: pointer;
+    transition: background 0.2s ease;
+  }
+
+  .rl-deck .facets__summary:hover,
+  .rl-deck details[open] .facets__summary {
+    background: rgb(255 255 255 / 0.06) !important;
+    transform: none !important;
+  }
+
+  .rl-deck .facets__summary::before {
+    content: '';
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    width: 36px;
+    height: 36px;
+    border-radius: 11px;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M7 4v16M3.5 16.5 7 20l3.5-3.5M17 20V4m-3.5 3.5L17 4l3.5 3.5'/%3E%3C/svg%3E") center / 18px no-repeat, var(--rl-holo);
+    box-shadow: 0 0 16px rgb(255 47 177 / 0.35);
+  }
+
+  .rl-deck .facets__summary .facets__label {
+    grid-column: 2;
+    grid-row: 1;
+    align-self: end;
+    margin: 0 !important;
+    color: rgb(255 255 255 / 0.5) !important;
+    font-size: 0.6rem !important;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+  }
+
+  .rl-deck .facets__summary .facets__status {
+    display: block !important;
+    grid-column: 2;
+    grid-row: 2;
+    align-self: start;
+    margin: 2px 0 0 !important;
+    color: #fff !important;
+    font-size: 0.95rem !important;
+    font-weight: 800 !important;
+    line-height: 1.1;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .rl-deck .facets__summary .icon-caret {
+    position: static !important;
+    grid-column: 3;
+    grid-row: 1 / span 2;
+    width: 20px !important;
+    height: 20px !important;
+    margin: 0 !important;
+    background: none !important;
+    color: rgb(255 255 255 / 0.7) !important;
+    transform: none !important;
+  }
+
+  .rl-deck .facets__summary .icon-caret svg {
+    transition: transform 0.3s ease;
+  }
+
+  /* ---- Grid view toggle: segmented switch with a sliding thumb ---- */
+  .rl-deck .column-options-wrapper {
+    height: auto;
+    margin: 0 0 0 6px;
+    padding-left: 7px;
+    border-left: 1px solid rgb(255 255 255 / 0.1);
+  }
+
+  .rl-deck .column-options {
+    position: relative;
+    flex-wrap: nowrap;
+    gap: 2px;
+    padding: 3px;
+    border-radius: 12px;
+    background: rgb(255 255 255 / 0.05);
+  }
+
+  .rl-deck .column-options::before {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 38px;
+    height: 38px;
+    border-radius: 9px;
+    background: var(--rl-holo);
+    box-shadow: 0 0 14px rgb(139 92 255 / 0.45);
+    transition: transform 0.35s cubic-bezier(0.3, 1.4, 0.5, 1);
+  }
+
+  .rl-deck .column-options:has(label:nth-of-type(2) input:checked)::before {
+    transform: translateX(40px);
+  }
+
+  .rl-deck .column-picker {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    padding: 0;
+    border-radius: 9px;
+    color: rgb(255 255 255 / 0.5);
+    background: transparent !important;
+    transition: color 0.2s ease;
+  }
+
+  .rl-deck .column-options__option:hover .column-picker {
+    color: #fff;
+  }
+
+  .rl-deck .column-options__option-input:checked ~ .column-picker {
+    color: #fff;
+  }
+
+  .rl-deck .column-picker svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  /* ---- Sort menu (desktop: dropdown under the deck) ---- */
+  .rl-deck .sorting-filter__options {
+    position: absolute !important;
+    top: calc(100% + 14px) !important;
+    left: 50% !important;
+    right: auto !important;
+    bottom: auto !important;
+    transform: translateX(-50%) !important;
+    display: block !important;
+    width: 320px !important;
+    max-width: calc(100vw - 32px) !important;
+    min-width: 0 !important;
+    padding: 12px 8px 10px !important;
+    overflow: hidden;
+    color: #fff;
+    background: #0b0b10 !important;
+    border: 1px solid rgb(255 255 255 / 0.08) !important;
+    border-radius: 20px !important;
+    box-shadow:
+      0 30px 70px rgb(0 0 0 / 0.7),
+      0 0 0 1px rgb(139 92 255 / 0.12) !important;
+    z-index: 60 !important;
+  }
+
+  .rl-deck details[open] .sorting-filter__options {
+    animation: rl-menu-drop 0.28s cubic-bezier(0.2, 0.9, 0.3, 1.1);
+  }
+
+  @keyframes rl-menu-drop {
+    from { opacity: 0; transform: translate(-50%, -10px) scale(0.97); }
+    to { opacity: 1; transform: translate(-50%, 0) scale(1); }
+  }
+
+  /* Holo strip along the top edge */
+  .rl-deck .sorting-filter__options::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--rl-pink), var(--rl-violet), var(--rl-cyan), var(--rl-gold));
+  }
+
+  .rl-deck .sorting-filter__options-inner {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 2px !important;
+    padding: 0 !important;
+    overflow: visible;
+  }
+
+  .rl-deck .sorting-filter__options-inner > label {
+    display: block;
+  }
+
+  /* Group headings */
+  .rl-deck .sorting-filter__options-inner > label:is(
+    :has(input[data-option-name='Featured']),
+    :has(input[value='title-ascending']),
+    :has(input[value='price-ascending']),
+    :has(input[value='created-descending'])
+  )::before {
+    display: block;
+    padding: 10px 12px 5px;
+    color: rgb(255 255 255 / 0.38);
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+  }
+
+  .rl-deck .sorting-filter__options-inner > label:has(input[data-option-name='Featured'])::before { content: 'Top picks'; padding-top: 2px; }
+  .rl-deck .sorting-filter__options-inner > label:has(input[value='title-ascending'])::before { content: 'Name'; }
+  .rl-deck .sorting-filter__options-inner > label:has(input[value='price-ascending'])::before { content: 'Price'; }
+  .rl-deck .sorting-filter__options-inner > label:has(input[value='created-descending'])::before { content: 'Release date'; }
+
+  /* Option order + icons + stagger index */
+  .rl-deck .sorting-filter__options-inner > label:has(input[data-option-name='Most relevant']) { display: none !important; }
+  .rl-deck .sorting-filter__options-inner > label:has(input[data-option-name='Featured']) { order: 1; --rl-i: 0; --rl-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1 5.9L12 16.9l-5.2 2.8 1-5.9-4.3-4.1 5.9-.8z'/%3E%3C/svg%3E"); }
+  .rl-deck .sorting-filter__options-inner > label:has(input[value='best-selling']) { order: 2; --rl-i: 1; --rl-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3c1 3.6 5.5 5.6 5.5 10.2a5.5 5.5 0 0 1-11 0c0-2.2 1-3.8 2.2-4.8 0 2 1 3.2 2.3 3.2 0-3.1-1-5.6 1-8.6z'/%3E%3C/svg%3E"); }
+  .rl-deck .sorting-filter__options-inner > label:has(input[value='title-ascending']) { order: 3; --rl-i: 2; --rl-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 17 6.5 7 10 17M4.3 13.6h4.4M17 5v14m-3.5-3.5L17 19l3.5-3.5'/%3E%3C/svg%3E"); }
+  .rl-deck .sorting-filter__options-inner > label:has(input[value='title-descending']) { order: 4; --rl-i: 3; --rl-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 17 6.5 7 10 17M4.3 13.6h4.4M17 19V5m-3.5 3.5L17 5l3.5 3.5'/%3E%3C/svg%3E"); }
+  .rl-deck .sorting-filter__options-inner > label:has(input[value='price-ascending']) { order: 5; --rl-i: 4; --rl-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 19v-3M10 19v-7M15 19v-10M20 19V4'/%3E%3C/svg%3E"); }
+  .rl-deck .sorting-filter__options-inner > label:has(input[value='price-descending']) { order: 6; --rl-i: 5; --rl-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 19V4M10 19V9M15 19v-7M20 19v-3'/%3E%3C/svg%3E"); }
+  .rl-deck .sorting-filter__options-inner > label:has(input[value='created-descending']) { order: 7; --rl-i: 6; --rl-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3v4M12 17v4M3 12h4M17 12h4M6.3 6.3l2.5 2.5M15.2 15.2l2.5 2.5M6.3 17.7l2.5-2.5M15.2 8.8l2.5-2.5'/%3E%3C/svg%3E"); }
+  .rl-deck .sorting-filter__options-inner > label:has(input[value='created-ascending']) { order: 8; --rl-i: 7; --rl-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M7 3h10M7 21h10M8 3v2a4 4 0 0 0 1.4 3L12 12l2.6-4A4 4 0 0 0 16 5V3M8 21v-2a4 4 0 0 1 1.4-3L12 12l2.6 4a4 4 0 0 1 1.4 3v2'/%3E%3C/svg%3E"); }
+
+  /* Rows deal in one after another, like cards off a deck */
+  .rl-deck details[open] .sorting-filter__options-inner > label {
+    animation: rl-deal 0.34s cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
+    animation-delay: calc(var(--rl-i, 0) * 28ms + 60ms);
+  }
+
+  @keyframes rl-deal {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: none; }
+  }
+
+  .rl-deck .sorting-filter__option {
+    display: grid !important;
+    grid-template-columns: 32px 1fr 18px;
+    align-items: center;
+    gap: 12px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    padding: 6px 10px 6px 6px !important;
+    border: 0 !important;
+    border-radius: 13px !important;
+    color: rgb(255 255 255 / 0.8) !important;
+    background: transparent !important;
+    font-size: 0.9rem;
+    font-weight: 700;
+    text-align: left;
+    transition: background 0.2s ease, transform 0.2s ease, color 0.2s ease;
+  }
+
+  .rl-deck .sorting-filter__option:hover {
+    color: #fff !important;
+    background: rgb(255 255 255 / 0.06) !important;
+    transform: translateX(3px);
+  }
+
+  .rl-deck .sorting-filter__option:focus-visible {
+    outline: 2px solid var(--rl-cyan);
+    outline-offset: -2px;
+  }
+
+  .rl-deck .sorting-filter__option::before {
+    content: '' !important;
+    display: block !important;
+    width: 32px !important;
+    height: 32px !important;
+    border-radius: 10px !important;
+    background: var(--rl-icon) center / 16px no-repeat, rgb(255 255 255 / 0.07) !important;
+    opacity: 0.85;
+    transition: background 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+  }
+
+  .rl-deck .sorting-filter__option::after {
+    content: '';
+    width: 18px;
+    height: 18px;
+  }
+
+  .rl-deck .sorting-filter__option[aria-selected='true'] {
+    color: #fff !important;
+    background: linear-gradient(90deg, rgb(255 47 177 / 0.2), rgb(139 92 255 / 0.08) 60%, transparent) !important;
+  }
+
+  .rl-deck .sorting-filter__option[aria-selected='true']::before {
+    opacity: 1;
+    background: var(--rl-icon) center / 16px no-repeat, var(--rl-holo) !important;
+    box-shadow: 0 0 14px rgb(255 47 177 / 0.5);
+  }
+
+  .rl-deck .sorting-filter__option[aria-selected='true']::after {
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5 9.5 17 19 7.5'/%3E%3C/svg%3E") center / 16px no-repeat;
+  }
+
+  .rl-deck .sorting-filter__checkmark,
+  .rl-deck .sorting-filter__input {
+    display: none !important;
+  }
+
+  .rl-deck .sorting-filter__label {
+    font-weight: inherit !important;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .rl-deck .hc-sort-close-btn {
+    display: none !important;
+  }
+
+  /* ---- Mobile: sort menu becomes a bottom sheet ---- */
+  @media screen and (max-width: 749px) {
+    .rl-deck details[open]::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      z-index: 58;
+      background: rgb(0 0 0 / 0.6);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+    }
+
+    .rl-deck .sorting-filter__options {
+      position: fixed !important;
+      top: auto !important;
+      left: 0 !important;
+      right: 0 !important;
+      bottom: 0 !important;
+      transform: none !important;
+      box-sizing: border-box !important;
+      width: auto !important;
+      max-width: none !important;
+      max-height: 82vh;
+      overflow-y: auto;
+      padding: 30px 12px calc(16px + env(safe-area-inset-bottom)) !important;
+      border-radius: 26px 26px 0 0 !important;
+      border-bottom: 0 !important;
+    }
+
+    .rl-deck details[open] .sorting-filter__options {
+      animation: rl-sheet-up 0.36s cubic-bezier(0.2, 0.9, 0.3, 1);
+    }
+
+    @keyframes rl-sheet-up {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+
+    /* Grab handle */
+    .rl-deck .sorting-filter__options::after {
+      content: '';
+      position: absolute;
+      top: 11px;
+      left: 50%;
+      width: 44px;
+      height: 4px;
+      margin-left: -22px;
+      border-radius: 4px;
+      background: rgb(255 255 255 / 0.22);
+    }
+
+    .rl-deck .sorting-filter__option {
+      padding: 8px 12px 8px 8px !important;
+      font-size: 1rem;
+    }
+
+    .rl-deck .sorting-filter__option::before {
+      width: 36px !important;
+      height: 36px !important;
+    }
+
+    .rl-deck .sorting-filter__option {
+      grid-template-columns: 36px 1fr 18px;
+    }
+
+    .rl-deck .hc-sort-close-btn {
+      display: flex !important;
+      align-items: center;
+      justify-content: center;
+      position: absolute;
+      top: 12px;
+      right: 14px;
+      width: 32px;
+      height: 32px;
+      padding: 0;
+      border: 0;
+      border-radius: 50%;
+      background: rgb(255 255 255 / 0.08);
+      color: #fff;
+      font-size: 0.85rem;
+      line-height: 1;
+      cursor: pointer;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .rl-deck,
+    .rl-deck details[open] .sorting-filter__options,
+    .rl-deck details[open] .sorting-filter__options-inner > label {
+      animation: none;
+    }
   }
 {% endstylesheet %}
 
