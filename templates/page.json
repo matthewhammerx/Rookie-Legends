@@ -9,6 +9,56 @@
  */
 {
   "sections": {
+    "hero_banner_AyqxHa": {
+      "type": "hero-banner",
+      "name": "Hero Banner",
+      "settings": {
+        "color_scheme": "",
+        "height_mode": "custom",
+        "custom_height": 780,
+        "custom_height_mobile": 520,
+        "content_align": "left",
+        "content_align_mobile": "left",
+        "content_vertical_align": "center",
+        "content_vertical_align_mobile": "center",
+        "content_vertical_offset": 0,
+        "content_vertical_offset_mobile": 0,
+        "heading_vertical_offset": 0,
+        "heading_vertical_offset_mobile": 0,
+        "content_max_width": 720,
+        "eyebrow_text": "",
+        "eyebrow_color": "#eb00ca",
+        "eyebrow_size": 12,
+        "subheading_text": "",
+        "subheading_color": "#e6e6e6",
+        "subheading_size": 18,
+        "subheading_size_mobile": 15,
+        "heading_color": "#ffffff",
+        "background_style": "video",
+        "background_color": "#0b0b0d",
+        "background_gradient": "linear-gradient(165deg, #1a0014 0%, #000000 100%)",
+        "image_position": "center",
+        "background_video": "shopify://files/videos/0923.mp4",
+        "video_loop": true,
+        "enable_bg_blur": true,
+        "bg_blur_amount": 5,
+        "enable_overlay": true,
+        "overlay_opacity": 30,
+        "enable_top_fade": false,
+        "top_fade_size": 20,
+        "top_fade_opacity": 60,
+        "top_fade_color": "#000000",
+        "enable_bottom_fade": true,
+        "bottom_fade_size": 35,
+        "bottom_fade_opacity": 100,
+        "bottom_fade_color": "#000000",
+        "accent_color": "#eb00ca",
+        "ambient_glow_strength": 25,
+        "padding_top": 0,
+        "padding_bottom": 0,
+        "pull_next_section_up": 600
+      }
+    },
     "main": {
       "type": "main-page",
       "blocks": {
@@ -101,7 +151,7 @@
         "color_scheme": "scheme-5",
         "section_width": "page-width",
         "padding-block-start": 0,
-        "padding-block-end": 0
+        "padding-block-end": 100
       }
     },
     "custom_liquid_iGgnMW": {
@@ -129,6 +179,7 @@
     }
   },
   "order": [
+    "hero_banner_AyqxHa",
     "main",
     "custom_liquid_CEcVmJ",
     "custom_liquid_YjkzYC",
