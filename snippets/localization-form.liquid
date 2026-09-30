@@ -157,7 +157,7 @@
                   <span class="svg-wrapper icon-checkmark">
                     {{- 'icon-checkmark.svg' | inline_asset_content -}}
                   </span>
-                  <span class="country">{{- country.name }}</span>
+                  <img class="rl-flag" src="{{ country | image_url: width: 48 }}" alt="" width="22" height="22" loading="lazy" decoding="async"><span class="country">{{- country.name }}</span>
                   <span
                     class="localization-form__currency"
                     {% unless show_currencies %}
@@ -212,7 +212,7 @@
                 <span class="svg-wrapper icon-checkmark">
                   {{- 'icon-checkmark.svg' | inline_asset_content -}}
                 </span>
-                <span class="country">{{- country.name }}</span>
+                <img class="rl-flag" src="{{ country | image_url: width: 48 }}" alt="" width="22" height="22" loading="lazy" decoding="async"><span class="country">{{- country.name }}</span>
                 <span
                   class="localization-form__currency"
                   {% unless show_currencies %}
@@ -664,5 +664,53 @@
   :is(dropdown-localization-component, .menu-drawer) .language-selector {
     border-top: 1px solid rgb(255 255 255 / 0.08);
     box-shadow: none;
+  }
+
+  /* Flags + readable white text in the branded picker */
+  .localization-form__list-item .rl-flag {
+    flex: none;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    object-fit: cover;
+    box-shadow: 0 0 0 1px rgb(255 255 255 / 0.18);
+    vertical-align: middle;
+  }
+
+  .localization-form__list-item:has(.rl-flag) {
+    display: flex;
+    align-items: center;
+  }
+
+  :is(dropdown-localization-component, .menu-drawer) .localization-form__list-item,
+  :is(dropdown-localization-component, .menu-drawer) .localization-form__list-item .country {
+    color: rgb(255 255 255 / 0.88) !important;
+  }
+
+  :is(dropdown-localization-component, .menu-drawer) .localization-form__list-item:is(:hover, :focus) .country {
+    color: #fff !important;
+  }
+
+  :is(dropdown-localization-component, .menu-drawer) .localization-form__list-item[aria-current='true'] .country {
+    color: var(--rl-pink, #ff2fb1) !important;
+  }
+
+  :is(dropdown-localization-component, .menu-drawer) .localization-form__currency {
+    margin-inline-start: auto;
+    color: rgb(255 255 255 / 0.5) !important;
+  }
+
+  :is(dropdown-localization-component, .menu-drawer) .country-filter__search-icon,
+  :is(dropdown-localization-component, .menu-drawer) .country-filter__search-icon svg,
+  :is(dropdown-localization-component, .menu-drawer) .country-filter__reset-button {
+    color: rgb(255 255 255 / 0.6) !important;
+  }
+
+  :is(dropdown-localization-component, .menu-drawer) .country-filter__input {
+    color: #fff !important;
+  }
+
+  :is(dropdown-localization-component, .menu-drawer) .localization-form__list-item .country mark {
+    color: var(--rl-pink, #ff2fb1) !important;
   }
 {% endstylesheet %}
