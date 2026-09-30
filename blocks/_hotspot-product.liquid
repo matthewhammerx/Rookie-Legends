@@ -68,7 +68,12 @@
               color_scheme: section.settings.color_scheme
             %}
           {% else %}
-            <div class="hotspot-dialog__sold-out-badge">
+            <div
+              class="hotspot-dialog__sold-out-badge"
+              {% if settings.badge_sold_out_bg != blank %}
+                style="background: {{ settings.badge_sold_out_bg }};{% if settings.badge_sold_out_text != blank %} color: {{ settings.badge_sold_out_text }};{% endif %}"
+              {%- endif %}
+            >
               {{ 'content.product_badge_sold_out' | t }}
             </div>
           {% endif %}

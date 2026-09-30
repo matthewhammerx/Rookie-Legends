@@ -1480,6 +1480,32 @@
         "default": "scheme-5"
       },
       {
+        "type": "color",
+        "id": "badge_sold_out_bg",
+        "label": "Sold out badge background",
+        "info": "Overrides the sold out color scheme. Clear to use the scheme.",
+        "default": "#E00000"
+      },
+      {
+        "type": "color",
+        "id": "badge_sold_out_text",
+        "label": "Sold out badge text",
+        "default": "#FFFFFF"
+      },
+      {
+        "type": "color",
+        "id": "badge_sale_bg",
+        "label": "Sale badge background",
+        "info": "Overrides the sale color scheme. Clear to use the scheme.",
+        "default": "#EB00CA"
+      },
+      {
+        "type": "color",
+        "id": "badge_sale_text",
+        "label": "Sale badge text",
+        "default": "#FFFFFF"
+      },
+      {
         "type": "header",
         "content": "t:names.typography"
       },
