@@ -472,6 +472,17 @@
 </div>
 
 <style>
+  {%- comment -%}
+    When this hero pulls the next sections up over itself, those sections are
+    transparent. Past the hero's bottom edge the page background would show
+    (white by default), so paint the page area in the hero's fade color.
+  {%- endcomment -%}
+  {%- if section.settings.pull_next_section_up > 0 -%}
+    #MainContent:has(.hero-banner-{{ section.id }}) {
+      background-color: {{ section.settings.bottom_fade_color | default: '#000000' }};
+    }
+  {%- endif -%}
+
   @keyframes heroBannerGlossyShine-{{ section.id }} {
     0% {
       background-position: 100% 0;
