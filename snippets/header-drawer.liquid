@@ -1299,6 +1299,14 @@
     transition: opacity 0.2s ease, visibility 0.2s ease;
   }
 
+  /* The page canvas is white under the dark sections. While the menu locks
+     scrolling, iPhone Safari shows its toolbar again and uncovers it at the
+     bottom, so paint it dark while the menu is open. */
+  html:has(#Details-menu-drawer-container[open] .rl-fm),
+  html:has(#Details-menu-drawer-container[open] .rl-fm) body {
+    background-color: #0a0a0c !important;
+  }
+
   /* Tap anywhere outside the menu to close it */
   .menu-drawer-container[open]:has(.rl-fm) .menu-drawer__backdrop {
     position: fixed;
