@@ -199,10 +199,151 @@
     60%, 100% { background-position: -100% 0; }
   }
 
+  @property --badge-beam-angle {
+    syntax: '<angle>';
+    inherits: false;
+    initial-value: 0deg;
+  }
+
+  /* Neon: glowing tube sign with an occasional flicker */
+  .product-badges__badge.product-badges__badge--style-neon {
+    border-radius: 6px;
+    padding: 0.4em 0.9em;
+    color: #fff;
+    background: rgb(0 0 0 / 0.72);
+    border: 2px solid var(--color-background);
+    text-shadow:
+      0 0 3px var(--color-background),
+      0 0 9px var(--color-background),
+      0 0 16px var(--color-background);
+    box-shadow:
+      0 0 8px var(--color-background),
+      0 0 18px color-mix(in srgb, var(--color-background) 60%, transparent),
+      inset 0 0 8px color-mix(in srgb, var(--color-background) 70%, transparent);
+    animation: product-badge-neon 4s linear infinite;
+  }
+
+  @keyframes product-badge-neon {
+    0%, 18%, 22%, 25%, 53%, 57%, 100% { opacity: 1; }
+    20%, 24%, 55% { opacity: 0.45; }
+  }
+
+  /* Rainbow prism: full holographic rainbow that flows across the badge */
+  .product-badges__badge.product-badges__badge--style-prism {
+    position: relative;
+    overflow: hidden;
+    border-radius: 6px;
+    padding: 0.45em 0.95em;
+    color: #111;
+    background: linear-gradient(115deg, #ff5ec4, #ffd84d, #5effc1, #4dc3ff, #b36bff, #ff5ec4);
+    background-size: 300% 100%;
+    border: 1px solid rgb(255 255 255 / 0.7);
+    text-shadow: 0 1px 0 rgb(255 255 255 / 0.55);
+    box-shadow: 0 0 14px rgb(180 120 255 / 0.55);
+    animation: product-badge-prism 5s linear infinite;
+  }
+
+  @keyframes product-badge-prism {
+    to { background-position: 300% 0; }
+  }
+
+  /* Chrome: metallic finish in the badge color with a sweeping shine */
+  .product-badges__badge.product-badges__badge--style-chrome {
+    position: relative;
+    overflow: hidden;
+    border-radius: 4px;
+    padding: 0.45em 0.95em;
+    background: linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--color-background), #fff 45%) 0%,
+      var(--color-background) 46%,
+      color-mix(in srgb, var(--color-background), #000 35%) 54%,
+      color-mix(in srgb, var(--color-background), #fff 15%) 100%
+    );
+    border: 1px solid rgb(255 255 255 / 0.65);
+    text-shadow: 0 1px 1px rgb(0 0 0 / 0.45);
+    box-shadow: 0 3px 10px rgb(0 0 0 / 0.4);
+  }
+
+  /* Energy beam: a spark of light that races around the border */
+  .product-badges__badge.product-badges__badge--style-beam {
+    border-radius: 6px;
+    padding: 0.4em 0.9em;
+    border: 2px solid transparent;
+    background:
+      linear-gradient(var(--color-background), var(--color-background)) padding-box,
+      conic-gradient(
+        from var(--badge-beam-angle),
+        color-mix(in srgb, var(--color-background), #000 30%) 0% 62%,
+        #fff 75%,
+        var(--color-background) 82%,
+        color-mix(in srgb, var(--color-background), #000 30%) 90%
+      ) border-box;
+    box-shadow: 0 0 12px color-mix(in srgb, var(--color-background) 55%, transparent);
+    animation: product-badge-beam 2.4s linear infinite;
+  }
+
+  @keyframes product-badge-beam {
+    to { --badge-beam-angle: 360deg; }
+  }
+
+  /* Pulse: radar-style ring that keeps pinging out of the badge */
+  .product-badges__badge.product-badges__badge--style-pulse {
+    position: relative;
+    border-radius: 999px;
+    padding: 0.45em 1em;
+    box-shadow: 0 4px 12px rgb(0 0 0 / 0.35);
+  }
+
+  .product-badges__badge--style-pulse::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    border: 2px solid var(--color-background);
+    animation: product-badge-pulse 1.8s ease-out infinite;
+    pointer-events: none;
+  }
+
+  @keyframes product-badge-pulse {
+    0% { transform: scale(1); opacity: 0.9; }
+    100% { transform: scale(1.2, 1.55); opacity: 0; }
+  }
+
+  /* Shared sheen for foil and chrome */
+  .product-badges__badge--style-chrome::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      110deg,
+      transparent 30%,
+      rgb(255 255 255 / 0.65) 47%,
+      transparent 60%
+    );
+    background-size: 250% 100%;
+    animation: product-badge-foil 2.6s ease-in-out infinite;
+    pointer-events: none;
+  }
+
+  .product-badges__badge--style-chrome .product-badges__label,
+  .product-badges__badge--style-prism .product-badges__label {
+    position: relative;
+    z-index: 1;
+  }
+
   @media (prefers-reduced-motion: reduce) {
-    .product-badges__badge--style-foil::after {
+    .product-badges__badge--style-foil::after,
+    .product-badges__badge--style-chrome::after {
       animation: none;
       background-position: 50% 0;
+    }
+
+    .product-badges__badge--style-neon,
+    .product-badges__badge--style-prism,
+    .product-badges__badge--style-beam,
+    .product-badges__badge--style-pulse::before {
+      animation: none;
     }
   }
 {% endstylesheet %}

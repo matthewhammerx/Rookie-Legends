@@ -1519,7 +1519,12 @@
           { "value": "tag", "label": "Slash tag" },
           { "value": "stamp", "label": "Stamp" },
           { "value": "outline", "label": "Outline" },
-          { "value": "foil", "label": "Holo foil" }
+          { "value": "foil", "label": "Holo foil (animated)" },
+          { "value": "prism", "label": "Rainbow prism (animated)" },
+          { "value": "chrome", "label": "Chrome shine (animated)" },
+          { "value": "beam", "label": "Energy beam border (animated)" },
+          { "value": "neon", "label": "Neon glow (animated)" },
+          { "value": "pulse", "label": "Pulse ring (animated)" }
         ],
         "default": "stamp"
       },
@@ -1533,9 +1538,14 @@
           { "value": "tag", "label": "Slash tag" },
           { "value": "stamp", "label": "Stamp" },
           { "value": "outline", "label": "Outline" },
-          { "value": "foil", "label": "Holo foil" }
+          { "value": "foil", "label": "Holo foil (animated)" },
+          { "value": "prism", "label": "Rainbow prism (animated)" },
+          { "value": "chrome", "label": "Chrome shine (animated)" },
+          { "value": "beam", "label": "Energy beam border (animated)" },
+          { "value": "neon", "label": "Neon glow (animated)" },
+          { "value": "pulse", "label": "Pulse ring (animated)" }
         ],
-        "default": "tag"
+        "default": "foil"
       },
       {
         "type": "checkbox",
