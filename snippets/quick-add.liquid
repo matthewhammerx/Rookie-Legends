@@ -7,6 +7,11 @@
   @param {string} [color_scheme] - The color scheme to use
 {%- enddoc -%}
 
+{% comment %}
+  Hide quick add entirely on sold-out products. Blank products (theme editor
+  placeholders) still render it.
+{% endcomment %}
+{%- unless product != blank and product.available == false -%}
 {% liquid
   assign product_form_id = 'QuickAdd-ProductForm-' | append: product.id | append: '-' | append: block.id
   assign add_to_cart_text = 'actions.add' | t
@@ -112,6 +117,7 @@
     {%- endform -%}
   </product-form-component>
 </quick-add-component>
+{%- endunless -%}
 
 {% stylesheet %}
   /* Quick Add */
