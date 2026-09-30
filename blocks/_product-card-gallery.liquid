@@ -207,19 +207,20 @@
 
   /* Neon: glowing tube sign with an occasional flicker */
   .product-badges__badge.product-badges__badge--style-neon {
-    border-radius: 6px;
-    padding: 0.4em 0.9em;
+    font-size: calc(var(--font-size--xs) * 0.8);
+    border-radius: 5px;
+    padding: 0.3em 0.65em;
     color: #fff;
     background: rgb(0 0 0 / 0.72);
-    border: 2px solid var(--color-background);
+    border: 1.5px solid var(--color-background);
     text-shadow:
-      0 0 3px var(--color-background),
-      0 0 9px var(--color-background),
-      0 0 16px var(--color-background);
+      0 0 2px var(--color-background),
+      0 0 6px var(--color-background),
+      0 0 11px var(--color-background);
     box-shadow:
-      0 0 8px var(--color-background),
-      0 0 18px color-mix(in srgb, var(--color-background) 60%, transparent),
-      inset 0 0 8px color-mix(in srgb, var(--color-background) 70%, transparent);
+      0 0 6px var(--color-background),
+      0 0 13px color-mix(in srgb, var(--color-background) 60%, transparent),
+      inset 0 0 6px color-mix(in srgb, var(--color-background) 70%, transparent);
     animation: product-badge-neon 4s linear infinite;
   }
 
