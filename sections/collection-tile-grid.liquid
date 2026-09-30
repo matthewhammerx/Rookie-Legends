@@ -1,0 +1,498 @@
+{% liquid
+  assign glow_alpha_inner = section.settings.glow_strength | times: 1.0 | divided_by: 100
+  assign glow_alpha_outer = glow_alpha_inner | times: 0.65
+%}
+
+<div class="section-background color-{{ section.settings.color_scheme }}"></div>
+<div class="collection-tile-grid-{{ section.id }} collection-tile-grid section section--full-width color-{{ section.settings.color_scheme }}">
+  <div class="collection-tile-grid__inner">
+    {% for block in section.blocks %}
+      <a
+        href="{{ block.settings.link | default: '#' }}"
+        class="collection-item"
+        {{ block.shopify_attributes }}
+      >
+        <span class="collection-item__frame">
+          {% if block.settings.image %}
+            {{
+              block.settings.image
+              | image_url: width: 900
+              | image_tag:
+                widths: '300, 450, 600, 900',
+                sizes: '(min-width: 768px) 25vw, 50vw',
+                alt: block.settings.label | default: block.settings.image.alt,
+                loading: 'lazy'
+            }}
+          {% endif %}
+        </span>
+      </a>
+    {% endfor %}
+  </div>
+</div>
+
+<style>
+  .collection-tile-grid-{{ section.id }} {
+    width: 100%;
+    position: relative;
+    z-index: 1;
+  }
+
+  .collection-tile-grid-{{ section.id }} .collection-tile-grid__inner {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    padding-block: {{ section.settings.padding_top }}px {{ section.settings.padding_bottom }}px;
+    padding-inline: 16px;
+    width: 100%;
+    margin: 0 auto;
+  }
+
+  @media (min-width: 768px) {
+    .collection-tile-grid-{{ section.id }} .collection-tile-grid__inner {
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      max-width: {{ section.settings.desktop_max_width }}px;
+      padding-inline: {{ section.settings.desktop_side_padding }}px;
+    }
+  }
+
+  .collection-tile-grid-{{ section.id }} .collection-item {
+    --spot-x: 50%;
+    --spot-y: 50%;
+    display: block;
+    animation: collectionTileFloat-{{ section.id }} 5s ease-in-out infinite;
+    transition: filter 0.25s ease;
+  }
+
+  .collection-tile-grid-{{ section.id }} .collection-item:hover,
+  .collection-tile-grid-{{ section.id }} .collection-item.is-active {
+    animation-play-state: paused;
+    z-index: 5;
+  }
+
+  {% if section.settings.spotlight_enabled %}
+    @media (min-width: 768px) {
+      .collection-tile-grid-{{ section.id }} .collection-tile-grid__inner:has(.collection-item:hover)
+        .collection-item:not(:hover),
+      .collection-tile-grid-{{ section.id }} .collection-tile-grid__inner:has(.collection-item.is-active)
+        .collection-item:not(.is-active) {
+        filter: grayscale({{ section.settings.spotlight_grayscale }}%) blur({{ section.settings.spotlight_blur }}px);
+      }
+    }
+  {% endif %}
+
+  {% if section.settings.spotlight_enabled_mobile %}
+    @media (max-width: 767px) {
+      .collection-tile-grid-{{ section.id }} .collection-tile-grid__inner:has(.collection-item:hover)
+        .collection-item:not(:hover),
+      .collection-tile-grid-{{ section.id }} .collection-tile-grid__inner:has(.collection-item.is-active)
+        .collection-item:not(.is-active) {
+        filter: grayscale({{ section.settings.spotlight_grayscale_mobile }}%)
+          blur({{ section.settings.spotlight_blur_mobile }}px);
+      }
+    }
+  {% endif %}
+
+  .collection-tile-grid-{{ section.id }} .collection-item__frame {
+    position: relative;
+    display: block;
+    transform: scale(1);
+    transition: transform 0.25s ease;
+  }
+
+  .collection-tile-grid-{{ section.id }} .collection-item:hover .collection-item__frame,
+  .collection-tile-grid-{{ section.id }} .collection-item.is-active .collection-item__frame {
+    transform: scale(1.06);
+  }
+
+  .collection-tile-grid-{{ section.id }} .collection-item__frame::before {
+    content: '';
+    position: absolute;
+    inset: -8px;
+    border-radius: {{ section.settings.corner_radius | plus: 8 }}px;
+    background: radial-gradient(
+        circle at var(--spot-x) var(--spot-y),
+        {{ section.settings.glow_color | color_modify: 'alpha', glow_alpha_inner }},
+        transparent 55%
+      ),
+      radial-gradient(
+        circle at var(--spot-x) var(--spot-y),
+        {{ section.settings.glow_color | color_modify: 'alpha', glow_alpha_outer }},
+        transparent 70%
+      );
+    filter: blur({{ section.settings.glow_size }}px);
+    opacity: 0;
+    transition: opacity 0.25s ease;
+    z-index: -1;
+    pointer-events: none;
+  }
+
+  .collection-tile-grid-{{ section.id }} .collection-item:hover .collection-item__frame::before,
+  .collection-tile-grid-{{ section.id }} .collection-item.is-active .collection-item__frame::before {
+    opacity: 1;
+    filter: blur({{ section.settings.glow_size | plus: 8 }}px);
+  }
+
+  .collection-tile-grid-{{ section.id }} .collection-item img {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: {{ section.settings.corner_radius }}px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+    transition: box-shadow 0.2s ease;
+  }
+
+  .collection-tile-grid-{{ section.id }} .collection-item:hover img,
+  .collection-tile-grid-{{ section.id }} .collection-item.is-active img {
+    box-shadow: 0 18px 34px rgba(0, 0, 0, 0.65);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .collection-tile-grid-{{ section.id }} .collection-item {
+      animation: none;
+    }
+  }
+
+  @keyframes collectionTileFloat-{{ section.id }} {
+    0%,
+    100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-4px);
+    }
+  }
+</style>
+
+<script>
+  (function () {
+    var rootSelector = '.collection-tile-grid-{{ section.id }}';
+
+    var smoothing = 0.18;
+
+    function pointerPercent(el, clientX, clientY) {
+      var rect = el.getBoundingClientRect();
+      var x = ((clientX - rect.left) / rect.width) * 100;
+      var y = ((clientY - rect.top) / rect.height) * 100;
+      return {
+        x: Math.max(0, Math.min(100, x)),
+        y: Math.max(0, Math.min(100, y)),
+      };
+    }
+
+    function attachTile(tile) {
+      if (tile.dataset.glowBound) return;
+      tile.dataset.glowBound = 'true';
+
+      var target = { x: 50, y: 50 };
+      var current = { x: 50, y: 50 };
+      var rafId = null;
+
+      function paint() {
+        current.x += (target.x - current.x) * smoothing;
+        current.y += (target.y - current.y) * smoothing;
+        tile.style.setProperty('--spot-x', current.x + '%');
+        tile.style.setProperty('--spot-y', current.y + '%');
+
+        if (Math.abs(target.x - current.x) > 0.05 || Math.abs(target.y - current.y) > 0.05) {
+          rafId = requestAnimationFrame(paint);
+        } else {
+          rafId = null;
+        }
+      }
+
+      function moveTo(clientX, clientY, snap) {
+        var pos = pointerPercent(tile, clientX, clientY);
+        target.x = pos.x;
+        target.y = pos.y;
+        if (snap) {
+          current.x = pos.x;
+          current.y = pos.y;
+          tile.style.setProperty('--spot-x', current.x + '%');
+          tile.style.setProperty('--spot-y', current.y + '%');
+        }
+        if (rafId === null) rafId = requestAnimationFrame(paint);
+      }
+
+      tile.addEventListener('pointerenter', function (e) {
+        moveTo(e.clientX, e.clientY, true);
+      });
+      tile.addEventListener('pointermove', function (e) {
+        moveTo(e.clientX, e.clientY, false);
+      });
+      tile.addEventListener('pointerdown', function (e) {
+        moveTo(e.clientX, e.clientY, true);
+        tile.classList.add('is-active');
+      });
+      tile.addEventListener('pointerup', function () {
+        tile.classList.remove('is-active');
+      });
+      tile.addEventListener('pointerleave', function () {
+        tile.classList.remove('is-active');
+      });
+      tile.addEventListener('pointercancel', function () {
+        tile.classList.remove('is-active');
+      });
+    }
+
+    function init() {
+      var root = document.querySelector(rootSelector);
+      if (!root) return;
+      root.querySelectorAll('.collection-item').forEach(attachTile);
+    }
+
+    init();
+    document.addEventListener('shopify:section:load', init);
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Collection Tiles (Glow)",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-5"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top padding",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "default": 30
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom padding",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "default": 30
+    },
+    {
+      "type": "header",
+      "content": "Desktop layout"
+    },
+    {
+      "type": "range",
+      "id": "desktop_max_width",
+      "label": "Max width",
+      "min": 800,
+      "max": 1600,
+      "step": 20,
+      "unit": "px",
+      "default": 1200,
+      "info": "Keeps the grid from stretching edge-to-edge on wide screens."
+    },
+    {
+      "type": "range",
+      "id": "desktop_side_padding",
+      "label": "Side padding",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 60
+    },
+    {
+      "type": "range",
+      "id": "corner_radius",
+      "label": "Corner radius",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 18
+    },
+    {
+      "type": "color",
+      "id": "glow_color",
+      "label": "Glow color",
+      "default": "#c800ff"
+    },
+    {
+      "type": "range",
+      "id": "glow_strength",
+      "label": "Glow strength",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "default": 60
+    },
+    {
+      "type": "range",
+      "id": "glow_size",
+      "label": "Glow size (blur)",
+      "min": 0,
+      "max": 50,
+      "step": 2,
+      "unit": "px",
+      "default": 22
+    },
+    {
+      "type": "header",
+      "content": "Hover spotlight — desktop"
+    },
+    {
+      "type": "checkbox",
+      "id": "spotlight_enabled",
+      "label": "Dim other tiles when one is hovered",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "spotlight_blur",
+      "label": "Other tiles blur",
+      "min": 0,
+      "max": 10,
+      "step": 1,
+      "unit": "px",
+      "default": 3
+    },
+    {
+      "type": "range",
+      "id": "spotlight_grayscale",
+      "label": "Other tiles grayscale",
+      "min": 0,
+      "max": 100,
+      "step": 10,
+      "unit": "%",
+      "default": 100
+    },
+    {
+      "type": "header",
+      "content": "Hover spotlight — mobile"
+    },
+    {
+      "type": "checkbox",
+      "id": "spotlight_enabled_mobile",
+      "label": "Dim other tiles when one is tapped",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "spotlight_blur_mobile",
+      "label": "Other tiles blur (mobile)",
+      "min": 0,
+      "max": 10,
+      "step": 1,
+      "unit": "px",
+      "default": 2
+    },
+    {
+      "type": "range",
+      "id": "spotlight_grayscale_mobile",
+      "label": "Other tiles grayscale (mobile)",
+      "min": 0,
+      "max": 100,
+      "step": 10,
+      "unit": "%",
+      "default": 60
+    }
+  ],
+  "blocks": [
+    {
+      "type": "tile",
+      "name": "Tile",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Link"
+        },
+        {
+          "type": "text",
+          "id": "label",
+          "label": "Accessibility label",
+          "info": "Read by screen readers. The image itself already shows the category name visually."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Collection Tiles (Glow)",
+      "blocks": [
+        {
+          "type": "tile",
+          "settings": {
+            "image": "shopify://shop_images/Your_paragraph_text_91.png",
+            "link": "/collections/slabs",
+            "label": "Slabs"
+          }
+        },
+        {
+          "type": "tile",
+          "settings": {
+            "image": "shopify://shop_images/Your_paragraph_text_92.png",
+            "link": "/collections/singles",
+            "label": "Singles"
+          }
+        },
+        {
+          "type": "tile",
+          "settings": {
+            "image": "shopify://shop_images/Your_paragraph_text_-_2026-04-23T151059.071.png",
+            "link": "/collections/booster-pack",
+            "label": "Booster Pack"
+          }
+        },
+        {
+          "type": "tile",
+          "settings": {
+            "image": "shopify://shop_images/Your_paragraph_text_99.png",
+            "link": "/collections/blisters",
+            "label": "Blisters"
+          }
+        },
+        {
+          "type": "tile",
+          "settings": {
+            "image": "shopify://shop_images/Your_paragraph_text_-_2026-02-20T085236.316.png",
+            "link": "/collections/tins",
+            "label": "Tins"
+          }
+        },
+        {
+          "type": "tile",
+          "settings": {
+            "image": "shopify://shop_images/Your_paragraph_text_88.png",
+            "link": "/collections/etb",
+            "label": "ETB"
+          }
+        },
+        {
+          "type": "tile",
+          "settings": {
+            "image": "shopify://shop_images/Your_paragraph_text_-_2026-02-20T100742.596.png",
+            "link": "/collections/booster-box",
+            "label": "Booster Boxes & Bundles"
+          }
+        },
+        {
+          "type": "tile",
+          "settings": {
+            "image": "shopify://shop_images/Your_paragraph_text_96.png",
+            "link": "/collections/collection-box",
+            "label": "Collection Boxes"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

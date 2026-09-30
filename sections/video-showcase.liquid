@@ -1,0 +1,801 @@
+{% liquid
+  assign accent = section.settings.accent_color
+  assign fade_opacity_decimal = section.settings.fade_opacity | times: 1.0 | divided_by: 100
+%}
+
+<div class="section-background color-{{ section.settings.color_scheme }}"></div>
+<div
+  class="video-showcase-{{ section.id }} video-showcase section section--full-width color-{{ section.settings.color_scheme }}"
+>
+  <div class="video-showcase__ambient" aria-hidden="true"></div>
+
+  {% if section.settings.heading != blank %}
+    <div class="video-showcase__head">
+      <h2 class="video-showcase__heading">{{ section.settings.heading }}</h2>
+    </div>
+  {% endif %}
+
+  <div class="video-showcase__viewport">
+    <button type="button" class="video-showcase__nav video-showcase__nav--prev" aria-label="Previous">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+
+    <div class="video-showcase__track" tabindex="0" data-loop-track>
+      {% for copy in (1..3) %}
+        {% for block in section.blocks %}
+          {% liquid
+            assign video_id = block.settings.video.id | default: block.settings.video_url.id
+            assign mp4_source = block.settings.video.sources | where: 'format', 'mp4' | first
+            assign fallback_source = block.settings.video.sources | first
+          %}
+          <div
+            class="video-showcase__slide"
+            {% if copy == 1 %}
+              {{ block.shopify_attributes }}
+            {% else %}
+              aria-hidden="true"
+            {% endif %}
+          >
+            <div class="video-showcase__frame">
+              <div class="video-showcase__glow" aria-hidden="true"></div>
+
+              <div class="video-showcase__media" data-video-media>
+                {% if block.settings.video != null %}
+                  <video
+                    data-native-video
+                    data-src="{{ mp4_source.url | default: fallback_source.url }}"
+                    {% if block.settings.video.preview_image %}
+                      poster="{{ block.settings.video.preview_image | image_url: width: 800 }}"
+                    {% endif %}
+                    muted
+                    playsinline
+                    loop
+                    preload="none"
+                  ></video>
+                {% elsif block.settings.video_url != null %}
+                  {% if block.settings.video_url.type == 'youtube' %}
+                    <iframe
+                      data-embed-video
+                      data-play-src="https://www.youtube.com/embed/{{ video_id }}?enablejsapi=1&mute=1&autoplay=1&controls=0&playsinline=1&loop=1&playlist={{ video_id }}"
+                      data-pause-src="https://www.youtube.com/embed/{{ video_id }}?enablejsapi=1&mute=1&autoplay=0&controls=0&playsinline=1&loop=1&playlist={{ video_id }}"
+                      allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+                      allowfullscreen
+                      loading="lazy"
+                    ></iframe>
+                  {% else %}
+                    <iframe
+                      data-embed-video
+                      data-play-src="https://player.vimeo.com/video/{{ video_id }}?autoplay=1&muted=1&loop=1&background=1"
+                      data-pause-src="https://player.vimeo.com/video/{{ video_id }}?autoplay=0&muted=1&loop=1&background=1"
+                      allow="autoplay; fullscreen; picture-in-picture"
+                      allowfullscreen
+                      loading="lazy"
+                    ></iframe>
+                  {% endif %}
+                {% endif %}
+              </div>
+
+              <div class="video-showcase__controls">
+                <button type="button" class="video-showcase__ctrl is-muted" data-toggle-mute aria-label="Toggle sound">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 9v6h4l5 4V5L8 9H4Z"/>
+                    <g data-mute-x><path d="M17 9l4 6M21 9l-4 6"/></g>
+                    <g data-mute-waves><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11"/></g>
+                  </svg>
+                </button>
+                <button type="button" class="video-showcase__ctrl" data-toggle-play aria-label="Play or pause">
+                  <svg viewBox="0 0 24 24" fill="currentColor">
+                    <polygon data-icon-play points="6,4 20,12 6,20"/>
+                    <g data-icon-pause><rect x="5" y="4" width="5" height="16" rx="1"/><rect x="14" y="4" width="5" height="16" rx="1"/></g>
+                  </svg>
+                </button>
+              </div>
+
+              {% if block.settings.caption != blank %}
+                <div class="video-showcase__caption video-showcase__caption--{{ block.settings.caption_position }}">
+                  {{ block.settings.caption }}
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        {% endfor %}
+      {% endfor %}
+    </div>
+
+    <button type="button" class="video-showcase__nav video-showcase__nav--next" aria-label="Next">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+  </div>
+</div>
+
+<style>
+  .video-showcase-{{ section.id }} {
+    position: relative;
+    z-index: 1;
+    overflow: hidden;
+    padding-block: {{ section.settings.padding_top }}px {{ section.settings.padding_bottom }}px;
+  }
+
+  .video-showcase-{{ section.id }} .video-showcase__ambient {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(
+        to bottom,
+        rgba(0, 0, 0, {{ fade_opacity_decimal }}) 0%,
+        transparent {{ section.settings.fade_size }}%
+      ),
+      radial-gradient(55% 90% at 50% 30%, {{ accent }}22, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .video-showcase-{{ section.id }} .video-showcase__head {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    padding-inline: 20px;
+    margin-bottom: 24px;
+  }
+
+  .video-showcase-{{ section.id }} .video-showcase__heading {
+    font-family: var(--font-heading--family, inherit);
+    font-weight: 800;
+    font-size: {{ section.settings.heading_size_mobile }}px;
+    margin: 0;
+    background: linear-gradient(160deg, #ffffff 10%, {{ accent }} 120%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  @media screen and (min-width: 750px) {
+    .video-showcase-{{ section.id }} .video-showcase__heading {
+      font-size: {{ section.settings.heading_size }}px;
+    }
+  }
+
+  .video-showcase-{{ section.id }} .video-showcase__viewport {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding-inline: 8px;
+  }
+
+  .video-showcase-{{ section.id }} .video-showcase__nav {
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    color: #fff;
+    background: linear-gradient(165deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.03));
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+    cursor: pointer;
+    transition: border-color 0.2s ease, transform 0.2s ease;
+  }
+
+  .video-showcase-{{ section.id }} .video-showcase__nav svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .video-showcase-{{ section.id }} .video-showcase__nav:hover {
+    border-color: {{ accent }}88;
+    transform: scale(1.06);
+  }
+
+  @media (max-width: 749px) {
+    .video-showcase-{{ section.id }} .video-showcase__nav {
+      display: none;
+    }
+  }
+
+  .video-showcase-{{ section.id }} .video-showcase__track {
+    display: flex;
+    gap: {{ section.settings.gap }}px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    padding-block: 6px;
+    padding-inline: 22vw;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  @media (min-width: 750px) {
+    .video-showcase-{{ section.id }} .video-showcase__track {
+      padding-inline: 8px;
+    }
+  }
+
+  .video-showcase-{{ section.id }} .video-showcase__track::-webkit-scrollbar {
+    display: none;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .video-showcase-{{ section.id }} .video-showcase__track {
+      cursor: grab;
+    }
+  }
+
+  .video-showcase-{{ section.id }} .video-showcase__track.is-dragging {
+    cursor: grabbing !important;
+    scroll-snap-type: none;
+    scroll-behavior: auto;
+    user-select: none;
+  }
+
+  .video-showcase-{{ section.id }} .video-showcase__slide {
+    flex: none;
+    scroll-snap-align: center;
+    width: 56vw;
+  }
+
+  .video-showcase-{{ section.id }} .video-showcase__frame {
+    position: relative;
+    overflow: hidden;
+    aspect-ratio: 9 / 14;
+    border-radius: {{ section.settings.card_radius }}px;
+    background: linear-gradient(165deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 24px 40px -28px rgba(0, 0, 0, 0.7);
+    filter: grayscale(85%) brightness(0.45);
+    transition: transform 0.3s ease, border-color 0.3s ease, filter 0.35s ease;
+  }
+
+  .video-showcase-{{ section.id }} .video-showcase__slide.is-focused .video-showcase__frame {
+    filter: none;
+  }
+
+  .video-showcase-{{ section.id }} .video-showcase__frame:hover {
+    transform: translateY(-4px);
+    border-color: {{ accent }}55;
+  }
+
+  .video-showcase-{{ section.id }} .video-showcase__glow {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(60% 40% at 50% 0%, {{ accent }}30, transparent 70%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  .video-showcase-{{ section.id }} .video-showcase__frame:hover .video-showcase__glow {
+    opacity: 1;
+  }
+
+  .video-showcase-{{ section.id }} .video-showcase__media,
+  .video-showcase-{{ section.id }} .video-showcase__media video,
+  .video-showcase-{{ section.id }} .video-showcase__media iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border: 0;
+    background: #050505;
+  }
+
+  .video-showcase-{{ section.id }} .video-showcase__controls {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    right: 10px;
+    z-index: 3;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .video-showcase-{{ section.id }} .video-showcase__ctrl {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    color: #fff;
+    background: rgba(0, 0, 0, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: blur(4px);
+    cursor: pointer;
+  }
+
+  .video-showcase-{{ section.id }} .video-showcase__ctrl svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .video-showcase-{{ section.id }} [data-toggle-mute].is-muted [data-mute-waves],
+  .video-showcase-{{ section.id }} [data-toggle-mute]:not(.is-muted) [data-mute-x] {
+    display: none;
+  }
+
+  .video-showcase-{{ section.id }} [data-toggle-play] [data-icon-pause] {
+    display: none;
+  }
+
+  .video-showcase-{{ section.id }} [data-toggle-play].is-playing [data-icon-play] {
+    display: none;
+  }
+
+  .video-showcase-{{ section.id }} [data-toggle-play].is-playing [data-icon-pause] {
+    display: block;
+  }
+
+  .video-showcase-{{ section.id }} .video-showcase__caption {
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    z-index: 3;
+    font-family: var(--font-heading--family, inherit);
+    font-weight: 800;
+    font-size: 1.15rem;
+    line-height: 1.2;
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.6);
+    background: linear-gradient(160deg, #ffffff 10%, {{ accent }} 130%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    pointer-events: none;
+  }
+
+  .video-showcase-{{ section.id }} .video-showcase__caption--bottom {
+    bottom: 14px;
+  }
+
+  .video-showcase-{{ section.id }} .video-showcase__caption--top {
+    top: 48px;
+  }
+
+  @media (min-width: 750px) {
+    .video-showcase-{{ section.id }} .video-showcase__slide {
+      width: 230px;
+    }
+  }
+</style>
+
+<script>
+  (function () {
+    var rootSelector = '.video-showcase-{{ section.id }}';
+
+    function setupSlide(slide) {
+      if (slide.dataset.vsBound) return;
+      slide.dataset.vsBound = 'true';
+
+      var video = slide.querySelector('[data-native-video]');
+      var frame = slide.querySelector('[data-embed-video]');
+      var muteBtn = slide.querySelector('[data-toggle-mute]');
+      var playBtn = slide.querySelector('[data-toggle-play]');
+
+      var manuallyPaused = false;
+      var loaded = false;
+
+      function setPlayIcon(isPlaying) {
+        if (!playBtn) return;
+        playBtn.classList.toggle('is-playing', isPlaying);
+      }
+
+      function ensureLoaded() {
+        if (loaded) return;
+        loaded = true;
+        if (video && video.dataset.src) {
+          video.src = video.dataset.src;
+          video.load();
+        }
+        if (frame && !frame.getAttribute('src')) {
+          var pauseSrc = frame.getAttribute('data-pause-src');
+          if (pauseSrc) frame.src = pauseSrc;
+        }
+      }
+
+      function play() {
+        ensureLoaded();
+        if (video) {
+          var p = video.play();
+          if (p && p.catch) p.catch(function () {});
+        }
+        if (frame) {
+          var src = frame.getAttribute('data-play-src');
+          if (src && frame.src !== src) frame.src = src;
+        }
+        setPlayIcon(true);
+      }
+
+      function pause() {
+        if (video) video.pause();
+        if (frame) {
+          var src = frame.getAttribute('data-pause-src');
+          if (src && frame.src !== src && frame.getAttribute('src')) frame.src = src;
+        }
+        setPlayIcon(false);
+      }
+
+      if (playBtn) {
+        playBtn.addEventListener('click', function () {
+          manuallyPaused = !manuallyPaused;
+          if (manuallyPaused) {
+            pause();
+          } else {
+            play();
+          }
+        });
+      }
+
+      if (muteBtn) {
+        muteBtn.addEventListener('click', function () {
+          if (video) video.muted = !video.muted;
+          var isMuted = video ? video.muted : true;
+          muteBtn.classList.toggle('is-muted', isMuted);
+        });
+      }
+
+      slide._vsPlay = play;
+      slide._vsPause = pause;
+      slide._vsEnsureLoaded = ensureLoaded;
+      slide._vsIsManuallyPaused = function () {
+        return manuallyPaused;
+      };
+    }
+
+    function setupInfiniteLoop(track) {
+      if (track.dataset.vsLoopBound) return;
+      track.dataset.vsLoopBound = 'true';
+
+      function jumpTo(left) {
+        var prev = track.style.scrollBehavior;
+        track.style.scrollBehavior = 'auto';
+        track.scrollLeft = left;
+        track.style.scrollBehavior = prev;
+      }
+
+      function recenter() {
+        var setWidth = track.scrollWidth / 3;
+        if (setWidth <= 0) return;
+        jumpTo(setWidth);
+      }
+
+      // Start centered in the middle copy so scrolling either direction
+      // reveals more slides instead of hitting a hard edge.
+      requestAnimationFrame(recenter);
+
+      track.addEventListener(
+        'scroll',
+        function () {
+          var setWidth = track.scrollWidth / 3;
+          if (setWidth <= 0) return;
+          if (track.scrollLeft >= setWidth * 2) {
+            jumpTo(track.scrollLeft - setWidth);
+          } else if (track.scrollLeft < setWidth) {
+            jumpTo(track.scrollLeft + setWidth);
+          }
+        },
+        { passive: true }
+      );
+
+      window.addEventListener('resize', function () {
+        requestAnimationFrame(recenter);
+      });
+    }
+
+    function init() {
+      var root = document.querySelector(rootSelector);
+      if (!root) return;
+
+      var track = root.querySelector('.video-showcase__track');
+      var prevBtn = root.querySelector('.video-showcase__nav--prev');
+      var nextBtn = root.querySelector('.video-showcase__nav--next');
+      var slides = root.querySelectorAll('.video-showcase__slide');
+
+      slides.forEach(setupSlide);
+
+      if (track) setupInfiniteLoop(track);
+
+      if (track && !track.dataset.vsDragBound) {
+        track.dataset.vsDragBound = 'true';
+        var isDragging = false;
+        var hasDragged = false;
+        var startX = 0;
+        var startScrollLeft = 0;
+
+        track.addEventListener('mousedown', function (e) {
+          if (e.button !== 0) return;
+          if (e.target.closest('button')) return;
+          isDragging = true;
+          hasDragged = false;
+          startX = e.pageX;
+          startScrollLeft = track.scrollLeft;
+          track.classList.add('is-dragging');
+          e.preventDefault();
+        });
+
+        window.addEventListener('mousemove', function (e) {
+          if (!isDragging) return;
+          var delta = e.pageX - startX;
+          if (Math.abs(delta) > 5) hasDragged = true;
+          track.scrollLeft = startScrollLeft - delta;
+        });
+
+        window.addEventListener('mouseup', function () {
+          isDragging = false;
+          track.classList.remove('is-dragging');
+        });
+
+        track.addEventListener(
+          'click',
+          function (e) {
+            if (hasDragged) {
+              e.preventDefault();
+              e.stopPropagation();
+            }
+          },
+          true
+        );
+      }
+
+      if (track && prevBtn && nextBtn && !track.dataset.vsNavBound) {
+        track.dataset.vsNavBound = 'true';
+        function step() {
+          var slide = track.querySelector('.video-showcase__slide');
+          return slide ? slide.getBoundingClientRect().width + {{ section.settings.gap }} : 260;
+        }
+        prevBtn.addEventListener('click', function () {
+          track.scrollBy({ left: -step(), behavior: 'smooth' });
+        });
+        nextBtn.addEventListener('click', function () {
+          track.scrollBy({ left: step(), behavior: 'smooth' });
+        });
+      }
+
+      if ('IntersectionObserver' in window && !root.dataset.vsPreloadBound) {
+        root.dataset.vsPreloadBound = 'true';
+
+        // Preload observer: generous rootMargin so nearby (offscreen)
+        // slides fetch their video ahead of time. Loading only, never
+        // decides play/pause.
+        var preloadObserver = new IntersectionObserver(
+          function (entries) {
+            entries.forEach(function (entry) {
+              if (entry.isIntersecting) {
+                entry.target._vsEnsureLoaded && entry.target._vsEnsureLoaded();
+              }
+            });
+          },
+          { root: track, rootMargin: '0px 400px', threshold: 0 }
+        );
+        slides.forEach(function (slide) {
+          preloadObserver.observe(slide);
+        });
+      }
+
+      if (track && !track.dataset.vsFocusBound) {
+        track.dataset.vsFocusBound = 'true';
+
+        // Deciding play/pause purely from "is this slide >60% visible"
+        // still lets several slides play at once on a wide screen, since
+        // more than one card can individually clear that bar. Instead,
+        // find the SINGLE slide whose center is closest to the track's
+        // own center and only ever let that one play -- everything else
+        // pauses, no matter how visible it technically is.
+        //
+        // Measuring every slide's getBoundingClientRect() on every
+        // scroll frame (a real layout read per slide, x however many
+        // copies exist for the infinite loop) was expensive enough to
+        // visibly stutter mobile's momentum scrolling. Since every slide
+        // is the same fixed width with a fixed gap, the centered index
+        // can be computed with plain arithmetic from a single
+        // measurement instead, which is effectively free.
+        var focusRaf = null;
+        var lastFocusedIndex = -1;
+        var slideArray = Array.prototype.slice.call(slides);
+
+        function updateFocus() {
+          focusRaf = null;
+          if (!slideArray.length) return;
+
+          var first = slideArray[0];
+          var step = first.offsetWidth + {{ section.settings.gap }};
+          if (!step) return;
+
+          var trackCenter = track.scrollLeft + track.clientWidth / 2;
+          var index = Math.round((trackCenter - first.offsetLeft - first.offsetWidth / 2) / step);
+          index = Math.max(0, Math.min(slideArray.length - 1, index));
+
+          if (index === lastFocusedIndex) return;
+          lastFocusedIndex = index;
+
+          slideArray.forEach(function (slide, i) {
+            var isFocused = i === index;
+            slide.classList.toggle('is-focused', isFocused);
+
+            if (!slide._vsIsManuallyPaused || slide._vsIsManuallyPaused()) return;
+            if (isFocused) {
+              slide._vsPlay && slide._vsPlay();
+            } else {
+              slide._vsPause && slide._vsPause();
+            }
+          });
+        }
+
+        function scheduleUpdateFocus() {
+          if (focusRaf) return;
+          focusRaf = requestAnimationFrame(updateFocus);
+        }
+
+        track.addEventListener('scroll', scheduleUpdateFocus, { passive: true });
+        window.addEventListener('resize', scheduleUpdateFocus);
+        scheduleUpdateFocus();
+      }
+    }
+
+    init();
+    document.addEventListener('shopify:section:load', init);
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Video Showcase",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-5"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent color",
+      "default": "#eb00ca"
+    },
+    {
+      "type": "header",
+      "content": "Top dimming fade"
+    },
+    {
+      "type": "range",
+      "id": "fade_size",
+      "label": "Fade size",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "%",
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "fade_opacity",
+      "label": "Fade opacity",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "default": 90
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "info": "Optional."
+    },
+    {
+      "type": "range",
+      "id": "heading_size",
+      "label": "Heading size (desktop)",
+      "min": 16,
+      "max": 72,
+      "step": 2,
+      "unit": "px",
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "heading_size_mobile",
+      "label": "Heading size (mobile)",
+      "min": 14,
+      "max": 48,
+      "step": 2,
+      "unit": "px",
+      "default": 22
+    },
+    {
+      "type": "range",
+      "id": "card_radius",
+      "label": "Card corner radius",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "gap",
+      "label": "Gap between videos",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 14
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top padding",
+      "min": 0,
+      "max": 80,
+      "step": 5,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom padding",
+      "min": 0,
+      "max": 80,
+      "step": 5,
+      "unit": "px",
+      "default": 40
+    }
+  ],
+  "blocks": [
+    {
+      "type": "slide",
+      "name": "Video",
+      "settings": [
+        {
+          "type": "video",
+          "id": "video",
+          "label": "Video (Shopify-hosted)"
+        },
+        {
+          "type": "video_url",
+          "id": "video_url",
+          "label": "Or video URL",
+          "accept": ["youtube", "vimeo"],
+          "info": "Used only if no Shopify-hosted video is set above."
+        },
+        {
+          "type": "text",
+          "id": "caption",
+          "label": "Caption text",
+          "info": "Optional overlay text, e.g. \"4000+ items available\"."
+        },
+        {
+          "type": "select",
+          "id": "caption_position",
+          "label": "Caption position",
+          "options": [
+            { "value": "bottom", "label": "Bottom" },
+            { "value": "top", "label": "Top" }
+          ],
+          "default": "bottom"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Video Showcase",
+      "blocks": [
+        { "type": "slide", "settings": { "caption": "4000+ items available" } },
+        { "type": "slide" },
+        { "type": "slide", "settings": { "caption": "2-5 days express shipping worldwide" } },
+        { "type": "slide" }
+      ]
+    }
+  ]
+}
+{% endschema %}

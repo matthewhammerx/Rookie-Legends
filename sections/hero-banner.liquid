@@ -1,0 +1,2556 @@
+{% comment %}
+  Hero Banner
+  A full-bleed hero (no rounded card, no side margins) that fills the
+  full width of the page and fades seamlessly into whatever comes after
+  it, instead of ending in a hard rectangular edge. Background can be a
+  video, image, gradient or solid color. Built for reuse across pages --
+  homepage, collection pages, custom pages -- with a heading, optional
+  subheading, and any number of buttons.
+{% endcomment %}
+
+{%- liquid
+  assign accent = section.settings.accent_color
+  assign overlay_alpha = section.settings.overlay_opacity | times: 1.0 | divided_by: 100
+
+  # Bottom fade: eased multi-stop gradient (fast drop near the top of the
+  # fade zone, gentler near the section edge) instead of a single flat
+  # linear ramp, so it reads as a smooth fade rather than a hard band.
+  assign bf_peak = section.settings.bottom_fade_opacity | times: 1.0 | divided_by: 100
+  assign bf_alpha1 = bf_peak | times: 0.85
+  assign bf_alpha2 = bf_peak | times: 0.55
+  assign bf_alpha3 = bf_peak | times: 0.22
+  assign bf_color0 = section.settings.bottom_fade_color | color_modify: 'alpha', bf_peak
+  assign bf_color1 = section.settings.bottom_fade_color | color_modify: 'alpha', bf_alpha1
+  assign bf_color2 = section.settings.bottom_fade_color | color_modify: 'alpha', bf_alpha2
+  assign bf_color3 = section.settings.bottom_fade_color | color_modify: 'alpha', bf_alpha3
+  assign bf_size = section.settings.bottom_fade_size
+  assign bf_pos1 = bf_size | times: 0.3 | round
+  assign bf_pos2 = bf_size | times: 0.55 | round
+  assign bf_pos3 = bf_size | times: 0.8 | round
+  assign bottom_fade_gradient = 'linear-gradient(to top, ' | append: bf_color0 | append: ' 0%, ' | append: bf_color1 | append: ' ' | append: bf_pos1 | append: '%, ' | append: bf_color2 | append: ' ' | append: bf_pos2 | append: '%, ' | append: bf_color3 | append: ' ' | append: bf_pos3 | append: '%, transparent ' | append: bf_size | append: '%)'
+
+  # Same eased curve for the top fade, mirrored (to bottom).
+  assign tf_peak = section.settings.top_fade_opacity | times: 1.0 | divided_by: 100
+  assign tf_alpha1 = tf_peak | times: 0.85
+  assign tf_alpha2 = tf_peak | times: 0.55
+  assign tf_alpha3 = tf_peak | times: 0.22
+  assign tf_color0 = section.settings.top_fade_color | color_modify: 'alpha', tf_peak
+  assign tf_color1 = section.settings.top_fade_color | color_modify: 'alpha', tf_alpha1
+  assign tf_color2 = section.settings.top_fade_color | color_modify: 'alpha', tf_alpha2
+  assign tf_color3 = section.settings.top_fade_color | color_modify: 'alpha', tf_alpha3
+  assign tf_size = section.settings.top_fade_size
+  assign tf_pos1 = tf_size | times: 0.3 | round
+  assign tf_pos2 = tf_size | times: 0.55 | round
+  assign tf_pos3 = tf_size | times: 0.8 | round
+  assign top_fade_gradient = 'linear-gradient(to bottom, ' | append: tf_color0 | append: ' 0%, ' | append: tf_color1 | append: ' ' | append: tf_pos1 | append: '%, ' | append: tf_color2 | append: ' ' | append: tf_pos2 | append: '%, ' | append: tf_color3 | append: ' ' | append: tf_pos3 | append: '%, transparent ' | append: tf_size | append: '%)'
+
+  assign ambient_glow_alpha = section.settings.ambient_glow_strength | times: 1.0 | divided_by: 100
+  assign ambient_glow_rgba = accent | color_modify: 'alpha', ambient_glow_alpha
+
+  case section.settings.height_mode
+    when 'full_screen'
+      assign min_height = '100svh'
+      assign min_height_mobile = '100svh'
+    when 'large'
+      assign min_height = '85vh'
+      assign min_height_mobile = '70vh'
+    when 'medium'
+      assign min_height = '65vh'
+      assign min_height_mobile = '55vh'
+    when 'small'
+      assign min_height = '45vh'
+      assign min_height_mobile = '38vh'
+    else
+      assign min_height = section.settings.custom_height | append: 'px'
+      assign min_height_mobile = section.settings.custom_height_mobile | append: 'px'
+  endcase
+
+  assign vertical_map_top = 'flex-start'
+  assign vertical_map_center = 'center'
+  assign vertical_map_bottom = 'flex-end'
+
+  assign content_justify = vertical_map_center
+  if section.settings.content_vertical_align == 'top'
+    assign content_justify = vertical_map_top
+  elsif section.settings.content_vertical_align == 'bottom'
+    assign content_justify = vertical_map_bottom
+  endif
+
+  assign content_justify_mobile = vertical_map_center
+  if section.settings.content_vertical_align_mobile == 'top'
+    assign content_justify_mobile = vertical_map_top
+  elsif section.settings.content_vertical_align_mobile == 'bottom'
+    assign content_justify_mobile = vertical_map_bottom
+  endif
+
+  assign content_items_align = 'center'
+  if section.settings.content_align == 'left'
+    assign content_items_align = 'flex-start'
+  elsif section.settings.content_align == 'right'
+    assign content_items_align = 'flex-end'
+  endif
+
+  assign content_items_align_mobile = 'center'
+  if section.settings.content_align_mobile == 'left'
+    assign content_items_align_mobile = 'flex-start'
+  elsif section.settings.content_align_mobile == 'right'
+    assign content_items_align_mobile = 'flex-end'
+  endif
+-%}
+
+<div
+  id="HeroBanner-{{ section.id }}"
+  class="hero-banner-{{ section.id }} hero-banner color-{{ section.settings.color_scheme }}"
+  style="
+    --hb-accent: {{ accent }};
+    --hb-heading-color: {{ section.settings.heading_color }};
+    --hb-subheading-color: {{ section.settings.subheading_color }};
+    --hb-subheading-size: {{ section.settings.subheading_size }}px;
+    --hb-subheading-size-mobile: {{ section.settings.subheading_size_mobile }}px;
+    --hb-eyebrow-color: {{ section.settings.eyebrow_color }};
+    --hb-eyebrow-size: {{ section.settings.eyebrow_size }}px;
+    --hb-min-height: {{ min_height }};
+    --hb-min-height-mobile: {{ min_height_mobile }};
+    --hb-content-max-width: {{ section.settings.content_max_width }}px;
+    --hb-content-justify: {{ content_justify }};
+    --hb-content-justify-mobile: {{ content_justify_mobile }};
+    --hb-content-items-align: {{ content_items_align }};
+    --hb-content-items-align-mobile: {{ content_items_align_mobile }};
+    --hb-content-offset: {{ section.settings.content_vertical_offset }}px;
+    --hb-content-offset-mobile: {{ section.settings.content_vertical_offset_mobile }}px;
+    --hb-heading-offset: {{ section.settings.heading_vertical_offset }}px;
+    --hb-heading-offset-mobile: {{ section.settings.heading_vertical_offset_mobile }}px;
+    --hb-text-align: {{ section.settings.content_align }};
+    --hb-text-align-mobile: {{ section.settings.content_align_mobile }};
+    --hb-overlay-alpha: {{ overlay_alpha }};
+    --hb-bottom-fade-gradient: {{ bottom_fade_gradient }};
+    --hb-top-fade-gradient: {{ top_fade_gradient }};
+    --hb-ambient-color: {{ ambient_glow_rgba }};
+    --hb-image-position: {{ section.settings.image_position }};
+    padding-block: {{ section.settings.padding_top }}px {{ section.settings.padding_bottom }}px;
+    margin-bottom: -{{ section.settings.pull_next_section_up }}px;
+  "
+>
+  <div class="hero-banner__media" aria-hidden="true">
+    {%- case section.settings.background_style -%}
+      {%- when 'video' -%}
+        {%- if section.settings.background_video != blank -%}
+          {{
+            section.settings.background_video
+            | video_tag:
+              image_size: '2600x',
+              autoplay: false,
+              loop: section.settings.video_loop,
+              muted: true,
+              playsinline: true,
+              controls: false,
+              preload: 'none',
+              class: 'hero-banner__video',
+              data-lazy-video: true
+          }}
+        {%- endif -%}
+      {%- when 'image' -%}
+        {%- if section.settings.background_image_mobile != blank -%}
+          {{
+            section.settings.background_image_mobile
+            | image_url: width: 1600
+            | image_tag:
+              widths: '480, 750, 1100, 1600',
+              alt: section.settings.background_image_mobile.alt,
+              class: 'hero-banner__image hero-banner__image--mobile',
+              sizes: '100vw',
+              fetchpriority: 'high'
+          }}
+        {%- endif -%}
+        {%- if section.settings.background_image != blank -%}
+          {{
+            section.settings.background_image
+            | image_url: width: 3840
+            | image_tag:
+              widths: '750, 1100, 1500, 2000, 3000, 3840',
+              alt: section.settings.background_image.alt,
+              class: 'hero-banner__image hero-banner__image--desktop',
+              sizes: '100vw',
+              fetchpriority: 'high'
+          }}
+        {%- endif -%}
+      {%- when 'gradient' -%}
+        <div class="hero-banner__gradient" style="background-image: {{ section.settings.background_gradient }};"></div>
+      {%- when 'solid' -%}
+        <div class="hero-banner__solid" style="background-color: {{ section.settings.background_color }};"></div>
+    {%- endcase -%}
+  </div>
+
+  {%- if section.settings.enable_bg_blur -%}
+    <style>
+      .hero-banner-{{ section.id }} .hero-banner__media {
+        filter: blur({{ section.settings.bg_blur_amount }}px);
+        transform: scale(1.1);
+      }
+    </style>
+  {%- endif -%}
+
+  {%- if section.settings.enable_overlay -%}
+    <div class="hero-banner__overlay" aria-hidden="true"></div>
+  {%- endif -%}
+
+  <div class="hero-banner__ambient" aria-hidden="true"></div>
+
+  {%- if section.settings.enable_top_fade -%}
+    <div class="hero-banner__top-fade" aria-hidden="true"></div>
+  {%- endif -%}
+
+  {%- if section.settings.enable_bottom_fade -%}
+    <div class="hero-banner__bottom-fade" aria-hidden="true"></div>
+  {%- endif -%}
+
+  <div class="hero-banner__content-wrap">
+    <div class="hero-banner__content">
+      {%- if section.settings.eyebrow_text != blank -%}
+        <span class="hero-banner__eyebrow">{{ section.settings.eyebrow_text }}</span>
+      {%- endif -%}
+
+      {%- assign heading_line_count = 0 -%}
+      {%- for block in section.blocks -%}
+        {%- if block.type == 'heading_line' -%}{%- assign heading_line_count = heading_line_count | plus: 1 -%}{%- endif -%}
+      {%- endfor -%}
+
+      {%- if heading_line_count > 0 -%}
+        <div class="hero-banner__heading-group" role="heading" aria-level="1">
+          {%- for block in section.blocks -%}
+            {%- if block.type == 'heading_line' -%}
+              {%- liquid
+                assign hl_glow_alpha = block.settings.glow_strength | times: 1.0 | divided_by: 100
+                assign hl_glow_rgba = block.settings.glow_color | color_modify: 'alpha', hl_glow_alpha
+                assign hl_glow_radius_2 = block.settings.glow_size | times: 2.25 | round
+              -%}
+              <div
+                id="HBHeadingLine-{{ block.id }}"
+                class="hero-banner__heading-line{% if block.settings.uppercase %} hero-banner__heading-line--uppercase{% endif %}{% if block.settings.text_style == 'glossy' and block.settings.animate_shine %} hero-banner__heading-line--shine{% endif %}"
+                style="
+                  --hbl-size: {{ block.settings.font_size_mobile }}px;
+                  --hbl-size-desktop: {{ block.settings.font_size_desktop }}px;
+                  {% if block.settings.text_style == 'glossy' %}
+                    {% if block.settings.animate_shine %}
+                      background-image: linear-gradient(
+                        90deg,
+                        #ffffff 0%,
+                        #ffffff 42%,
+                        {{ block.settings.color }} 49%,
+                        {{ block.settings.color }} 51%,
+                        #ffffff 58%,
+                        #ffffff 100%
+                      );
+                      background-size: 300% 100%;
+                      animation: heroBannerGlossyShine-{{ section.id }} {{ block.settings.shine_speed }}s linear infinite;
+                    {% else %}
+                      background-image: linear-gradient(135deg, #ffffff 0%, {{ block.settings.color }} 45%, color-mix(in srgb, {{ block.settings.color }} 55%, #000000) 100%);
+                    {% endif %}
+                    -webkit-background-clip: text;
+                    background-clip: text;
+                    color: transparent;
+                  {% else %}
+                    color: {{ block.settings.color }};
+                  {% endif %}
+                  {% if block.settings.use_custom_font %}
+                    font-family: {{ block.settings.font.family }}, {{ block.settings.font.fallback_families }};
+                    font-weight: {{ block.settings.font.weight }};
+                    font-style: {{ block.settings.font.style }};
+                  {% else %}
+                    font-weight: {{ block.settings.font_weight }};
+                    font-style: {% if block.settings.italic %}italic{% else %}normal{% endif %};
+                  {% endif %}
+                  {% if block.settings.enable_glow %}
+                    filter:
+                      drop-shadow(0 0 {{ block.settings.glow_size }}px {{ hl_glow_rgba }})
+                      drop-shadow(0 0 {{ hl_glow_radius_2 }}px {{ hl_glow_rgba }});
+                  {% endif %}
+                "
+                {{ block.shopify_attributes }}
+              >
+                {{ block.settings.text }}
+              </div>
+              <style>
+                {%- if block.settings.use_custom_font -%}
+                  {{ block.settings.font | font_face: font_display: 'swap' }}
+                {%- endif -%}
+                {%- if block.settings.bold_custom_font -%}
+                  {{ block.settings.bold_font | font_face: font_display: 'swap' }}
+                {%- endif -%}
+                {%- if block.settings.italic_custom_font -%}
+                  {{ block.settings.italic_font | font_face: font_display: 'swap' }}
+                {%- endif -%}
+
+                #HBHeadingLine-{{ block.id }} {
+                  font-size: var(--hbl-size);
+                }
+
+                @media screen and (min-width: 750px) {
+                  #HBHeadingLine-{{ block.id }} {
+                    font-size: var(--hbl-size-desktop);
+                  }
+                }
+
+                #HBHeadingLine-{{ block.id }} p {
+                  margin: 0;
+                }
+
+                #HBHeadingLine-{{ block.id }} strong,
+                #HBHeadingLine-{{ block.id }} em {
+                  font-style: normal;
+                  background: none;
+                  -webkit-background-clip: initial;
+                  background-clip: initial;
+                }
+
+                #HBHeadingLine-{{ block.id }} strong {
+                  color: {{ block.settings.bold_color }};
+                  {%- if block.settings.bold_custom_font -%}
+                    font-family: {{ block.settings.bold_font.family }}, {{ block.settings.bold_font.fallback_families }};
+                    font-weight: {{ block.settings.bold_font.weight }};
+                    font-style: {{ block.settings.bold_font.style }};
+                  {%- else -%}
+                    font-weight: 800;
+                  {%- endif -%}
+                }
+
+                #HBHeadingLine-{{ block.id }} em {
+                  color: {{ block.settings.italic_color }};
+                  {%- if block.settings.italic_custom_font -%}
+                    font-family: {{ block.settings.italic_font.family }}, {{ block.settings.italic_font.fallback_families }};
+                    font-weight: {{ block.settings.italic_font.weight }};
+                    font-style: {{ block.settings.italic_font.style }};
+                  {%- endif -%}
+                }
+
+                #HBHeadingLine-{{ block.id }} strong em,
+                #HBHeadingLine-{{ block.id }} em strong {
+                  color: {{ block.settings.italic_color }};
+                }
+              </style>
+            {%- endif -%}
+          {%- endfor -%}
+        </div>
+      {%- endif -%}
+
+      {%- for block in section.blocks -%}
+        {%- if block.type == 'image' and block.settings.image != blank -%}
+          {%- capture image_tag_content -%}
+            {{
+              block.settings.image
+              | image_url: width: 1600
+              | image_tag:
+                widths: '300, 500, 800, 1200, 1600',
+                alt: block.settings.image.alt,
+                class: 'hero-banner__image-block-img',
+                loading: 'lazy'
+            }}
+          {%- endcapture -%}
+          {%- if block.settings.link != blank -%}
+            <a
+              id="HBImage-{{ block.id }}"
+              href="{{ block.settings.link }}"
+              {% if block.settings.open_in_new_tab %}target="_blank" rel="noopener"{% endif %}
+              class="hero-banner__image-block"
+              {{ block.shopify_attributes }}
+            >{{ image_tag_content }}</a>
+          {%- else -%}
+            <div id="HBImage-{{ block.id }}" class="hero-banner__image-block" {{ block.shopify_attributes }}>{{ image_tag_content }}</div>
+          {%- endif -%}
+          <style>
+            #HBImage-{{ block.id }} {
+              width: {{ block.settings.width_mobile }}px;
+              margin-top: {{ block.settings.margin_top }}px;
+              position: relative;
+              z-index: 3;
+              transform: translate({{ block.settings.offset_x_mobile }}px, {{ block.settings.offset_y_mobile }}px);
+            }
+
+            #HBImage-{{ block.id }} .hero-banner__image-block-img {
+              border-radius: {{ block.settings.corner_radius }}px;
+            }
+
+            @media screen and (min-width: 750px) {
+              #HBImage-{{ block.id }} {
+                width: {{ block.settings.width_desktop }}px;
+                transform: translate({{ block.settings.offset_x_desktop }}px, {{ block.settings.offset_y_desktop }}px);
+              }
+            }
+          </style>
+        {%- endif -%}
+      {%- endfor -%}
+
+      {%- if section.settings.subheading_text != blank -%}
+        <div class="hero-banner__subheading">{{ section.settings.subheading_text }}</div>
+      {%- endif -%}
+
+      {%- for block in section.blocks -%}
+        {%- if block.type == 'countdown' -%}
+          {%- liquid
+            assign cd_backdrop_alpha = block.settings.backdrop_opacity | times: 1.0 | divided_by: 100
+            assign cd_backdrop_rgba = block.settings.backdrop_color | color_modify: 'alpha', cd_backdrop_alpha
+          -%}
+          <div
+            class="hero-banner__countdown{% unless block.settings.show_separators %} hero-banner__countdown--no-sep{% endunless %}{% if block.settings.enable_backdrop %} hero-banner__countdown--backdrop{% endif %}"
+            data-countdown
+            data-end="{{ block.settings.year }}-{{ block.settings.month }}-{{ block.settings.day }}T{{ block.settings.hour }}:{{ block.settings.minute }}:00Z"
+            data-hide-on-complete="{{ block.settings.hide_on_complete }}"
+            style="
+              --hbc-num-start: {{ block.settings.number_color_start }};
+              --hbc-num-end: {{ block.settings.number_color_end }};
+              --hbc-label-color: {{ block.settings.label_color }};
+              {% if block.settings.enable_backdrop %}
+                --hbc-backdrop-color: {{ cd_backdrop_rgba }};
+                --hbc-backdrop-radius: {{ block.settings.backdrop_radius }}px;
+              {% endif %}
+            "
+            {{ block.shopify_attributes }}
+          >
+            <div class="hero-banner__countdown-item" data-unit="days">
+              <span class="hero-banner__countdown-num" data-value>00</span>
+              <span class="hero-banner__countdown-label">{{ block.settings.days_text }}</span>
+            </div>
+            <span class="hero-banner__countdown-sep" aria-hidden="true">:</span>
+            <div class="hero-banner__countdown-item" data-unit="hours">
+              <span class="hero-banner__countdown-num" data-value>00</span>
+              <span class="hero-banner__countdown-label">{{ block.settings.hours_text }}</span>
+            </div>
+            <span class="hero-banner__countdown-sep" aria-hidden="true">:</span>
+            <div class="hero-banner__countdown-item" data-unit="minutes">
+              <span class="hero-banner__countdown-num" data-value>00</span>
+              <span class="hero-banner__countdown-label">{{ block.settings.minutes_text }}</span>
+            </div>
+            <span class="hero-banner__countdown-sep" aria-hidden="true">:</span>
+            <div class="hero-banner__countdown-item" data-unit="seconds">
+              <span class="hero-banner__countdown-num" data-value>00</span>
+              <span class="hero-banner__countdown-label">{{ block.settings.seconds_text }}</span>
+            </div>
+          </div>
+          <p class="hero-banner__countdown-complete" data-countdown-complete hidden>{{ block.settings.completed_text }}</p>
+        {%- endif -%}
+      {%- endfor -%}
+
+      {%- assign button_count = 0 -%}
+      {%- for block in section.blocks -%}
+        {%- if block.type == 'button' -%}{%- assign button_count = button_count | plus: 1 -%}{%- endif -%}
+      {%- endfor -%}
+
+      {%- if button_count > 0 -%}
+        <div class="hero-banner__actions">
+          {%- for block in section.blocks -%}
+            {%- if block.type == 'button' -%}
+              <a
+                {% if block.settings.link != blank %}href="{{ block.settings.link }}"{% else %}href="javascript:void(0);"{% endif %}
+                {% if block.settings.open_in_new_tab %}target="_blank" rel="noopener"{% endif %}
+                class="hero-banner-button hero-banner-button--{{ block.settings.style }}"
+                style="
+                  border-radius: {{ block.settings.corner_radius }}px;
+                  {% if block.settings.style == 'outline' %}
+                    color: {{ block.settings.bg_color }};
+                    border-color: {{ block.settings.bg_color }};
+                  {% else %}
+                    background-color: {{ block.settings.bg_color }};
+                    color: {{ block.settings.text_color }};
+                  {% endif %}
+                  {% if block.settings.style == 'glow' %}
+                    box-shadow:
+                      0 0 {{ block.settings.glow_size | times: 0.5 | round }}px color-mix(in srgb, {{ block.settings.glow_color }} 55%, transparent),
+                      0 0 {{ block.settings.glow_size }}px color-mix(in srgb, {{ block.settings.glow_color }} 35%, transparent),
+                      0 0 {{ block.settings.glow_size | times: 2.25 | round }}px color-mix(in srgb, {{ block.settings.glow_color }} 15%, transparent);
+                  {% endif %}
+                "
+                {{ block.shopify_attributes }}
+              >
+                {{ block.settings.label }}
+              </a>
+            {%- endif -%}
+          {%- endfor -%}
+        </div>
+      {%- endif -%}
+    </div>
+  </div>
+</div>
+
+<style>
+  @keyframes heroBannerGlossyShine-{{ section.id }} {
+    0% {
+      background-position: 100% 0;
+    }
+    100% {
+      background-position: 0% 0;
+    }
+  }
+
+  .hero-banner-{{ section.id }} {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    display: flex;
+    min-height: var(--hb-min-height-mobile);
+    background: #000;
+  }
+
+  @media screen and (min-width: 750px) {
+    .hero-banner-{{ section.id }} {
+      min-height: var(--hb-min-height);
+    }
+  }
+
+  .hero-banner-{{ section.id }} .hero-banner__media {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+  }
+
+  .hero-banner-{{ section.id }} .hero-banner__video,
+  .hero-banner-{{ section.id }} .hero-banner__image,
+  .hero-banner-{{ section.id }} .hero-banner__gradient,
+  .hero-banner-{{ section.id }} .hero-banner__solid {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: var(--hb-image-position);
+  }
+
+  .hero-banner-{{ section.id }} .hero-banner__image--mobile {
+    display: none;
+  }
+
+  .hero-banner-{{ section.id }} .hero-banner__image--desktop {
+    display: block;
+  }
+
+  @media screen and (max-width: 749px) {
+    .hero-banner-{{ section.id }} .hero-banner__image--mobile {
+      display: block;
+    }
+
+    .hero-banner-{{ section.id }} .hero-banner__image--mobile ~ .hero-banner__image--desktop {
+      display: none;
+    }
+  }
+
+  .hero-banner-{{ section.id }} .hero-banner__overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background: rgba(0, 0, 0, var(--hb-overlay-alpha));
+    pointer-events: none;
+  }
+
+  .hero-banner-{{ section.id }} .hero-banner__ambient {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background: radial-gradient(60% 70% at 20% 20%, var(--hb-ambient-color), transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-banner-{{ section.id }} .hero-banner__top-fade {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background-image: var(--hb-top-fade-gradient);
+    pointer-events: none;
+  }
+
+  .hero-banner-{{ section.id }} .hero-banner__bottom-fade {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background-image: var(--hb-bottom-fade-gradient);
+    pointer-events: none;
+  }
+
+  .hero-banner-{{ section.id }} .hero-banner__content-wrap {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    width: 100%;
+    padding-inline: 20px;
+  }
+
+  .hero-banner-{{ section.id }} .hero-banner__content {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+    max-width: var(--hb-content-max-width);
+    margin-inline: auto;
+    align-items: var(--hb-content-items-align-mobile);
+    justify-content: var(--hb-content-justify-mobile);
+    text-align: var(--hb-text-align-mobile);
+    padding-block: 48px;
+    transform: translateY(var(--hb-content-offset-mobile));
+  }
+
+  @media screen and (min-width: 750px) {
+    .hero-banner-{{ section.id }} .hero-banner__content-wrap {
+      padding-inline: 48px;
+    }
+
+    .hero-banner-{{ section.id }} .hero-banner__content {
+      align-items: var(--hb-content-items-align);
+      justify-content: var(--hb-content-justify);
+      text-align: var(--hb-text-align);
+      padding-block: 64px;
+      transform: translateY(var(--hb-content-offset));
+    }
+  }
+
+  .hero-banner-{{ section.id }} .hero-banner__eyebrow {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 16px;
+    border-radius: 999px;
+    border: 1px solid color-mix(in srgb, var(--hb-accent) 45%, transparent);
+    background: color-mix(in srgb, var(--hb-accent) 14%, transparent);
+    color: var(--hb-eyebrow-color);
+    font-size: var(--hb-eyebrow-size);
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .hero-banner-{{ section.id }} .hero-banner__heading-group {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    transform: translateY(var(--hb-heading-offset-mobile));
+  }
+
+  @media screen and (min-width: 750px) {
+    .hero-banner-{{ section.id }} .hero-banner__heading-group {
+      transform: translateY(var(--hb-heading-offset));
+    }
+  }
+
+  .hero-banner-{{ section.id }} .hero-banner__heading-line {
+    margin: 0;
+    font-weight: 800;
+    line-height: 1.02;
+    letter-spacing: 0.005em;
+  }
+
+  .hero-banner-{{ section.id }} .hero-banner__heading-line--uppercase {
+    text-transform: uppercase;
+  }
+
+  .hero-banner-{{ section.id }} .hero-banner__image-block {
+    display: block;
+    max-width: 100%;
+    line-height: 0;
+  }
+
+  .hero-banner-{{ section.id }} .hero-banner__image-block-img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .hero-banner-{{ section.id }} .hero-banner__subheading {
+    max-width: 56ch;
+    color: var(--hb-subheading-color);
+    font-size: var(--hb-subheading-size-mobile);
+    line-height: 1.6;
+  }
+
+  @media screen and (min-width: 750px) {
+    .hero-banner-{{ section.id }} .hero-banner__subheading {
+      font-size: var(--hb-subheading-size);
+    }
+  }
+
+  .hero-banner-{{ section.id }} .hero-banner__subheading p {
+    margin: 0;
+  }
+
+  .hero-banner-{{ section.id }} .hero-banner__countdown {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 4px;
+  }
+
+  .hero-banner-{{ section.id }} .hero-banner__countdown-item[hidden] {
+    display: none;
+  }
+
+  .hero-banner-{{ section.id }} .hero-banner__countdown-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 58px;
+    padding: 10px 12px;
+    border-radius: 14px;
+    background: linear-gradient(165deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.02));
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    box-shadow:
+      0 18px 34px -14px rgba(0, 0, 0, 0.9),
+      0 6px 16px -8px rgba(0, 0, 0, 0.6),
+      0 0 24px -8px color-mix(in srgb, var(--hb-accent) 45%, transparent);
+  }
+
+  .hero-banner-{{ section.id }} .hero-banner__countdown--backdrop .hero-banner__countdown-item {
+    background: var(--hbc-backdrop-color);
+    border-radius: var(--hbc-backdrop-radius);
+  }
+
+  .hero-banner-{{ section.id }} .hero-banner__countdown--no-sep .hero-banner__countdown-sep {
+    display: none;
+  }
+
+  .hero-banner-{{ section.id }} .hero-banner__countdown-num {
+    font-variant-numeric: tabular-nums;
+    font-weight: 800;
+    font-size: 1.5rem;
+    line-height: 1;
+    background: linear-gradient(160deg, var(--hbc-num-start) 10%, var(--hbc-num-end) 120%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .hero-banner-{{ section.id }} .hero-banner__countdown-label {
+    margin-top: 4px;
+    font-size: 0.62rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--hbc-label-color);
+  }
+
+  .hero-banner-{{ section.id }} .hero-banner__countdown-sep {
+    font-weight: 800;
+    font-size: 1.2rem;
+    color: rgba(255, 255, 255, 0.3);
+    transform: translateY(-8px);
+  }
+
+  .hero-banner-{{ section.id }} .hero-banner__countdown-sep[hidden] {
+    display: none;
+  }
+
+  .hero-banner-{{ section.id }} .hero-banner__countdown-complete {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.75);
+    font-size: 0.95rem;
+  }
+
+  @media screen and (min-width: 750px) {
+    .hero-banner-{{ section.id }} .hero-banner__countdown {
+      gap: 12px;
+    }
+
+    .hero-banner-{{ section.id }} .hero-banner__countdown-item {
+      min-width: 72px;
+      padding: 14px 16px;
+    }
+
+    .hero-banner-{{ section.id }} .hero-banner__countdown-num {
+      font-size: 1.9rem;
+    }
+  }
+
+  .hero-banner-{{ section.id }} .hero-banner__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-top: 8px;
+    justify-content: var(--hb-content-items-align-mobile);
+  }
+
+  @media screen and (min-width: 750px) {
+    .hero-banner-{{ section.id }} .hero-banner__actions {
+      justify-content: var(--hb-content-items-align);
+    }
+  }
+
+  .hero-banner-{{ section.id }} .hero-banner-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    padding: 15px 34px;
+    white-space: nowrap;
+    transition: box-shadow 0.25s ease, transform 0.25s ease, background-color 0.25s ease, color 0.25s ease;
+  }
+
+  .hero-banner-{{ section.id }} .hero-banner-button:hover {
+    transform: translateY(-2px);
+  }
+
+  .hero-banner-{{ section.id }} .hero-banner-button--solid {
+    border: none;
+  }
+
+  .hero-banner-{{ section.id }} .hero-banner-button--outline {
+    background: transparent !important;
+    border-width: 2px;
+    border-style: solid;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero-banner-{{ section.id }} .hero-banner-button {
+      transition: none;
+    }
+
+    .hero-banner-{{ section.id }} .hero-banner-button:hover {
+      transform: none;
+    }
+
+    .hero-banner-{{ section.id }} .hero-banner__heading-line--shine {
+      animation: none !important;
+    }
+  }
+</style>
+
+<script>
+  (function () {
+    var rootSelector = '.hero-banner-{{ section.id }}';
+
+    function initCountdown(root) {
+      var el = root.querySelector('[data-countdown]');
+      if (!el || el.dataset.countdownBound) return;
+      el.dataset.countdownBound = 'true';
+
+      var endTime = new Date(el.dataset.end).getTime();
+      var hideOnComplete = el.dataset.hideOnComplete === 'true';
+      var completeEl = root.querySelector('[data-countdown-complete]');
+      var daysItem = el.querySelector('[data-unit="days"]');
+      var timerId = null;
+
+      function setUnit(unit, value) {
+        var item = el.querySelector('[data-unit="' + unit + '"] [data-value]');
+        if (item) item.textContent = String(value).padStart(2, '0');
+      }
+
+      function tick() {
+        var diff = endTime - Date.now();
+
+        if (diff <= 0) {
+          clearInterval(timerId);
+          if (hideOnComplete) {
+            el.hidden = true;
+          } else {
+            el.querySelectorAll('[data-value]').forEach(function (n) {
+              n.textContent = '00';
+            });
+          }
+          if (completeEl) completeEl.hidden = false;
+          return;
+        }
+
+        var day = 86400000;
+        var hour = 3600000;
+        var minute = 60000;
+        var days = Math.floor(diff / day);
+        var hours = Math.floor((diff % day) / hour);
+        var minutes = Math.floor((diff % hour) / minute);
+        var seconds = Math.floor((diff % minute) / 1000);
+
+        if (daysItem) {
+          var showDays = days > 0;
+          daysItem.hidden = !showDays;
+          if (daysItem.nextElementSibling) daysItem.nextElementSibling.hidden = !showDays;
+        }
+
+        setUnit('days', days);
+        setUnit('hours', hours);
+        setUnit('minutes', minutes);
+        setUnit('seconds', seconds);
+      }
+
+      tick();
+      timerId = setInterval(tick, 1000);
+
+      document.addEventListener('shopify:section:unload', function (e) {
+        if (e.detail.sectionId === '{{ section.id }}') clearInterval(timerId);
+      });
+    }
+
+    function initLazyVideo(root) {
+      var video = root.querySelector('[data-lazy-video]');
+      if (!video || video.dataset.lazyBound) return;
+      video.dataset.lazyBound = 'true';
+
+      var playVideo = function () {
+        video.play().catch(function () {});
+      };
+
+      if ('IntersectionObserver' in window) {
+        var videoObserver = new IntersectionObserver(
+          function (entries) {
+            entries.forEach(function (entry) {
+              if (entry.isIntersecting) {
+                playVideo();
+                videoObserver.unobserve(video);
+              }
+            });
+          },
+          { rootMargin: '600px 0px' }
+        );
+        videoObserver.observe(video);
+      } else {
+        playVideo();
+      }
+    }
+
+    function init() {
+      var root = document.querySelector(rootSelector);
+      if (!root) return;
+      initCountdown(root);
+      initLazyVideo(root);
+    }
+
+    init();
+    document.addEventListener('shopify:section:load', init);
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Hero Banner",
+  "tag": "section",
+  "class": "hero-banner-wrapper section-wrapper",
+  "settings": [
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-5"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "select",
+      "id": "height_mode",
+      "label": "Height",
+      "default": "large",
+      "options": [
+        {
+          "value": "full_screen",
+          "label": "Full screen"
+        },
+        {
+          "value": "large",
+          "label": "Large"
+        },
+        {
+          "value": "medium",
+          "label": "Medium"
+        },
+        {
+          "value": "small",
+          "label": "Small"
+        },
+        {
+          "value": "custom",
+          "label": "Custom"
+        }
+      ]
+    },
+    {
+      "type": "range",
+      "id": "custom_height",
+      "label": "Custom height (desktop)",
+      "min": 200,
+      "max": 1200,
+      "step": 20,
+      "unit": "px",
+      "default": 640,
+      "visible_if": "{{ section.settings.height_mode == 'custom' }}"
+    },
+    {
+      "type": "range",
+      "id": "custom_height_mobile",
+      "label": "Custom height (mobile)",
+      "min": 200,
+      "max": 1000,
+      "step": 20,
+      "unit": "px",
+      "default": 520,
+      "visible_if": "{{ section.settings.height_mode == 'custom' }}"
+    },
+    {
+      "type": "text_alignment",
+      "id": "content_align",
+      "label": "Content alignment"
+    },
+    {
+      "type": "text_alignment",
+      "id": "content_align_mobile",
+      "label": "Content alignment - mobile"
+    },
+    {
+      "type": "select",
+      "id": "content_vertical_align",
+      "label": "Vertical position",
+      "default": "center",
+      "options": [
+        {
+          "value": "top",
+          "label": "Top"
+        },
+        {
+          "value": "center",
+          "label": "Center"
+        },
+        {
+          "value": "bottom",
+          "label": "Bottom"
+        }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "content_vertical_align_mobile",
+      "label": "Vertical position - mobile",
+      "default": "center",
+      "options": [
+        {
+          "value": "top",
+          "label": "Top"
+        },
+        {
+          "value": "center",
+          "label": "Center"
+        },
+        {
+          "value": "bottom",
+          "label": "Bottom"
+        }
+      ]
+    },
+    {
+      "type": "range",
+      "id": "content_vertical_offset",
+      "label": "Nudge whole content (desktop)",
+      "info": "Force-shifts the eyebrow/heading/subheading/buttons together, up (negative) or down (positive), without changing the section's height.",
+      "min": -300,
+      "max": 300,
+      "step": 10,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "content_vertical_offset_mobile",
+      "label": "Nudge whole content (mobile)",
+      "min": -300,
+      "max": 300,
+      "step": 10,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "heading_vertical_offset",
+      "label": "Nudge heading only (desktop)",
+      "info": "Moves just the heading up (negative) or down (positive), independent of the subheading/buttons/etc below it.",
+      "min": -300,
+      "max": 300,
+      "step": 10,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "heading_vertical_offset_mobile",
+      "label": "Nudge heading only (mobile)",
+      "min": -300,
+      "max": 300,
+      "step": 10,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "content_max_width",
+      "label": "Content max width",
+      "min": 400,
+      "max": 1200,
+      "step": 20,
+      "unit": "px",
+      "default": 720
+    },
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "text",
+      "id": "eyebrow_text",
+      "label": "Eyebrow text (optional)"
+    },
+    {
+      "type": "color",
+      "id": "eyebrow_color",
+      "label": "Eyebrow text color",
+      "default": "#eb00ca"
+    },
+    {
+      "type": "range",
+      "id": "eyebrow_size",
+      "label": "Eyebrow text size",
+      "min": 10,
+      "max": 22,
+      "step": 1,
+      "unit": "px",
+      "default": 12
+    },
+    {
+      "type": "paragraph",
+      "content": "Add \"Heading Line\" blocks below to build the headline -- each one is its own size, color, font and glow."
+    },
+    {
+      "type": "richtext",
+      "id": "subheading_text",
+      "label": "Subheading",
+      "default": "<p>Authentic trading cards and sealed product, curated for collectors who accept nothing less.</p>"
+    },
+    {
+      "type": "color",
+      "id": "subheading_color",
+      "label": "Subheading color",
+      "default": "#e6e6e6"
+    },
+    {
+      "type": "range",
+      "id": "subheading_size",
+      "label": "Subheading size (desktop)",
+      "min": 12,
+      "max": 32,
+      "step": 1,
+      "unit": "px",
+      "default": 18
+    },
+    {
+      "type": "range",
+      "id": "subheading_size_mobile",
+      "label": "Subheading size (mobile)",
+      "min": 12,
+      "max": 26,
+      "step": 1,
+      "unit": "px",
+      "default": 15
+    },
+    {
+      "type": "color",
+      "id": "heading_color",
+      "label": "Base text color",
+      "info": "Used as the fill for the countdown timer numbers.",
+      "default": "#ffffff"
+    },
+    {
+      "type": "header",
+      "content": "Background"
+    },
+    {
+      "type": "select",
+      "id": "background_style",
+      "label": "Background style",
+      "default": "image",
+      "options": [
+        {
+          "value": "solid",
+          "label": "Solid"
+        },
+        {
+          "value": "gradient",
+          "label": "Gradient"
+        },
+        {
+          "value": "image",
+          "label": "Image"
+        },
+        {
+          "value": "video",
+          "label": "Video"
+        }
+      ]
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#0b0b0d",
+      "visible_if": "{{ section.settings.background_style == 'solid' }}"
+    },
+    {
+      "type": "color_background",
+      "id": "background_gradient",
+      "label": "Gradient",
+      "default": "linear-gradient(165deg, #1a0014 0%, #000000 100%)",
+      "visible_if": "{{ section.settings.background_style == 'gradient' }}"
+    },
+    {
+      "type": "image_picker",
+      "id": "background_image",
+      "label": "Background image",
+      "visible_if": "{{ section.settings.background_style == 'image' }}"
+    },
+    {
+      "type": "image_picker",
+      "id": "background_image_mobile",
+      "label": "Background image - mobile (optional)",
+      "info": "Leave blank to reuse the desktop image on mobile.",
+      "visible_if": "{{ section.settings.background_style == 'image' }}"
+    },
+    {
+      "type": "select",
+      "id": "image_position",
+      "label": "Image focal point",
+      "default": "center",
+      "options": [
+        {
+          "value": "top",
+          "label": "Top"
+        },
+        {
+          "value": "center",
+          "label": "Center"
+        },
+        {
+          "value": "bottom",
+          "label": "Bottom"
+        }
+      ],
+      "visible_if": "{{ section.settings.background_style == 'image' }}"
+    },
+    {
+      "type": "video",
+      "id": "background_video",
+      "label": "Background video",
+      "info": "Autoplays muted and loops behind the content.",
+      "visible_if": "{{ section.settings.background_style == 'video' }}"
+    },
+    {
+      "type": "checkbox",
+      "id": "video_loop",
+      "label": "Loop video",
+      "default": true,
+      "visible_if": "{{ section.settings.background_style == 'video' }}"
+    },
+    {
+      "type": "header",
+      "content": "Background blur"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_bg_blur",
+      "label": "Blur background",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "bg_blur_amount",
+      "label": "Blur amount",
+      "min": 0,
+      "max": 40,
+      "step": 1,
+      "unit": "px",
+      "default": 10,
+      "visible_if": "{{ section.settings.enable_bg_blur }}"
+    },
+    {
+      "type": "header",
+      "content": "Overlay & fade"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_overlay",
+      "label": "Enable dark overlay",
+      "info": "Darkens the background evenly, useful for text contrast.",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "overlay_opacity",
+      "label": "Overlay opacity",
+      "min": 0,
+      "max": 90,
+      "step": 5,
+      "unit": "%",
+      "default": 30,
+      "visible_if": "{{ section.settings.enable_overlay }}"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_top_fade",
+      "label": "Enable top fade",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "top_fade_size",
+      "label": "Top fade height",
+      "min": 5,
+      "max": 80,
+      "step": 5,
+      "unit": "%",
+      "default": 20,
+      "visible_if": "{{ section.settings.enable_top_fade }}"
+    },
+    {
+      "type": "range",
+      "id": "top_fade_opacity",
+      "label": "Top fade strength",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "default": 60,
+      "visible_if": "{{ section.settings.enable_top_fade }}"
+    },
+    {
+      "type": "color",
+      "id": "top_fade_color",
+      "label": "Top fade color",
+      "default": "#000000",
+      "visible_if": "{{ section.settings.enable_top_fade }}"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_bottom_fade",
+      "label": "Enable bottom fade",
+      "info": "Fades the hero into the section below instead of ending in a hard edge.",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "bottom_fade_size",
+      "label": "Bottom fade height",
+      "min": 5,
+      "max": 80,
+      "step": 5,
+      "unit": "%",
+      "default": 35,
+      "visible_if": "{{ section.settings.enable_bottom_fade }}"
+    },
+    {
+      "type": "range",
+      "id": "bottom_fade_opacity",
+      "label": "Bottom fade strength",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "default": 100,
+      "visible_if": "{{ section.settings.enable_bottom_fade }}"
+    },
+    {
+      "type": "color",
+      "id": "bottom_fade_color",
+      "label": "Bottom fade color",
+      "info": "Match this to the background color of the section below for a seamless blend.",
+      "default": "#0b0b0d",
+      "visible_if": "{{ section.settings.enable_bottom_fade }}"
+    },
+    {
+      "type": "header",
+      "content": "Style"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent color",
+      "default": "#eb00ca"
+    },
+    {
+      "type": "range",
+      "id": "ambient_glow_strength",
+      "label": "Ambient glow strength",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "default": 25
+    },
+    {
+      "type": "header",
+      "content": "Padding"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top padding",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom padding",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "header",
+      "content": "Compact stacking"
+    },
+    {
+      "type": "range",
+      "id": "pull_next_section_up",
+      "label": "Pull next section up",
+      "info": "Overlaps whatever comes right after this hero (e.g. a collection's filter bar) by this many pixels, closing the gap so they read as one connected block instead of two separate sections.",
+      "min": 0,
+      "max": 600,
+      "step": 10,
+      "unit": "px",
+      "default": 0
+    }
+  ],
+  "blocks": [
+    {
+      "type": "heading_line",
+      "name": "Heading line",
+      "settings": [
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "Text",
+          "info": "Bold and italic words use their own color/font below, so you can mix styles on one line.",
+          "default": "<p>NEW</p>"
+        },
+        {
+          "type": "header",
+          "content": "Size"
+        },
+        {
+          "type": "range",
+          "id": "font_size_desktop",
+          "label": "Size (desktop)",
+          "min": 20,
+          "max": 180,
+          "step": 4,
+          "unit": "px",
+          "default": 84
+        },
+        {
+          "type": "range",
+          "id": "font_size_mobile",
+          "label": "Size (mobile)",
+          "min": 16,
+          "max": 110,
+          "step": 2,
+          "unit": "px",
+          "default": 44
+        },
+        {
+          "type": "header",
+          "content": "Style"
+        },
+        {
+          "type": "select",
+          "id": "text_style",
+          "label": "Fill style",
+          "default": "solid",
+          "options": [
+            { "value": "solid", "label": "Solid" },
+            { "value": "glossy", "label": "Glossy shine" }
+          ]
+        },
+        {
+          "type": "color",
+          "id": "color",
+          "label": "Color",
+          "info": "Glossy shine blends this color with white on top and black underneath.",
+          "default": "#ffffff"
+        },
+        {
+          "type": "checkbox",
+          "id": "animate_shine",
+          "label": "Animate shine (moving highlight)",
+          "info": "Sweeps the glossy highlight left to right on a loop. Only applies to Glossy shine fill.",
+          "default": false,
+          "visible_if": "{{ block.settings.text_style == 'glossy' }}"
+        },
+        {
+          "type": "range",
+          "id": "shine_speed",
+          "label": "Shine speed",
+          "min": 1,
+          "max": 10,
+          "step": 0.5,
+          "unit": "s",
+          "default": 3,
+          "visible_if": "{{ block.settings.text_style == 'glossy' and block.settings.animate_shine }}"
+        },
+        {
+          "type": "checkbox",
+          "id": "uppercase",
+          "label": "Uppercase",
+          "default": true
+        },
+        {
+          "type": "header",
+          "content": "Font"
+        },
+        {
+          "type": "checkbox",
+          "id": "use_custom_font",
+          "label": "Use custom font",
+          "default": false
+        },
+        {
+          "type": "font_picker",
+          "id": "font",
+          "label": "Font",
+          "default": "assistant_n7",
+          "visible_if": "{{ block.settings.use_custom_font }}"
+        },
+        {
+          "type": "select",
+          "id": "font_weight",
+          "label": "Weight (plain text)",
+          "default": "800",
+          "options": [
+            { "value": "400", "label": "Regular" },
+            { "value": "500", "label": "Medium" },
+            { "value": "600", "label": "Semibold" },
+            { "value": "700", "label": "Bold" },
+            { "value": "800", "label": "Extra bold" },
+            { "value": "900", "label": "Black" }
+          ],
+          "visible_if": "{{ block.settings.use_custom_font == false }}"
+        },
+        {
+          "type": "checkbox",
+          "id": "italic",
+          "label": "Italic (whole line)",
+          "default": false,
+          "visible_if": "{{ block.settings.use_custom_font == false }}"
+        },
+        {
+          "type": "header",
+          "content": "Bold words"
+        },
+        {
+          "type": "paragraph",
+          "content": "Bold a word in the Text field above to give it this color/font."
+        },
+        {
+          "type": "color",
+          "id": "bold_color",
+          "label": "Color",
+          "default": "#eb00ca"
+        },
+        {
+          "type": "checkbox",
+          "id": "bold_custom_font",
+          "label": "Use custom font",
+          "default": false
+        },
+        {
+          "type": "font_picker",
+          "id": "bold_font",
+          "label": "Font",
+          "default": "assistant_n7",
+          "visible_if": "{{ block.settings.bold_custom_font }}"
+        },
+        {
+          "type": "header",
+          "content": "Italic words"
+        },
+        {
+          "type": "paragraph",
+          "content": "Italicize a word in the Text field above to give it this color/font."
+        },
+        {
+          "type": "color",
+          "id": "italic_color",
+          "label": "Color",
+          "default": "#ffffff"
+        },
+        {
+          "type": "checkbox",
+          "id": "italic_custom_font",
+          "label": "Use custom font",
+          "default": false
+        },
+        {
+          "type": "font_picker",
+          "id": "italic_font",
+          "label": "Font",
+          "default": "anton_n4",
+          "visible_if": "{{ block.settings.italic_custom_font }}"
+        },
+        {
+          "type": "header",
+          "content": "Glow"
+        },
+        {
+          "type": "checkbox",
+          "id": "enable_glow",
+          "label": "Enable glow",
+          "default": false
+        },
+        {
+          "type": "color",
+          "id": "glow_color",
+          "label": "Glow color",
+          "default": "#ffffff",
+          "visible_if": "{{ block.settings.enable_glow }}"
+        },
+        {
+          "type": "range",
+          "id": "glow_size",
+          "label": "Glow size",
+          "min": 0,
+          "max": 60,
+          "step": 2,
+          "unit": "px",
+          "default": 16,
+          "visible_if": "{{ block.settings.enable_glow }}"
+        },
+        {
+          "type": "range",
+          "id": "glow_strength",
+          "label": "Glow strength",
+          "min": 0,
+          "max": 100,
+          "step": 5,
+          "unit": "%",
+          "default": 55,
+          "visible_if": "{{ block.settings.enable_glow }}"
+        }
+      ]
+    },
+    {
+      "type": "image",
+      "name": "Image",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Link (optional)"
+        },
+        {
+          "type": "checkbox",
+          "id": "open_in_new_tab",
+          "label": "Open in new tab",
+          "default": false
+        },
+        {
+          "type": "header",
+          "content": "Size"
+        },
+        {
+          "type": "range",
+          "id": "width_desktop",
+          "label": "Width (desktop)",
+          "min": 60,
+          "max": 800,
+          "step": 10,
+          "unit": "px",
+          "default": 260
+        },
+        {
+          "type": "range",
+          "id": "width_mobile",
+          "label": "Width (mobile)",
+          "min": 60,
+          "max": 500,
+          "step": 10,
+          "unit": "px",
+          "default": 160
+        },
+        {
+          "type": "range",
+          "id": "corner_radius",
+          "label": "Corner radius",
+          "min": 0,
+          "max": 100,
+          "step": 2,
+          "unit": "px",
+          "default": 0
+        },
+        {
+          "type": "range",
+          "id": "margin_top",
+          "label": "Space above",
+          "min": 0,
+          "max": 80,
+          "step": 4,
+          "unit": "px",
+          "default": 16
+        },
+        {
+          "type": "header",
+          "content": "Position"
+        },
+        {
+          "type": "paragraph",
+          "content": "Freely nudge the image away from its normal spot in the stack, without changing the space it takes up (so the headline/button don't shift)."
+        },
+        {
+          "type": "range",
+          "id": "offset_x_desktop",
+          "label": "Horizontal nudge (desktop)",
+          "min": -300,
+          "max": 300,
+          "step": 10,
+          "unit": "px",
+          "default": 0
+        },
+        {
+          "type": "range",
+          "id": "offset_y_desktop",
+          "label": "Vertical nudge (desktop)",
+          "min": -300,
+          "max": 300,
+          "step": 10,
+          "unit": "px",
+          "default": 0
+        },
+        {
+          "type": "range",
+          "id": "offset_x_mobile",
+          "label": "Horizontal nudge (mobile)",
+          "min": -200,
+          "max": 200,
+          "step": 10,
+          "unit": "px",
+          "default": 0
+        },
+        {
+          "type": "range",
+          "id": "offset_y_mobile",
+          "label": "Vertical nudge (mobile)",
+          "min": -200,
+          "max": 200,
+          "step": 10,
+          "unit": "px",
+          "default": 0
+        }
+      ]
+    },
+    {
+      "type": "button",
+      "name": "Button",
+      "settings": [
+        {
+          "type": "text",
+          "id": "label",
+          "label": "Label",
+          "default": "Shop now"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Link"
+        },
+        {
+          "type": "checkbox",
+          "id": "open_in_new_tab",
+          "label": "Open in new tab",
+          "default": false
+        },
+        {
+          "type": "select",
+          "id": "style",
+          "label": "Style",
+          "default": "glow",
+          "options": [
+            {
+              "value": "solid",
+              "label": "Solid"
+            },
+            {
+              "value": "outline",
+              "label": "Outline"
+            },
+            {
+              "value": "glow",
+              "label": "Glow"
+            }
+          ]
+        },
+        {
+          "type": "color",
+          "id": "bg_color",
+          "label": "Background / outline color",
+          "default": "#ffffff"
+        },
+        {
+          "type": "color",
+          "id": "text_color",
+          "label": "Text color",
+          "default": "#0b0b0d"
+        },
+        {
+          "type": "color",
+          "id": "glow_color",
+          "label": "Glow color",
+          "default": "#eb00ca",
+          "visible_if": "{{ block.settings.style == 'glow' }}"
+        },
+        {
+          "type": "range",
+          "id": "glow_size",
+          "label": "Glow intensity",
+          "min": 5,
+          "max": 50,
+          "step": 5,
+          "unit": "px",
+          "default": 20,
+          "visible_if": "{{ block.settings.style == 'glow' }}"
+        },
+        {
+          "type": "range",
+          "id": "corner_radius",
+          "label": "Corner radius",
+          "min": 0,
+          "max": 50,
+          "step": 1,
+          "unit": "px",
+          "default": 50
+        }
+      ]
+    },
+    {
+      "type": "countdown",
+      "name": "Countdown timer",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "Target date/time is in UTC."
+        },
+        {
+          "type": "header",
+          "content": "Target date"
+        },
+        {
+          "type": "select",
+          "id": "year",
+          "label": "Year",
+          "default": "2026",
+          "options": [
+            {
+              "value": "2025",
+              "label": "2025"
+            },
+            {
+              "value": "2026",
+              "label": "2026"
+            },
+            {
+              "value": "2027",
+              "label": "2027"
+            },
+            {
+              "value": "2028",
+              "label": "2028"
+            },
+            {
+              "value": "2029",
+              "label": "2029"
+            },
+            {
+              "value": "2030",
+              "label": "2030"
+            }
+          ]
+        },
+        {
+          "type": "select",
+          "id": "month",
+          "label": "Month",
+          "default": "01",
+          "options": [
+            {
+              "value": "01",
+              "label": "January"
+            },
+            {
+              "value": "02",
+              "label": "February"
+            },
+            {
+              "value": "03",
+              "label": "March"
+            },
+            {
+              "value": "04",
+              "label": "April"
+            },
+            {
+              "value": "05",
+              "label": "May"
+            },
+            {
+              "value": "06",
+              "label": "June"
+            },
+            {
+              "value": "07",
+              "label": "July"
+            },
+            {
+              "value": "08",
+              "label": "August"
+            },
+            {
+              "value": "09",
+              "label": "September"
+            },
+            {
+              "value": "10",
+              "label": "October"
+            },
+            {
+              "value": "11",
+              "label": "November"
+            },
+            {
+              "value": "12",
+              "label": "December"
+            }
+          ]
+        },
+        {
+          "type": "select",
+          "id": "day",
+          "label": "Day",
+          "default": "01",
+          "options": [
+            {
+              "value": "01",
+              "label": "01"
+            },
+            {
+              "value": "02",
+              "label": "02"
+            },
+            {
+              "value": "03",
+              "label": "03"
+            },
+            {
+              "value": "04",
+              "label": "04"
+            },
+            {
+              "value": "05",
+              "label": "05"
+            },
+            {
+              "value": "06",
+              "label": "06"
+            },
+            {
+              "value": "07",
+              "label": "07"
+            },
+            {
+              "value": "08",
+              "label": "08"
+            },
+            {
+              "value": "09",
+              "label": "09"
+            },
+            {
+              "value": "10",
+              "label": "10"
+            },
+            {
+              "value": "11",
+              "label": "11"
+            },
+            {
+              "value": "12",
+              "label": "12"
+            },
+            {
+              "value": "13",
+              "label": "13"
+            },
+            {
+              "value": "14",
+              "label": "14"
+            },
+            {
+              "value": "15",
+              "label": "15"
+            },
+            {
+              "value": "16",
+              "label": "16"
+            },
+            {
+              "value": "17",
+              "label": "17"
+            },
+            {
+              "value": "18",
+              "label": "18"
+            },
+            {
+              "value": "19",
+              "label": "19"
+            },
+            {
+              "value": "20",
+              "label": "20"
+            },
+            {
+              "value": "21",
+              "label": "21"
+            },
+            {
+              "value": "22",
+              "label": "22"
+            },
+            {
+              "value": "23",
+              "label": "23"
+            },
+            {
+              "value": "24",
+              "label": "24"
+            },
+            {
+              "value": "25",
+              "label": "25"
+            },
+            {
+              "value": "26",
+              "label": "26"
+            },
+            {
+              "value": "27",
+              "label": "27"
+            },
+            {
+              "value": "28",
+              "label": "28"
+            },
+            {
+              "value": "29",
+              "label": "29"
+            },
+            {
+              "value": "30",
+              "label": "30"
+            },
+            {
+              "value": "31",
+              "label": "31"
+            }
+          ]
+        },
+        {
+          "type": "select",
+          "id": "hour",
+          "label": "Hour",
+          "default": "00",
+          "options": [
+            {
+              "value": "00",
+              "label": "12 AM"
+            },
+            {
+              "value": "01",
+              "label": "01 AM"
+            },
+            {
+              "value": "02",
+              "label": "02 AM"
+            },
+            {
+              "value": "03",
+              "label": "03 AM"
+            },
+            {
+              "value": "04",
+              "label": "04 AM"
+            },
+            {
+              "value": "05",
+              "label": "05 AM"
+            },
+            {
+              "value": "06",
+              "label": "06 AM"
+            },
+            {
+              "value": "07",
+              "label": "07 AM"
+            },
+            {
+              "value": "08",
+              "label": "08 AM"
+            },
+            {
+              "value": "09",
+              "label": "09 AM"
+            },
+            {
+              "value": "10",
+              "label": "10 AM"
+            },
+            {
+              "value": "11",
+              "label": "11 AM"
+            },
+            {
+              "value": "12",
+              "label": "12 PM"
+            },
+            {
+              "value": "13",
+              "label": "01 PM"
+            },
+            {
+              "value": "14",
+              "label": "02 PM"
+            },
+            {
+              "value": "15",
+              "label": "03 PM"
+            },
+            {
+              "value": "16",
+              "label": "04 PM"
+            },
+            {
+              "value": "17",
+              "label": "05 PM"
+            },
+            {
+              "value": "18",
+              "label": "06 PM"
+            },
+            {
+              "value": "19",
+              "label": "07 PM"
+            },
+            {
+              "value": "20",
+              "label": "08 PM"
+            },
+            {
+              "value": "21",
+              "label": "09 PM"
+            },
+            {
+              "value": "22",
+              "label": "10 PM"
+            },
+            {
+              "value": "23",
+              "label": "11 PM"
+            }
+          ]
+        },
+        {
+          "type": "select",
+          "id": "minute",
+          "label": "Minute",
+          "default": "00",
+          "options": [
+            {
+              "value": "00",
+              "label": "00"
+            },
+            {
+              "value": "01",
+              "label": "01"
+            },
+            {
+              "value": "02",
+              "label": "02"
+            },
+            {
+              "value": "03",
+              "label": "03"
+            },
+            {
+              "value": "04",
+              "label": "04"
+            },
+            {
+              "value": "05",
+              "label": "05"
+            },
+            {
+              "value": "06",
+              "label": "06"
+            },
+            {
+              "value": "07",
+              "label": "07"
+            },
+            {
+              "value": "08",
+              "label": "08"
+            },
+            {
+              "value": "09",
+              "label": "09"
+            },
+            {
+              "value": "10",
+              "label": "10"
+            },
+            {
+              "value": "11",
+              "label": "11"
+            },
+            {
+              "value": "12",
+              "label": "12"
+            },
+            {
+              "value": "13",
+              "label": "13"
+            },
+            {
+              "value": "14",
+              "label": "14"
+            },
+            {
+              "value": "15",
+              "label": "15"
+            },
+            {
+              "value": "16",
+              "label": "16"
+            },
+            {
+              "value": "17",
+              "label": "17"
+            },
+            {
+              "value": "18",
+              "label": "18"
+            },
+            {
+              "value": "19",
+              "label": "19"
+            },
+            {
+              "value": "20",
+              "label": "20"
+            },
+            {
+              "value": "21",
+              "label": "21"
+            },
+            {
+              "value": "22",
+              "label": "22"
+            },
+            {
+              "value": "23",
+              "label": "23"
+            },
+            {
+              "value": "24",
+              "label": "24"
+            },
+            {
+              "value": "25",
+              "label": "25"
+            },
+            {
+              "value": "26",
+              "label": "26"
+            },
+            {
+              "value": "27",
+              "label": "27"
+            },
+            {
+              "value": "28",
+              "label": "28"
+            },
+            {
+              "value": "29",
+              "label": "29"
+            },
+            {
+              "value": "30",
+              "label": "30"
+            },
+            {
+              "value": "31",
+              "label": "31"
+            },
+            {
+              "value": "32",
+              "label": "32"
+            },
+            {
+              "value": "33",
+              "label": "33"
+            },
+            {
+              "value": "34",
+              "label": "34"
+            },
+            {
+              "value": "35",
+              "label": "35"
+            },
+            {
+              "value": "36",
+              "label": "36"
+            },
+            {
+              "value": "37",
+              "label": "37"
+            },
+            {
+              "value": "38",
+              "label": "38"
+            },
+            {
+              "value": "39",
+              "label": "39"
+            },
+            {
+              "value": "40",
+              "label": "40"
+            },
+            {
+              "value": "41",
+              "label": "41"
+            },
+            {
+              "value": "42",
+              "label": "42"
+            },
+            {
+              "value": "43",
+              "label": "43"
+            },
+            {
+              "value": "44",
+              "label": "44"
+            },
+            {
+              "value": "45",
+              "label": "45"
+            },
+            {
+              "value": "46",
+              "label": "46"
+            },
+            {
+              "value": "47",
+              "label": "47"
+            },
+            {
+              "value": "48",
+              "label": "48"
+            },
+            {
+              "value": "49",
+              "label": "49"
+            },
+            {
+              "value": "50",
+              "label": "50"
+            },
+            {
+              "value": "51",
+              "label": "51"
+            },
+            {
+              "value": "52",
+              "label": "52"
+            },
+            {
+              "value": "53",
+              "label": "53"
+            },
+            {
+              "value": "54",
+              "label": "54"
+            },
+            {
+              "value": "55",
+              "label": "55"
+            },
+            {
+              "value": "56",
+              "label": "56"
+            },
+            {
+              "value": "57",
+              "label": "57"
+            },
+            {
+              "value": "58",
+              "label": "58"
+            },
+            {
+              "value": "59",
+              "label": "59"
+            }
+          ]
+        },
+        {
+          "type": "header",
+          "content": "Labels"
+        },
+        {
+          "type": "text",
+          "id": "days_text",
+          "label": "Days label",
+          "default": "Days"
+        },
+        {
+          "type": "text",
+          "id": "hours_text",
+          "label": "Hours label",
+          "default": "Hours"
+        },
+        {
+          "type": "text",
+          "id": "minutes_text",
+          "label": "Minutes label",
+          "default": "Minutes"
+        },
+        {
+          "type": "text",
+          "id": "seconds_text",
+          "label": "Seconds label",
+          "default": "Seconds"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_separators",
+          "label": "Show \":\" separators between tiles",
+          "default": true
+        },
+        {
+          "type": "header",
+          "content": "Colors"
+        },
+        {
+          "type": "color",
+          "id": "number_color_start",
+          "label": "Number color (start)",
+          "default": "#ffffff"
+        },
+        {
+          "type": "color",
+          "id": "number_color_end",
+          "label": "Number color (end)",
+          "default": "#eb00ca"
+        },
+        {
+          "type": "color",
+          "id": "label_color",
+          "label": "Label text color",
+          "default": "#c9c9c9"
+        },
+        {
+          "type": "header",
+          "content": "Backdrop"
+        },
+        {
+          "type": "checkbox",
+          "id": "enable_backdrop",
+          "label": "Enable tile backdrop",
+          "info": "Fills each individual tile with a tinted color, useful for legibility over busy images.",
+          "default": true
+        },
+        {
+          "type": "color",
+          "id": "backdrop_color",
+          "label": "Backdrop color",
+          "default": "#000000",
+          "visible_if": "{{ block.settings.enable_backdrop }}"
+        },
+        {
+          "type": "range",
+          "id": "backdrop_opacity",
+          "label": "Backdrop opacity",
+          "min": 0,
+          "max": 100,
+          "step": 5,
+          "unit": "%",
+          "default": 40,
+          "visible_if": "{{ block.settings.enable_backdrop }}"
+        },
+        {
+          "type": "range",
+          "id": "backdrop_radius",
+          "label": "Tile corner radius",
+          "min": 0,
+          "max": 60,
+          "step": 2,
+          "unit": "px",
+          "default": 24,
+          "visible_if": "{{ block.settings.enable_backdrop }}"
+        },
+        {
+          "type": "header",
+          "content": "When it ends"
+        },
+        {
+          "type": "checkbox",
+          "id": "hide_on_complete",
+          "label": "Hide timer when it reaches zero",
+          "default": false
+        },
+        {
+          "type": "text",
+          "id": "completed_text",
+          "label": "Message shown instead",
+          "default": "This offer has ended."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Hero Banner",
+      "blocks": [
+        {
+          "type": "heading_line",
+          "settings": {
+            "text": "<p>NEW</p>",
+            "color": "#ffffff"
+          }
+        },
+        {
+          "type": "heading_line",
+          "settings": {
+            "text": "<p>ARRIVALS</p>",
+            "color": "#eb00ca",
+            "font_size_desktop": 96,
+            "font_size_mobile": 50
+          }
+        },
+        {
+          "type": "button"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

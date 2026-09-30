@@ -1,0 +1,361 @@
+{% liquid
+  assign accent = section.settings.accent_color
+  assign fade_opacity_decimal = section.settings.fade_opacity | times: 1.0 | divided_by: 100
+%}
+
+<div class="section-background color-{{ section.settings.color_scheme }}"></div>
+<div
+  class="faq-accordion-{{ section.id }} faq-accordion section section--full-width color-{{ section.settings.color_scheme }}"
+>
+  <div class="faq-accordion__ambient" aria-hidden="true"></div>
+
+  <div class="faq-accordion__inner">
+    {% if section.settings.heading != blank %}
+      <h2 class="faq-accordion__heading">{{ section.settings.heading }}</h2>
+    {% endif %}
+
+    <div class="faq-accordion__list">
+      {% for block in section.blocks %}
+        <div class="faq-accordion__item" {{ block.shopify_attributes }}>
+          <button
+            type="button"
+            class="faq-accordion__trigger"
+            aria-expanded="false"
+            aria-controls="faq-panel-{{ section.id }}-{{ forloop.index }}"
+          >
+            <span class="faq-accordion__question">{{ block.settings.question }}</span>
+            <span class="faq-accordion__chevron" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+            </span>
+          </button>
+          <div class="faq-accordion__panel" id="faq-panel-{{ section.id }}-{{ forloop.index }}">
+            <div class="faq-accordion__answer">{{ block.settings.answer }}</div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<style>
+  .faq-accordion-{{ section.id }} {
+    position: relative;
+    z-index: 1;
+    overflow: hidden;
+    padding-block: {{ section.settings.padding_top }}px {{ section.settings.padding_bottom }}px;
+  }
+
+  .faq-accordion-{{ section.id }} .faq-accordion__ambient {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(
+        to bottom,
+        rgba(0, 0, 0, {{ fade_opacity_decimal }}) 0%,
+        transparent {{ section.settings.fade_size }}%
+      ),
+      radial-gradient(55% 90% at 50% 20%, {{ accent }}22, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .faq-accordion-{{ section.id }} .faq-accordion__inner {
+    position: relative;
+    z-index: 1;
+    max-width: 760px;
+    margin-inline: auto;
+    padding-inline: 20px;
+  }
+
+  .faq-accordion-{{ section.id }} .faq-accordion__heading {
+    text-align: center;
+    font-family: var(--font-heading--family, inherit);
+    font-weight: 800;
+    font-size: clamp(1.6rem, 1.2rem + 1.6vw, 2.2rem);
+    margin: 0 0 28px;
+    background: linear-gradient(160deg, #ffffff 10%, {{ accent }} 120%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .faq-accordion-{{ section.id }} .faq-accordion__list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .faq-accordion-{{ section.id }} .faq-accordion__item {
+    --spot-x: 50%;
+    --spot-y: 50%;
+    position: relative;
+    border-radius: 16px;
+    overflow: hidden;
+    background: linear-gradient(165deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.04));
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 16px 30px -22px rgba(0, 0, 0, 0.8);
+    transition: border-color 0.25s ease, box-shadow 0.3s ease, opacity 0.3s ease, filter 0.3s ease;
+  }
+
+  .faq-accordion-{{ section.id }} .faq-accordion__list:has(.faq-accordion__trigger[aria-expanded='true'])
+    .faq-accordion__item:not(:has(.faq-accordion__trigger[aria-expanded='true'])) {
+    opacity: 0.45;
+    filter: grayscale(70%);
+  }
+
+  .faq-accordion-{{ section.id }} .faq-accordion__list:has(.faq-accordion__trigger[aria-expanded='true'])
+    .faq-accordion__item:not(:has(.faq-accordion__trigger[aria-expanded='true'])):hover {
+    opacity: 1;
+    filter: none;
+  }
+
+  .faq-accordion-{{ section.id }} .faq-accordion__item::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(240px circle at var(--spot-x) var(--spot-y), {{ accent }}22, transparent 65%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .faq-accordion-{{ section.id }} .faq-accordion__item:hover::before {
+    opacity: 1;
+  }
+
+  .faq-accordion-{{ section.id }} .faq-accordion__item:has(.faq-accordion__trigger[aria-expanded="true"]) {
+    border-color: {{ accent }}66;
+    box-shadow: 0 20px 40px -20px rgba(0, 0, 0, 0.85), 0 0 32px -8px {{ accent }}4d;
+  }
+
+  .faq-accordion-{{ section.id }} .faq-accordion__trigger,
+  .faq-accordion-{{ section.id }} .faq-accordion__panel {
+    position: relative;
+    z-index: 1;
+  }
+
+  .faq-accordion-{{ section.id }} .faq-accordion__trigger {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 18px 20px;
+    background: none;
+    border: none;
+    color: #fff;
+    text-align: left;
+    font-family: inherit;
+    cursor: pointer;
+  }
+
+  .faq-accordion-{{ section.id }} .faq-accordion__question {
+    font-weight: 700;
+    font-size: 1rem;
+    line-height: 1.4;
+  }
+
+  .faq-accordion-{{ section.id }} .faq-accordion__chevron {
+    flex: none;
+    display: flex;
+    width: 24px;
+    height: 24px;
+    align-items: center;
+    justify-content: center;
+    color: {{ accent }};
+    transition: transform 0.3s ease;
+  }
+
+  .faq-accordion-{{ section.id }} .faq-accordion__chevron svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .faq-accordion-{{ section.id }} .faq-accordion__trigger[aria-expanded="true"] .faq-accordion__chevron {
+    transform: rotate(90deg);
+  }
+
+  .faq-accordion-{{ section.id }} .faq-accordion__panel {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.35s ease;
+  }
+
+  .faq-accordion-{{ section.id }} .faq-accordion__answer {
+    margin: 0 14px 14px;
+    padding: 16px 16px 4px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(0, 0, 0, 0.25);
+    border-radius: 0 0 10px 10px;
+    color: rgba(255, 255, 255, 0.75);
+    font-size: 0.92rem;
+    line-height: 1.6;
+  }
+
+  .faq-accordion-{{ section.id }} .faq-accordion__answer p {
+    margin: 0 0 10px;
+  }
+
+  .faq-accordion-{{ section.id }} .faq-accordion__answer p:last-child {
+    margin-bottom: 0;
+  }
+
+  .faq-accordion-{{ section.id }} .faq-accordion__answer a {
+    color: {{ accent }};
+  }
+</style>
+
+<script>
+  (function () {
+    var rootSelector = '.faq-accordion-{{ section.id }}';
+
+    function toggle(trigger) {
+      var panel = document.getElementById(trigger.getAttribute('aria-controls'));
+      if (!panel) return;
+      var isOpen = trigger.getAttribute('aria-expanded') === 'true';
+
+      if (isOpen) {
+        panel.style.maxHeight = panel.scrollHeight + 'px';
+        requestAnimationFrame(function () {
+          panel.style.maxHeight = '0px';
+        });
+        trigger.setAttribute('aria-expanded', 'false');
+      } else {
+        trigger.setAttribute('aria-expanded', 'true');
+        panel.style.maxHeight = panel.scrollHeight + 'px';
+      }
+    }
+
+    function setSpot(item, clientX, clientY) {
+      var rect = item.getBoundingClientRect();
+      var x = ((clientX - rect.left) / rect.width) * 100;
+      var y = ((clientY - rect.top) / rect.height) * 100;
+      item.style.setProperty('--spot-x', x + '%');
+      item.style.setProperty('--spot-y', y + '%');
+    }
+
+    function init() {
+      var root = document.querySelector(rootSelector);
+      if (!root) return;
+
+      root.querySelectorAll('.faq-accordion__trigger').forEach(function (trigger) {
+        if (trigger.dataset.faqBound) return;
+        trigger.dataset.faqBound = 'true';
+        trigger.addEventListener('click', function () {
+          toggle(trigger);
+        });
+      });
+
+      root.querySelectorAll('.faq-accordion__item').forEach(function (item) {
+        if (item.dataset.faqGlowBound) return;
+        item.dataset.faqGlowBound = 'true';
+        item.addEventListener('pointermove', function (e) {
+          setSpot(item, e.clientX, e.clientY);
+        });
+      });
+    }
+
+    init();
+    document.addEventListener('shopify:section:load', init);
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "FAQ Accordion",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-5"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent color",
+      "default": "#eb00ca"
+    },
+    {
+      "type": "header",
+      "content": "Top dimming fade"
+    },
+    {
+      "type": "range",
+      "id": "fade_size",
+      "label": "Fade size",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "%",
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "fade_opacity",
+      "label": "Fade opacity",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "default": 90
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "FAQ"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top padding",
+      "min": 0,
+      "max": 80,
+      "step": 5,
+      "unit": "px",
+      "default": 50
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom padding",
+      "min": 0,
+      "max": 80,
+      "step": 5,
+      "unit": "px",
+      "default": 50
+    }
+  ],
+  "blocks": [
+    {
+      "type": "question",
+      "name": "Question",
+      "settings": [
+        {
+          "type": "text",
+          "id": "question",
+          "label": "Question"
+        },
+        {
+          "type": "richtext",
+          "id": "answer",
+          "label": "Answer"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "FAQ Accordion",
+      "blocks": [
+        { "type": "question" },
+        { "type": "question" },
+        { "type": "question" }
+      ]
+    }
+  ]
+}
+{% endschema %}
