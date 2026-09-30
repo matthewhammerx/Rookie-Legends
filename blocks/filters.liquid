@@ -24,6 +24,20 @@
   assign products_count = results_size
   assign sort_by = results.sort_by | default: results.default_sort_by
   assign filters = filters | default: results.filters
+
+  # Sort bar border theme (Theme settings > Sort bar)
+  assign rl_ring = settings.sort_bar_ring | default: 'holo'
+  assign rl_deck_classes = ' rl-deck--ring-' | append: rl_ring
+  unless settings.sort_bar_ring_spin
+    assign rl_deck_classes = rl_deck_classes | append: ' rl-deck--still'
+  endunless
+  assign rl_deck_style = ''
+  if rl_ring == 'custom'
+    capture rl_deck_style
+      echo ' style="--rl-ring-1: ' | append: settings.sort_bar_ring_1 | append: '; --rl-ring-2: ' | append: settings.sort_bar_ring_2
+      echo '; --rl-ring-3: ' | append: settings.sort_bar_ring_3 | append: '; --rl-ring-4: ' | append: settings.sort_bar_ring_4 | append: ';"'
+    endcapture
+  endif
   assign total_active_values = 0
 
   # Calculate facets margin style
@@ -232,7 +246,7 @@
             {% if block_settings.filter_style == 'horizontal' %}
               {% if block_settings.enable_sorting or block_settings.enable_grid_density %}
                 {% # Sort + grid view combined into one control deck (styles at the end of this file's stylesheet) %}
-                <div class="rl-deck{% if block_settings.enable_sorting and block_settings.enable_grid_density %} rl-deck--split{% endif %}">
+                <div class="rl-deck{% if block_settings.enable_sorting and block_settings.enable_grid_density %} rl-deck--split{% endif %}{{ rl_deck_classes }}"{{ rl_deck_style }}>
                   {% if block_settings.enable_sorting %}
                     {% render 'sorting',
                       results: results,
@@ -312,7 +326,7 @@
 
     <div class="facets-mobile-wrapper facets-controls-wrapper{% if child_count > 1 %} facets-mobile-wrapper--multiple-controls{% endif %}">
       {% if child_count > 0 %}
-      <div class="rl-deck{% if child_count > 1 %} rl-deck--split{% endif %}">
+      <div class="rl-deck{% if child_count > 1 %} rl-deck--split{% endif %}{{ rl_deck_classes }}"{{ rl_deck_style }}>
         {% if block_settings.enable_filtering == false and block_settings.enable_sorting %}
           <facets-form-component
             section-id="{{ section.id }}"
@@ -1327,6 +1341,12 @@
     --rl-gold: #ffd84d;
     --rl-holo: linear-gradient(135deg, var(--rl-pink), var(--rl-violet) 55%, var(--rl-cyan));
 
+    /* Outer border colors (Theme settings > Sort bar) */
+    --rl-ring-1: var(--rl-pink);
+    --rl-ring-2: var(--rl-violet);
+    --rl-ring-3: var(--rl-cyan);
+    --rl-ring-4: var(--rl-gold);
+
     position: relative;
     display: inline-flex;
     align-items: center;
@@ -1340,16 +1360,39 @@
       linear-gradient(#0c0c11, #0c0c11) padding-box,
       conic-gradient(
         from var(--rl-deck-angle),
-        var(--rl-pink),
-        var(--rl-violet),
-        var(--rl-cyan),
-        var(--rl-gold),
-        var(--rl-pink)
+        var(--rl-ring-1),
+        var(--rl-ring-2),
+        var(--rl-ring-3),
+        var(--rl-ring-4),
+        var(--rl-ring-1)
       ) border-box;
     box-shadow:
       0 12px 32px rgb(0 0 0 / 0.5),
-      0 0 26px rgb(139 92 255 / 0.18);
+      0 0 26px color-mix(in srgb, var(--rl-ring-2) 22%, transparent);
     animation: rl-deck-spin 7s linear infinite;
+  }
+
+  .rl-deck--still {
+    animation: none;
+  }
+
+  /* Border color themes */
+  .rl-deck--ring-inferno { --rl-ring-1: #ff2e2e; --rl-ring-2: #ff7a00; --rl-ring-3: #ffd23f; --rl-ring-4: #ff3d6e; }
+  .rl-deck--ring-neon-red { --rl-ring-1: #ff1e3c; --rl-ring-2: #ff4d6d; --rl-ring-3: #b3001b; --rl-ring-4: #ff8095; }
+  .rl-deck--ring-ultraviolet { --rl-ring-1: #b44cff; --rl-ring-2: #6a3cff; --rl-ring-3: #ff5ce1; --rl-ring-4: #3d5afe; }
+  .rl-deck--ring-hot-pink { --rl-ring-1: #ff2fb1; --rl-ring-2: #ff7ad1; --rl-ring-3: #eb00ca; --rl-ring-4: #ffc2ec; }
+  .rl-deck--ring-emerald { --rl-ring-1: #00e38c; --rl-ring-2: #00b3a4; --rl-ring-3: #7cff5b; --rl-ring-4: #00d4ff; }
+  .rl-deck--ring-frost { --rl-ring-1: #7fdbff; --rl-ring-2: #3d8bff; --rl-ring-3: #e6f9ff; --rl-ring-4: #9b8cff; }
+  .rl-deck--ring-gold { --rl-ring-1: #ffd400; --rl-ring-2: #ff9f00; --rl-ring-3: #fff3a6; --rl-ring-4: #c77700; }
+  .rl-deck--ring-chrome { --rl-ring-1: #ffffff; --rl-ring-2: #8d939c; --rl-ring-3: #d9dde3; --rl-ring-4: #4b5058; }
+
+  .rl-deck .facets__summary:focus-visible {
+    outline: 2px solid var(--rl-ring-1);
+    outline-offset: 2px;
+  }
+
+  .rl-deck .facets__summary:focus:not(:focus-visible) {
+    outline: none;
   }
 
   @keyframes rl-deck-spin {

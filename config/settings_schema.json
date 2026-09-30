@@ -2359,5 +2359,96 @@
         "default": "equal-width-buttons"
       }
     ]
+  },
+  {
+    "name": "Sort bar",
+    "settings": [
+      {
+        "type": "paragraph",
+        "content": "Border of the sort + grid view bar on collection and search pages."
+      },
+      {
+        "type": "select",
+        "id": "sort_bar_ring",
+        "label": "Border colors",
+        "options": [
+          {
+            "value": "holo",
+            "label": "Holo (pink, violet, cyan, gold)"
+          },
+          {
+            "value": "inferno",
+            "label": "Inferno (red, orange, yellow)"
+          },
+          {
+            "value": "neon-red",
+            "label": "Neon red"
+          },
+          {
+            "value": "ultraviolet",
+            "label": "Ultraviolet (purple, magenta, blue)"
+          },
+          {
+            "value": "hot-pink",
+            "label": "Hot pink"
+          },
+          {
+            "value": "emerald",
+            "label": "Emerald (green, teal)"
+          },
+          {
+            "value": "frost",
+            "label": "Frost (ice blue)"
+          },
+          {
+            "value": "gold",
+            "label": "Gold"
+          },
+          {
+            "value": "chrome",
+            "label": "Chrome (silver)"
+          },
+          {
+            "value": "custom",
+            "label": "Custom colors"
+          }
+        ],
+        "default": "holo"
+      },
+      {
+        "type": "color",
+        "id": "sort_bar_ring_1",
+        "label": "Custom color 1",
+        "default": "#FF2FB1",
+        "visible_if": "{{ settings.sort_bar_ring == 'custom' }}"
+      },
+      {
+        "type": "color",
+        "id": "sort_bar_ring_2",
+        "label": "Custom color 2",
+        "default": "#8B5CFF",
+        "visible_if": "{{ settings.sort_bar_ring == 'custom' }}"
+      },
+      {
+        "type": "color",
+        "id": "sort_bar_ring_3",
+        "label": "Custom color 3",
+        "default": "#3DE8FF",
+        "visible_if": "{{ settings.sort_bar_ring == 'custom' }}"
+      },
+      {
+        "type": "color",
+        "id": "sort_bar_ring_4",
+        "label": "Custom color 4",
+        "default": "#FFD84D",
+        "visible_if": "{{ settings.sort_bar_ring == 'custom' }}"
+      },
+      {
+        "type": "checkbox",
+        "id": "sort_bar_ring_spin",
+        "label": "Animate border",
+        "default": true
+      }
+    ]
   }
 ]
