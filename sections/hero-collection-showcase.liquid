@@ -45,6 +45,7 @@
   class="hcs color-{{ section.settings.color_scheme }}{% if section.settings.show_full_product_name %} hcs--full-title{% endif %}{% if section.settings.enable_pokeball_icon %} hcs--pokeball{% endif %}{% if section.settings.quick_add_custom_bg %} hcs--quick-add-custom-bg{% endif %}"
   style="
     --hcs-bg: {{ section.settings.background_color }};
+    --hcs-bg-dark: {{ section.settings.background_darkness | default: 40 | divided_by: 100.0 }};
     --hcs-fade-size: {{ section.settings.fade_size }}%;
     --hcs-card-width: {{ section.settings.card_width }}px;
     --hcs-card-width-mobile: {{ section.settings.card_width_mobile }}px;
@@ -597,13 +598,15 @@
     inset: 0;
     z-index: 1;
     pointer-events: none;
-    background: linear-gradient(
-      to bottom,
-      var(--hcs-bg) 0%,
-      transparent var(--hcs-fade-size),
-      transparent calc(100% - var(--hcs-fade-size)),
-      var(--hcs-bg) 100%
-    );
+    background:
+      linear-gradient(
+        to bottom,
+        var(--hcs-bg) 0%,
+        transparent var(--hcs-fade-size),
+        transparent calc(100% - var(--hcs-fade-size)),
+        var(--hcs-bg) 100%
+      ),
+      rgb(0 0 0 / var(--hcs-bg-dark, 0.4));
   }
 
   .hcs__content {
@@ -1214,6 +1217,17 @@
       "id": "background_color",
       "label": "Section background color",
       "default": "#0b0b0f"
+    },
+    {
+      "type": "range",
+      "id": "background_darkness",
+      "label": "Background darkness",
+      "info": "Darkens the background image or video behind the whole section.",
+      "min": 0,
+      "max": 90,
+      "step": 5,
+      "unit": "%",
+      "default": 40
     },
     {
       "type": "range",
