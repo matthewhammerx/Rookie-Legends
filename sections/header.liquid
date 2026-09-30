@@ -1181,6 +1181,71 @@ html {
   background-color: #000;
 }
 
+/* Mobile sticky header: once you scroll, the menu + search and the account +
+   cart icons sit in two glass pills either side of the logo. At the top of
+   the page the header stays fully transparent. */
+@media screen and (max-width: 749px) {
+  #header-component .header__columns {
+    position: relative;
+    transition: padding 0.3s ease;
+  }
+
+  /* Pull the icons in from the screen edges so the pills float */
+  #header-component[data-sticky-state='active'] .header__columns {
+    padding-inline: 10px !important;
+  }
+
+  #header-component .header__columns::before,
+  #header-component .header__columns::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    z-index: -1;
+    width: 92px;
+    height: 46px;
+    border: 1px solid rgb(255 255 255 / 0.14);
+    border-radius: 999px;
+    background: rgb(18 12 22 / 0.42);
+    box-shadow: 0 8px 24px rgb(0 0 0 / 0.28), inset 0 1px 0 rgb(255 255 255 / 0.08);
+    -webkit-backdrop-filter: blur(18px) saturate(160%);
+    backdrop-filter: blur(18px) saturate(160%);
+    opacity: 0;
+    transform: translateY(-50%) scale(0.92);
+    transition:
+      opacity 0.3s ease,
+      transform 0.35s cubic-bezier(0.22, 0.9, 0.3, 1);
+    pointer-events: none;
+  }
+
+  /* Left pill: menu + search. Right pill: account + cart */
+  #header-component .header__columns::before {
+    left: 8px;
+  }
+
+  #header-component .header__columns::after {
+    right: 8px;
+  }
+
+  #header-component[data-sticky-state='active'] .header__columns:has(search-button.search-action--hidden-on-menu)::before,
+  #header-component[data-sticky-state='active'] .header__columns:has(header-actions)::after {
+    opacity: 1;
+    transform: translateY(-50%);
+  }
+
+  /* The floating mobile menu replaces the header: hide the pills under it */
+  #header-component .header__columns:has(#Details-menu-drawer-container[open] .rl-fm)::before,
+  #header-component .header__columns:has(#Details-menu-drawer-container[open] .rl-fm)::after {
+    opacity: 0 !important;
+  }
+
+  html.rl-lite #header-component .header__columns::before,
+  html.rl-lite #header-component .header__columns::after {
+    background: rgb(18 12 22 / 0.9);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
 /* Mobile drawer - Sell my collection button */
 @media screen and (max-width: 749px) {
   .menu-drawer a[href="/pages/sell-my-collection"]:not([class*='rl-fm']),
