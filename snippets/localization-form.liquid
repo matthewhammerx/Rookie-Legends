@@ -568,4 +568,101 @@
   .country-selector__close-button {
     display: none;
   }
+
+  /* =====================================================================
+     Rookie Legends branding: currency / country picker
+     (header dropdown and mobile menu). Styling only.
+     ===================================================================== */
+  dropdown-localization-component .localization-wrapper,
+  .menu-drawer .localization-wrapper,
+  .menu-drawer .drawer-localization .localization-form {
+    --rl-pink: #ff2fb1;
+    --rl-violet: #8b5cff;
+    --rl-frost: #7fdbff;
+
+    color: #fff;
+    background:
+      linear-gradient(90deg, var(--rl-pink), var(--rl-violet), var(--rl-frost)) top / 100% 2px no-repeat,
+      rgb(12 8 16 / 0.95) !important;
+    border: 1px solid rgb(255 255 255 / 0.1) !important;
+    border-radius: 18px !important;
+    box-shadow: 0 24px 60px rgb(0 0 0 / 0.6) !important;
+    overflow: hidden;
+  }
+
+  dropdown-localization-component .localization-wrapper {
+    -webkit-backdrop-filter: blur(18px);
+    backdrop-filter: blur(18px);
+  }
+
+  :is(dropdown-localization-component, .menu-drawer) .country-filter {
+    padding: 12px 12px 8px;
+  }
+
+  :is(dropdown-localization-component, .menu-drawer) .country-filter__input {
+    height: 42px;
+    border: 1px solid rgb(255 255 255 / 0.14) !important;
+    border-radius: 12px;
+    color: #fff;
+    background-color: rgb(255 255 255 / 0.06);
+    box-shadow: none;
+    font-size: 0.95rem;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+  }
+
+  :is(dropdown-localization-component, .menu-drawer) .country-filter__input:is(:hover, :focus) {
+    border-color: var(--rl-pink) !important;
+    background-color: rgb(255 255 255 / 0.09);
+    box-shadow: 0 0 0 3px rgb(255 47 177 / 0.18);
+  }
+
+  :is(dropdown-localization-component, .menu-drawer) .country-filter__input::placeholder {
+    color: rgb(255 255 255 / 0.45);
+  }
+
+  :is(dropdown-localization-component, .menu-drawer) .country-filter__search-icon,
+  :is(dropdown-localization-component, .menu-drawer) .country-filter__reset-button {
+    color: rgb(255 255 255 / 0.55);
+  }
+
+  :is(dropdown-localization-component, .menu-drawer) .localization-form__list {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(255 47 177 / 0.5) transparent;
+  }
+
+  :is(dropdown-localization-component, .menu-drawer) .localization-form__list-item {
+    border-radius: 10px;
+    color: rgb(255 255 255 / 0.82);
+    background-color: transparent;
+    transition: background-color 0.15s ease, color 0.15s ease;
+  }
+
+  :is(dropdown-localization-component, .menu-drawer) .localization-form__list-item:is(:hover, :focus) {
+    color: #fff;
+    background-color: rgb(255 47 177 / 0.12);
+  }
+
+  :is(dropdown-localization-component, .menu-drawer) .localization-form__list-item[aria-current='true'] {
+    color: var(--rl-pink);
+    background-color: rgb(255 47 177 / 0.1);
+  }
+
+  :is(dropdown-localization-component, .menu-drawer) .localization-form__list-item .icon-checkmark {
+    color: var(--rl-pink);
+  }
+
+  :is(dropdown-localization-component, .menu-drawer) .localization-form__currency {
+    color: rgb(255 255 255 / 0.45);
+    font-size: 0.8em;
+    letter-spacing: 0.06em;
+  }
+
+  :is(dropdown-localization-component, .menu-drawer) .popular-countries {
+    border-bottom: 1px solid rgb(255 255 255 / 0.08);
+  }
+
+  :is(dropdown-localization-component, .menu-drawer) .language-selector {
+    border-top: 1px solid rgb(255 255 255 / 0.08);
+    box-shadow: none;
+  }
 {% endstylesheet %}

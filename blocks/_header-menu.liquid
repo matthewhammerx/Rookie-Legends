@@ -51,179 +51,261 @@
       </div>
     {% endif %}
   {% else %}
-    {% liquid
-      assign block_settings = block.settings
-      assign menu_content_type = block_settings.menu_style | default: 'text'
-      assign image_border_radius = block_settings.image_border_radius
-      assign color_scheme_classes = ''
-      assign color_scheme_setting_id = 'color_scheme_' | append: section.settings.menu_row
-      assign current_color_scheme = block_settings.color_scheme
-      assign parent_color_scheme = section.settings[color_scheme_setting_id]
-
-      if parent_color_scheme.id != current_color_scheme.id
-        assign color_scheme_classes = ' color-' | append: current_color_scheme
-      endif
-
-      # Check if header and menu colors match. This is used to apply different padding styles in css
-      if parent_color_scheme.settings.background.rgb == current_color_scheme.settings.background.rgb
-        assign color_scheme_classes = color_scheme_classes | append: ' color-scheme-matches-parent'
-      endif
-
-      if block_settings.menu_style == 'featured_collections'
-        assign ratio = block_settings.featured_collections_aspect_ratio
-      elsif block_settings.menu_style == 'featured_products'
-        assign ratio = block_settings.featured_products_aspect_ratio
-      endif
-    %}
-
-    {% capture children %}
-      {% for link in block_settings.menu.links %}
-        <li
-          role="presentation"
-          class="menu-list__list-item"
-          on:focus="/activate"
-          on:blur="/deactivate"
-        >
-          <a
-            href="{{ link.url }}"
-            data-skip-node-update="true"
-            class="menu-list__link{% if link.active %} menu-list__link--active{% endif %}"
-            {%- if link.links != blank -%}
-              aria-controls="submenu-{{ forloop.index }}"
-              aria-haspopup="true"
-              aria-expanded="false"
-            {%- endif -%}
-            {% if link.current %}
-              aria-current="page"
-            {% endif %}
-            ref="menuitem"
-          >
-            <span class="menu-list__link-title">{{- link.title -}}</span>
-          </a>
-          {%- if link.links != blank -%}
-            <div class="menu-list__submenu{{ color_scheme_classes }}" ref="submenu[]">
-              <div
-                id="submenu-{{ forloop.index }}"
-                class="menu-list__submenu-inner"
-                style="{% render 'submenu-font-styles', settings: block_settings %}"
-              >
-                {% assign list_id = 'MegaMenuList-' | append: forloop.index %}
-                <div class="mega-menu section section--full-width-margin section--{{ section.settings.section_width }}">
-                  <div
-                    class="mega-menu__grid"
-                    data-menu-grid-id="{{ list_id }}"
-                  >
-                    {% render 'mega-menu-list',
-                      parent_link: link,
-                      id: list_id,
-                      section: section,
-                      grid_columns_count: 6,
-                      grid_columns_count_tablet: 4,
-                      grid_columns_count_collection_images: 8,
-                      menu_content_type: menu_content_type,
-                      content_aspect_ratio: ratio,
-                      image_border_radius: image_border_radius
-                    %}
+    {%- comment -%}
+      Custom desktop menu (Rookie Legends): links with a gradient underline and
+      a glass dropdown panel of collection cards. Hover (with intent delay),
+      click and keyboard open it; mouse-out, outside click and Escape close it.
+      Items that don't fit move into a "More" dropdown. The root keeps
+      ref="headerMenu" and the header-menu class the header section relies on.
+    {%- endcomment -%}
+    <div
+      class="header-menu rl-nav"
+      ref="headerMenu"
+      data-rl-nav
+      data-hydration-key="header-menu"
+      {{ block.shopify_attributes }}
+    >
+      <nav
+        class="rl-nav__nav"
+        aria-label="{{ 'accessibility.header_navigation_label' | t }}"
+        style="{% render 'menu-font-styles', settings: block_settings %}"
+      >
+        <ul class="rl-nav__list" role="list" data-rl-list>
+          {%- for link in block_settings.menu.links -%}
+            <li class="rl-nav__item{% if link.active %} is-current{% endif %}" data-rl-item>
+              {%- if link.links != blank -%}
+                <a
+                  href="{{ link.url }}"
+                  class="rl-nav__link"
+                  data-rl-trigger
+                  aria-haspopup="true"
+                  aria-expanded="false"
+                  aria-controls="RlPanel-{{ block.id }}-{{ forloop.index }}"
+                  {% if link.current %}
+                    aria-current="page"
+                  {% endif %}
+                >
+                  <span class="rl-nav__label">{{ link.title | escape }}</span>
+                  <svg class="rl-nav__chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+                </a>
+                <div class="rl-nav__panel" id="RlPanel-{{ block.id }}-{{ forloop.index }}" data-rl-panel>
+                  <div class="rl-nav__panel-inner">
+                    <div class="rl-nav__intro">
+                      <span class="rl-nav__eyebrow">Shop</span>
+                      <p class="rl-nav__intro-title">{{ link.title | escape }}</p>
+                      <a class="rl-nav__all" href="{{ link.url }}">
+                        View all
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+                      </a>
+                    </div>
+                    <ul class="rl-nav__cards" role="list">
+                      {%- for child in link.links -%}
+                        {%- liquid
+                          assign child_image = null
+                          if child.type == 'collection_link' or child.type == 'product_link'
+                            assign child_image = child.object.featured_image
+                          endif
+                        -%}
+                        <li class="rl-nav__card-item" style="--i: {{ forloop.index0 }};">
+                          <a class="rl-nav__card" href="{{ child.url }}"{% if child.current %} aria-current="page"{% endif %}>
+                            <span class="rl-nav__card-media">
+                              {%- if child_image -%}
+                                {{
+                                  child_image
+                                  | image_url: width: 480
+                                  | image_tag: loading: 'lazy', widths: '240, 360, 480', sizes: '220px', alt: ''
+                                }}
+                              {%- else -%}
+                                <span class="rl-nav__card-letter" aria-hidden="true">{{ child.title | slice: 0 }}</span>
+                              {%- endif -%}
+                            </span>
+                            <span class="rl-nav__card-title">{{ child.title | escape }}</span>
+                          </a>
+                          {%- if child.links != blank -%}
+                            <ul class="rl-nav__chips" role="list">
+                              {%- for grandchild in child.links -%}
+                                <li><a class="rl-nav__chip" href="{{ grandchild.url }}">{{ grandchild.title | escape }}</a></li>
+                              {%- endfor -%}
+                            </ul>
+                          {%- endif -%}
+                        </li>
+                      {%- endfor -%}
+                    </ul>
                   </div>
                 </div>
-              </div>
+              {%- else -%}
+                <a
+                  href="{{ link.url }}"
+                  class="rl-nav__link"
+                  {% if link.current %}
+                    aria-current="page"
+                  {% endif %}
+                >
+                  <span class="rl-nav__label">{{ link.title | escape }}</span>
+                </a>
+              {%- endif -%}
+            </li>
+          {%- endfor -%}
+          <li class="rl-nav__item rl-nav__item--more" data-rl-more hidden>
+            <button
+              type="button"
+              class="rl-nav__link"
+              data-rl-trigger
+              aria-haspopup="true"
+              aria-expanded="false"
+              aria-controls="RlPanel-{{ block.id }}-more"
+            >
+              <span class="rl-nav__label">{{ 'actions.more' | t }}</span>
+              <svg class="rl-nav__chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
+            <div class="rl-nav__panel rl-nav__panel--list" id="RlPanel-{{ block.id }}-more" data-rl-panel>
+              <ul class="rl-nav__more-list" role="list" data-rl-more-list></ul>
             </div>
-          {%- endif -%}
-        </li>
-      {% endfor %}
-      <li
-        class="menu-list__list-item"
-        role="presentation"
-        slot="more"
-        on:focus="/activate"
-        on:blur="/deactivate"
-        on:pointerenter="/activate"
-        on:pointerleave="/deactivate"
-      >
-        <button role="listitem" class="menu-list__link button-unstyled">
-          <span class="menu-list__link-title">{{ 'actions.more' | t }}</span>
-        </button>
-      </li>
-    {% endcapture %}
-
-    <header-menu
-      ref="headerMenu"
-      class="header-menu"
-      {{ block.shopify_attributes }}
-      data-hydration-key="header-menu"
-    >
-      <div class="header-menu__inner">
-        <nav
-          class="menu-list"
-          aria-label="{{ 'accessibility.header_navigation_label' | t }}"
-          style="{% render 'menu-font-styles', settings: block_settings %}"
-        >
-          {% assign class = 'overflow-menu' | append: color_scheme_classes %}
-          {% render 'overflow-list',
-            class: class,
-            ref: 'overflowMenu',
-            children: children,
-            minimum-items: 2,
-            data-testid: 'header-menu-overflow-list',
-            attributes: 'data-skip-node-update'
-          %}
-        </nav>
-      </div>
-
-      <script
-        src="{{ 'header-menu.s.min.js' | asset_url }}"
-        type="module"
-        fetchpriority="low"
-      ></script>
-    </header-menu>
+          </li>
+        </ul>
+      </nav>
+    </div>
 
     <script>
       (function () {
-        if (window.__hcMenuNavGuard) return;
-        window.__hcMenuNavGuard = true;
+        if (window.__rlNavBound) return;
+        window.__rlNavBound = true;
 
-        var openLi = null;
+        var OPEN_DELAY = 90;
+        var CLOSE_DELAY = 200;
+        var openItem = null;
+        var timers = new WeakMap();
 
-        function getHeaderMenu(fromEl) {
-          return (fromEl && fromEl.closest('header-menu')) || document.querySelector('header-menu');
+        function headerBottom(item) {
+          var header = item.closest('header-component, header, .header') || item.closest('[data-rl-nav]');
+          return Math.max(0, header.getBoundingClientRect().bottom);
         }
 
-        function closeOpen() {
-          if (openLi) {
-            var hm = getHeaderMenu(openLi);
-            if (hm) hm.deactivate({ target: openLi });
-            openLi = null;
-          }
+        // Place the fixed panel right under the header. If an ancestor is
+        // transformed (sticky header animations), "fixed" becomes relative to
+        // it, so measure where it landed and correct.
+        function placePanel(item) {
+          var panel = item.querySelector(':scope > [data-rl-panel]');
+          if (!panel || item.hasAttribute('data-rl-more')) return;
+          var want = headerBottom(item);
+          item.style.setProperty('--rl-panel-top', want + 'px');
+          var got = panel.getBoundingClientRect().top;
+          if (Math.abs(got - want) > 1) item.style.setProperty('--rl-panel-top', want - (got - want) + 'px');
         }
+
+        function open(item) {
+          if (openItem && openItem !== item) close(openItem, true);
+          var panel = item.querySelector(':scope > [data-rl-panel]');
+          var trigger = item.querySelector(':scope > [data-rl-trigger]');
+          if (!panel || !trigger) return;
+          item.classList.add('is-open');
+          placePanel(item);
+          trigger.setAttribute('aria-expanded', 'true');
+          openItem = item;
+        }
+
+        function close(item, instant) {
+          if (!item) return;
+          var trigger = item.querySelector(':scope > [data-rl-trigger]');
+          item.classList.remove('is-open');
+          if (instant) item.classList.add('no-anim');
+          if (trigger) trigger.setAttribute('aria-expanded', 'false');
+          if (openItem === item) openItem = null;
+          if (instant) requestAnimationFrame(function () { item.classList.remove('no-anim'); });
+        }
+
+        function schedule(item, fn, delay) {
+          clearTimeout(timers.get(item));
+          timers.set(item, setTimeout(fn, delay));
+        }
+
+        document.addEventListener('pointerover', function (e) {
+          if (e.pointerType !== 'mouse') return;
+          var item = e.target.closest && e.target.closest('[data-rl-nav] [data-rl-item], [data-rl-nav] [data-rl-more]');
+          if (!item || !item.querySelector(':scope > [data-rl-panel]')) return;
+          clearTimeout(timers.get(item));
+          if (item.classList.contains('is-open')) return;
+          schedule(item, function () { open(item); }, openItem ? 0 : OPEN_DELAY);
+        });
+
+        document.addEventListener('pointerout', function (e) {
+          if (e.pointerType !== 'mouse') return;
+          var item = e.target.closest && e.target.closest('[data-rl-nav] [data-rl-item], [data-rl-nav] [data-rl-more]');
+          if (!item || (e.relatedTarget && item.contains(e.relatedTarget))) return;
+          schedule(item, function () { close(item); }, CLOSE_DELAY);
+        });
 
         document.addEventListener('click', function (e) {
-          var link = e.target.closest('.menu-list__link[aria-haspopup="true"]');
-          if (link) {
+          var trigger = e.target.closest && e.target.closest('[data-rl-nav] [data-rl-trigger]');
+          if (trigger) {
+            var item = trigger.parentElement;
+            // Parent links open their panel; use "View all" inside to go to the page
             e.preventDefault();
-            var li = link.closest('.menu-list__list-item');
-            var hm = getHeaderMenu(li);
-            if (li === openLi) {
-              closeOpen();
-            } else {
-              closeOpen();
-              if (hm) {
-                hm.activate({ target: li });
-                openLi = li;
-              }
-            }
+            if (item.classList.contains('is-open')) close(item);
+            else open(item);
             return;
           }
-
-          if (!e.target.closest('.menu-list__list-item')) {
-            closeOpen();
-          }
+          if (openItem && !openItem.contains(e.target)) close(openItem);
         });
 
         document.addEventListener('keydown', function (e) {
-          if (e.key === 'Escape') {
-            closeOpen();
-          }
+          if (e.key !== 'Escape' || !openItem) return;
+          var trigger = openItem.querySelector(':scope > [data-rl-trigger]');
+          close(openItem);
+          if (trigger) trigger.focus();
         });
+
+        document.addEventListener('focusout', function (e) {
+          if (!openItem) return;
+          var next = e.relatedTarget;
+          if (next && !openItem.contains(next)) close(openItem);
+        });
+
+        window.addEventListener('scroll', function () {
+          if (openItem) placePanel(openItem);
+        }, { passive: true });
+
+        /* "More": move items that don't fit into an overflow dropdown */
+        function fit(nav) {
+          var list = nav.querySelector('[data-rl-list]');
+          var more = nav.querySelector('[data-rl-more]');
+          var moreList = nav.querySelector('[data-rl-more-list]');
+          if (!list || !more || !moreList) return;
+          var items = Array.prototype.slice.call(list.querySelectorAll(':scope > [data-rl-item]'));
+          items.forEach(function (it) { it.hidden = false; });
+          more.hidden = true;
+          moreList.innerHTML = '';
+          var available = nav.clientWidth;
+          if (!available || list.scrollWidth <= available + 1) return;
+          more.hidden = false;
+          for (var i = items.length - 1; i >= 0 && list.scrollWidth > available + 1; i--) {
+            items[i].hidden = true;
+          }
+          items.forEach(function (it) {
+            if (!it.hidden) return;
+            var link = it.querySelector(':scope > .rl-nav__link');
+            var li = document.createElement('li');
+            var a = document.createElement('a');
+            a.className = 'rl-nav__more-link';
+            a.href = link.getAttribute('href');
+            a.textContent = link.textContent.trim();
+            li.appendChild(a);
+            moreList.appendChild(li);
+          });
+        }
+
+        function fitAll() {
+          document.querySelectorAll('[data-rl-nav]').forEach(fit);
+        }
+
+        var resizeTimer;
+        window.addEventListener('resize', function () {
+          clearTimeout(resizeTimer);
+          resizeTimer = setTimeout(fitAll, 120);
+        });
+        if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitAll);
+        window.addEventListener('load', fitAll);
+        fitAll();
       })();
     </script>
 {% endcase %}
@@ -894,6 +976,385 @@
   .mega-menu__submenu {
     /* preserves the inherited grid layout when this submenu wrapper is used */
     display: contents;
+  }
+
+  /* =====================================================================
+     Rookie Legends custom desktop menu (.rl-nav)
+     ===================================================================== */
+  .rl-nav {
+    --rl-pink: #ff2fb1;
+    --rl-violet: #8b5cff;
+    --rl-frost: #7fdbff;
+
+    display: flex;
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .rl-nav__nav {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .rl-nav__list {
+    display: flex;
+    align-items: center;
+    gap: clamp(18px, 2.1vw, 32px);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    white-space: nowrap;
+  }
+
+  .rl-nav__item[hidden] {
+    display: none;
+  }
+
+  .rl-nav__link {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 0;
+    border: 0;
+    background: none;
+    color: var(--menu-top-level-font-color, currentColor);
+    font-family: var(--menu-top-level-font-family);
+    font-size: var(--menu-top-level-font-size-desktop, 1rem);
+    font-style: var(--menu-top-level-font-style);
+    font-weight: var(--menu-top-level-font-weight);
+    text-transform: var(--menu-top-level-font-case);
+    letter-spacing: 0.03em;
+    text-decoration: none;
+    cursor: pointer;
+    transition: color 0.2s ease, text-shadow 0.25s ease;
+  }
+
+  /* Gradient underline grows from the center */
+  .rl-nav__link::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 3px;
+    height: 2px;
+    border-radius: 2px;
+    background: linear-gradient(90deg, var(--rl-pink), var(--rl-violet), var(--rl-frost));
+    transform: scaleX(0);
+    transform-origin: center;
+    transition: transform 0.3s cubic-bezier(0.22, 0.8, 0.26, 1);
+  }
+
+  .rl-nav__link:hover,
+  .rl-nav__item.is-open > .rl-nav__link {
+    text-shadow: 0 0 18px rgb(255 47 177 / 0.45);
+  }
+
+  .rl-nav__link:hover::after,
+  .rl-nav__item.is-open > .rl-nav__link::after,
+  .rl-nav__link[aria-current='page']::after,
+  .rl-nav__item.is-current > .rl-nav__link::after {
+    transform: scaleX(1);
+  }
+
+  .rl-nav__link:focus-visible {
+    outline: 2px solid var(--rl-frost);
+    outline-offset: 4px;
+    border-radius: 4px;
+  }
+
+  .rl-nav__chev {
+    width: 14px;
+    height: 14px;
+    opacity: 0.8;
+    transition: transform 0.3s ease;
+  }
+
+  .rl-nav__item.is-open .rl-nav__chev {
+    transform: rotate(180deg);
+  }
+
+  /* ---- Dropdown panel ---- */
+  .rl-nav__panel {
+    position: fixed;
+    top: var(--rl-panel-top, 80px);
+    left: 50%;
+    z-index: 60;
+    width: min(1120px, calc(100vw - 48px));
+    padding-top: 12px;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translate(-50%, 8px);
+    transition:
+      opacity 0.22s ease,
+      transform 0.3s cubic-bezier(0.22, 0.8, 0.26, 1),
+      visibility 0s linear 0.3s;
+    white-space: normal;
+  }
+
+  .rl-nav__item.is-open > .rl-nav__panel {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translate(-50%, 0);
+    transition-delay: 0s;
+  }
+
+  .rl-nav__item.no-anim > .rl-nav__panel {
+    transition: none;
+  }
+
+  .rl-nav__panel-inner {
+    position: relative;
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: 30px;
+    padding: 28px;
+    overflow: hidden;
+    color: #fff;
+    background: rgb(12 8 16 / 0.9);
+    -webkit-backdrop-filter: blur(18px) saturate(140%);
+    backdrop-filter: blur(18px) saturate(140%);
+    border: 1px solid rgb(255 255 255 / 0.08);
+    border-radius: 22px;
+    box-shadow: 0 30px 80px rgb(0 0 0 / 0.6);
+  }
+
+  .rl-nav__panel-inner::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--rl-pink), var(--rl-violet), var(--rl-frost));
+  }
+
+  .rl-nav__intro {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    padding-right: 26px;
+    border-right: 1px solid rgb(255 255 255 / 0.08);
+  }
+
+  .rl-nav__eyebrow {
+    color: var(--rl-pink);
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.26em;
+    text-transform: uppercase;
+  }
+
+  .rl-nav__intro-title {
+    margin: 0;
+    font-family: var(--font-heading--family, inherit);
+    font-size: 2.1rem;
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
+
+  .rl-nav__all {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+    padding: 9px 16px;
+    border: 1px solid rgb(255 255 255 / 0.18);
+    border-radius: 999px;
+    color: #fff;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-decoration: none;
+    text-transform: uppercase;
+    transition: border-color 0.2s ease, background 0.2s ease;
+  }
+
+  .rl-nav__all svg {
+    width: 14px;
+    height: 14px;
+    transition: transform 0.2s ease;
+  }
+
+  .rl-nav__all:hover {
+    border-color: var(--rl-pink);
+    background: rgb(255 47 177 / 0.12);
+  }
+
+  .rl-nav__all:hover svg {
+    transform: translateX(3px);
+  }
+
+  .rl-nav__cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 16px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .rl-nav__item.is-open .rl-nav__card-item {
+    animation: rl-nav-card-in 0.36s cubic-bezier(0.22, 0.8, 0.26, 1) both;
+    animation-delay: calc(var(--i, 0) * 35ms + 60ms);
+  }
+
+  @keyframes rl-nav-card-in {
+    from { opacity: 0; transform: translateY(8px); }
+  }
+
+  .rl-nav__card {
+    display: block;
+    color: #fff;
+    text-decoration: none;
+  }
+
+  .rl-nav__card-media {
+    position: relative;
+    display: block;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    border-radius: 14px;
+    background: rgb(255 255 255 / 0.04);
+    border: 1px solid rgb(255 255 255 / 0.08);
+    transition: border-color 0.25s ease, box-shadow 0.25s ease;
+  }
+
+  .rl-nav__card-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.45s cubic-bezier(0.22, 0.8, 0.26, 1);
+  }
+
+  .rl-nav__card-letter {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    font-family: var(--font-heading--family, inherit);
+    font-size: 3rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--rl-pink), var(--rl-violet) 55%, var(--rl-frost));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .rl-nav__card:hover .rl-nav__card-media,
+  .rl-nav__card:focus-visible .rl-nav__card-media {
+    border-color: rgb(255 47 177 / 0.7);
+    box-shadow: 0 0 24px -6px rgb(255 47 177 / 0.6);
+  }
+
+  .rl-nav__card:hover img {
+    transform: scale(1.06);
+  }
+
+  .rl-nav__card:focus-visible {
+    outline: none;
+  }
+
+  .rl-nav__card-title {
+    display: block;
+    margin-top: 10px;
+    font-family: var(--menu-top-level-font-family, inherit);
+    font-size: 0.95rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    transition: color 0.2s ease;
+  }
+
+  .rl-nav__card:hover .rl-nav__card-title {
+    color: var(--rl-pink);
+  }
+
+  .rl-nav__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 8px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .rl-nav__chip {
+    display: inline-block;
+    padding: 4px 10px;
+    border: 1px solid rgb(255 255 255 / 0.14);
+    border-radius: 999px;
+    color: rgb(255 255 255 / 0.8);
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: border-color 0.2s ease, color 0.2s ease;
+  }
+
+  .rl-nav__chip:hover {
+    border-color: var(--rl-pink);
+    color: #fff;
+  }
+
+  /* ---- "More" overflow list ---- */
+  .rl-nav__item--more {
+    position: relative;
+  }
+
+  .rl-nav__panel--list {
+    position: absolute;
+    top: 100%;
+    left: auto;
+    right: -12px;
+    width: 240px;
+    transform: translateY(8px);
+  }
+
+  .rl-nav__item.is-open > .rl-nav__panel--list {
+    transform: translateY(0);
+  }
+
+  .rl-nav__more-list {
+    margin: 0;
+    padding: 10px;
+    list-style: none;
+    background: rgb(12 8 16 / 0.92);
+    -webkit-backdrop-filter: blur(18px);
+    backdrop-filter: blur(18px);
+    border: 1px solid rgb(255 255 255 / 0.08);
+    border-radius: 16px;
+    box-shadow: 0 24px 60px rgb(0 0 0 / 0.55);
+  }
+
+  .rl-nav__more-link {
+    display: block;
+    padding: 10px 12px;
+    border-radius: 10px;
+    color: #fff;
+    font-family: var(--menu-top-level-font-family, inherit);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-decoration: none;
+    text-transform: uppercase;
+  }
+
+  .rl-nav__more-link:hover {
+    background: rgb(255 47 177 / 0.12);
+    color: var(--rl-pink);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .rl-nav__panel,
+    .rl-nav__link::after,
+    .rl-nav__item.is-open .rl-nav__card-item {
+      transition: none;
+      animation: none;
+    }
   }
 {% endstylesheet %}
 
