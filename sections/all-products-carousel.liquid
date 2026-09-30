@@ -64,6 +64,7 @@
     --apc-card-bg: {% if section.settings.enable_card_background %}{{ section.settings.card_background_color }}{% else %}transparent{% endif %};
     --apc-card-blur-amount: {{ section.settings.card_blur_amount }}px;
     --apc-card-blur-fade: {{ section.settings.card_blur_fade_size }}%;
+    --apc-card-dark: {{ section.settings.card_darkness | default: 75 | divided_by: 100.0 }};
     --apc-image-fit: {% if section.settings.image_fit_contain %}contain{% else %}cover{% endif %};
     --apc-quick-add-bg: {{ quick_add_bg_rgba }};
     padding-top: {{ section.settings.padding_top }}px;
@@ -734,6 +735,13 @@
     backdrop-filter: blur(var(--apc-card-blur-amount));
     -webkit-mask-image: linear-gradient(to top, black 0%, transparent var(--apc-card-blur-fade));
     mask-image: linear-gradient(to top, black 0%, transparent var(--apc-card-blur-fade));
+    /* Darkening tint (section setting "Card darkness") */
+    background: linear-gradient(
+      to top,
+      rgb(12 8 14 / var(--apc-card-dark, 0.75)) 0%,
+      rgb(12 8 14 / calc(var(--apc-card-dark, 0.75) * 0.68)) 55%,
+      rgb(12 8 14 / calc(var(--apc-card-dark, 0.75) * 0.25)) 100%
+    );
   }
 
   /* Phones: frosted glass instead of a live blur. A live masked
@@ -745,7 +753,7 @@
       backdrop-filter: none;
       background:
         url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.07 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url%28%23n%29'/%3E%3C/svg%3E") 0 0 / 160px 160px,
-        linear-gradient(to top, rgb(12 8 14 / 0.62) 0%, rgb(12 8 14 / 0.42) 55%, rgb(12 8 14 / 0.15) 100%);
+        linear-gradient(to top, rgb(12 8 14 / var(--apc-card-dark, 0.75)) 0%, rgb(12 8 14 / calc(var(--apc-card-dark, 0.75) * 0.68)) 55%, rgb(12 8 14 / calc(var(--apc-card-dark, 0.75) * 0.25)) 100%);
       box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.1);
     }
   }
@@ -1335,6 +1343,17 @@
       "step": 5,
       "unit": "%",
       "default": 45,
+      "visible_if": "{{ section.settings.enable_card_blur }}"
+    },
+    {
+      "type": "range",
+      "id": "card_darkness",
+      "label": "Card darkness",
+      "min": 0,
+      "max": 90,
+      "step": 5,
+      "unit": "%",
+      "default": 75,
       "visible_if": "{{ section.settings.enable_card_blur }}"
     },
     {
