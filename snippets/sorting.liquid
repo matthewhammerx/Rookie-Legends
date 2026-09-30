@@ -8,6 +8,8 @@
   @param {string} [sort_position] - { 'desktop' | 'mobile' } Used in a data-testID selector for automated testing
   @param {boolean} should_use_select_on_mobile - Whether to use a select element for the sorting component on mobile
   @param {string} section_id - The section ID
+  @param {boolean} [deck] - Rendered inside the .rl-deck control bar (adds menu titles)
+  @param {object} [price_filter] - Price range filter; with deck, adds a price range picker to the menu
 {%- enddoc -%}
 
 <sorting-filter-component
@@ -20,6 +22,30 @@
   data-should-use-select-on-mobile="{{ should_use_select_on_mobile }}"
 >
   {% liquid
+    # Price range picker (whole currency units) for the deck menu
+    assign rl_price = false
+    if deck and price_filter != blank and price_filter.range_max > 0
+      assign rl_price = true
+      assign rl_symbol = cart.currency.symbol | default: '$'
+      assign rl_max = price_filter.range_max | plus: 99 | divided_by: 100
+      assign rl_lo = ''
+      assign rl_hi = ''
+      if price_filter.min_value.value != null
+        assign rl_lo = price_filter.min_value.value | divided_by: 100
+      endif
+      if price_filter.max_value.value != null
+        assign rl_hi = price_filter.max_value.value | plus: 99 | divided_by: 100
+      endif
+      assign rl_chip = ''
+      if rl_lo != '' and rl_hi != ''
+        assign rl_chip = rl_symbol | append: rl_lo | append: '–' | append: rl_symbol | append: rl_hi
+      elsif rl_lo != ''
+        assign rl_chip = rl_symbol | append: rl_lo | append: '+'
+      elsif rl_hi != ''
+        assign rl_chip = 'Under ' | append: rl_symbol | append: rl_hi
+      endif
+    endif
+
     assign default_sort_by = results.default_sort_by
     for option in results.sort_options
       if option.value == sort_by
@@ -95,6 +121,9 @@
         >
           {{- 'actions.sort' | t -}}
         </span>
+        {% if rl_price and rl_chip != '' %}
+          <span class="rl-price-chip">{{ rl_chip }}</span>
+        {% endif %}
         <span
           class="facets__status h6 desktop:hidden"
         >
@@ -111,8 +140,82 @@
         aria-labelledby="sort-label-{{ section_id }}"
         ref="listbox"
       >
+        {% if rl_price %}
+          {% # Own on:* attributes so the sort component's delegated handlers ignore events from here %}
+          <div
+            class="rl-price"
+            data-rl-price
+            data-max="{{ rl_max }}"
+            on:change="rl-none/none"
+            on:input="rl-none/none"
+            on:keydown="rl-none/none"
+          >
+            <div class="rl-menu__title">
+              <span>Price range</span>
+              {% if rl_chip != '' %}
+                <button type="button" class="rl-price__reset" data-rl-price-reset>Reset</button>
+              {% endif %}
+            </div>
+            <div class="rl-price__fields">
+              <label class="rl-price__field">
+                <span aria-hidden="true">{{ rl_symbol }}</span>
+                <input
+                  type="number"
+                  inputmode="numeric"
+                  min="0"
+                  max="{{ rl_max }}"
+                  name="{{ price_filter.min_value.param_name }}"
+                  value="{{ rl_lo }}"
+                  placeholder="0"
+                  aria-label="Minimum price"
+                  data-rl-price-min
+                >
+              </label>
+              <span class="rl-price__dash" aria-hidden="true"></span>
+              <label class="rl-price__field">
+                <span aria-hidden="true">{{ rl_symbol }}</span>
+                <input
+                  type="number"
+                  inputmode="numeric"
+                  min="0"
+                  max="{{ rl_max }}"
+                  name="{{ price_filter.max_value.param_name }}"
+                  value="{{ rl_hi }}"
+                  placeholder="{{ rl_max }}"
+                  aria-label="Maximum price"
+                  data-rl-price-max
+                >
+              </label>
+            </div>
+            <div class="rl-price__slider">
+              <input type="range" min="0" max="{{ rl_max }}" step="1" value="{{ rl_lo | default: 0 }}" aria-label="Minimum price" data-rl-range-min>
+              <input type="range" min="0" max="{{ rl_max }}" step="1" value="{{ rl_hi | default: rl_max }}" aria-label="Maximum price" data-rl-range-max>
+            </div>
+            <div class="rl-price__chips">
+              {% if 0 < rl_max %}
+                <button type="button" class="rl-price__chip{% if rl_lo == '' and rl_hi == 50 %} is-active{% endif %}" data-rl-price-chip data-min="" data-max="50">Under {{ rl_symbol }}50</button>
+              {% endif %}
+              {% if 50 < rl_max %}
+                <button type="button" class="rl-price__chip{% if rl_lo == 50 and rl_hi == 150 %} is-active{% endif %}" data-rl-price-chip data-min="50" data-max="150">{{ rl_symbol }}50–{{ rl_symbol }}150</button>
+              {% endif %}
+              {% if 150 < rl_max %}
+                <button type="button" class="rl-price__chip{% if rl_lo == 150 and rl_hi == 500 %} is-active{% endif %}" data-rl-price-chip data-min="150" data-max="500">{{ rl_symbol }}150–{{ rl_symbol }}500</button>
+              {% endif %}
+              {% if 500 < rl_max %}
+                <button type="button" class="rl-price__chip{% if rl_lo == 500 and rl_hi == '' %} is-active{% endif %}" data-rl-price-chip data-min="500" data-max="">{{ rl_symbol }}500+</button>
+              {% endif %}
+            </div>
+            <button type="button" class="rl-price__apply" data-rl-price-apply>Show results</button>
+          </div>
+        {% endif %}
+        {% if deck %}
+          <div class="rl-menu__title rl-menu__title--sort"><span>Sort by</span></div>
+        {% endif %}
         <div class="sorting-filter__options-inner">
           {% for option in results.sort_options %}
+            {% if deck and option.value contains 'title-' %}
+              {% continue %}
+            {% endif %}
             <label
               for="sort-option-{{ option.value }}-{{ section_id }}"
             >
@@ -149,6 +252,127 @@
     </details>
   </accordion-custom>
 </sorting-filter-component>
+
+{% if rl_price %}
+  <script>
+    (function () {
+      if (window.__rlPriceRange) return;
+      window.__rlPriceRange = true;
+
+      function parts(root) {
+        return {
+          min: root.querySelector('[data-rl-price-min]'),
+          max: root.querySelector('[data-rl-price-max]'),
+          rMin: root.querySelector('[data-rl-range-min]'),
+          rMax: root.querySelector('[data-rl-range-max]'),
+          top: parseInt(root.dataset.max, 10) || 0,
+        };
+      }
+
+      function paintSlider(root) {
+        var p = parts(root);
+        var lo = parseInt(p.rMin.value, 10) || 0;
+        var hi = parseInt(p.rMax.value, 10) || 0;
+        var slider = p.rMin.parentElement;
+        slider.style.setProperty('--lo', (p.top ? (lo / p.top) * 100 : 0) + '%');
+        slider.style.setProperty('--hi', (p.top ? (hi / p.top) * 100 : 100) + '%');
+      }
+
+      function clearChips(root) {
+        root.querySelectorAll('[data-rl-price-chip]').forEach(function (c) {
+          c.classList.remove('is-active');
+        });
+      }
+
+      function fromSlider(root, moved) {
+        var p = parts(root);
+        var lo = parseInt(p.rMin.value, 10) || 0;
+        var hi = parseInt(p.rMax.value, 10) || 0;
+        if (lo > hi) {
+          if (moved === p.rMin) p.rMin.value = lo = hi;
+          else p.rMax.value = hi = lo;
+        }
+        p.min.value = lo > 0 ? lo : '';
+        p.max.value = hi < p.top ? hi : '';
+        paintSlider(root);
+        clearChips(root);
+      }
+
+      function fromFields(root) {
+        var p = parts(root);
+        var lo = parseInt(p.min.value, 10);
+        var hi = parseInt(p.max.value, 10);
+        p.rMin.value = isNaN(lo) ? 0 : Math.max(0, Math.min(lo, p.top));
+        p.rMax.value = isNaN(hi) ? p.top : Math.max(0, Math.min(hi, p.top));
+        paintSlider(root);
+        clearChips(root);
+      }
+
+      function apply(root) {
+        var p = parts(root);
+        var lo = parseInt(p.min.value, 10);
+        var hi = parseInt(p.max.value, 10);
+        if (!isNaN(lo) && !isNaN(hi) && lo > hi) {
+          var t = lo;
+          lo = hi;
+          hi = t;
+        }
+        p.min.value = !isNaN(lo) && lo > 0 ? lo : '';
+        p.max.value = !isNaN(hi) ? hi : '';
+
+        var details = root.closest('details');
+        if (details) details.removeAttribute('open');
+
+        var facetsForm = root.closest('facets-form-component');
+        if (facetsForm && typeof facetsForm.updateFilters === 'function') {
+          facetsForm.updateFilters();
+        } else {
+          var form = root.closest('form');
+          if (form) form.submit();
+        }
+      }
+
+      document.addEventListener('input', function (e) {
+        var root = e.target.closest && e.target.closest('[data-rl-price]');
+        if (!root) return;
+        if (e.target.matches('[data-rl-range-min], [data-rl-range-max]')) fromSlider(root, e.target);
+        else if (e.target.matches('[data-rl-price-min], [data-rl-price-max]')) fromFields(root);
+      });
+
+      document.addEventListener('keydown', function (e) {
+        if (e.key !== 'Enter') return;
+        var root = e.target.closest && e.target.closest('[data-rl-price]');
+        if (!root || !e.target.matches('input[type="number"]')) return;
+        e.preventDefault();
+        apply(root);
+      });
+
+      document.addEventListener('click', function (e) {
+        var root = e.target.closest && e.target.closest('[data-rl-price]');
+        if (!root) return;
+        var p = parts(root);
+        var chip = e.target.closest('[data-rl-price-chip]');
+        if (chip) {
+          p.min.value = chip.dataset.min;
+          p.max.value = chip.dataset.max;
+          apply(root);
+        } else if (e.target.closest('[data-rl-price-reset]')) {
+          p.min.value = '';
+          p.max.value = '';
+          apply(root);
+        } else if (e.target.closest('[data-rl-price-apply]')) {
+          apply(root);
+        }
+      });
+
+      function paintAll() {
+        document.querySelectorAll('[data-rl-price]').forEach(paintSlider);
+      }
+      paintAll();
+      new MutationObserver(paintAll).observe(document.body, { childList: true, subtree: true });
+    })();
+  </script>
+{% endif %}
 
 {% stylesheet %}
   .sorting-filter__container {
