@@ -584,6 +584,145 @@
   </script>
 {% endif %}
 
+{% if deck %}
+  <script>
+    (function () {
+      // Mobile sort sheet: shown in the browser's top layer (popover API) so it
+      // sits above every other overlay, with animated open/close and swipe-down.
+      if (window.__rlSheet) return;
+      window.__rlSheet = true;
+
+      var mobile = window.matchMedia('(max-width: 749px)');
+      var canPop = typeof HTMLElement.prototype.showPopover === 'function';
+
+      function panelOf(details) {
+        return details.querySelector('.sorting-filter__options');
+      }
+
+      function backdropOf(details) {
+        var backdrop = details.querySelector('.rl-sheet-backdrop');
+        if (!backdrop) {
+          backdrop = document.createElement('div');
+          backdrop.className = 'rl-sheet-backdrop';
+          backdrop.setAttribute('aria-hidden', 'true');
+          backdrop.addEventListener('click', function () {
+            close(details);
+          });
+          panelOf(details).insertAdjacentElement('beforebegin', backdrop);
+        }
+        return backdrop;
+      }
+
+      function show(el) {
+        if (!canPop) return;
+        el.setAttribute('popover', 'manual');
+        if (!el.matches(':popover-open')) el.showPopover();
+      }
+
+      function hide(el) {
+        if (!el || !el.hasAttribute('popover')) return;
+        if (el.matches(':popover-open')) el.hidePopover();
+        el.removeAttribute('popover');
+      }
+
+      function open(details) {
+        var panel = panelOf(details);
+        if (!panel) return;
+        var backdrop = backdropOf(details);
+        details.classList.remove('rl-sheet--out');
+        details.classList.add('rl-sheet');
+        show(backdrop);
+        show(panel);
+        panel.style.translate = '';
+        document.body.classList.add('rl-sheet-open');
+      }
+
+      function cleanup(details) {
+        details.classList.remove('rl-sheet', 'rl-sheet--out');
+        hide(details.querySelector('.rl-sheet-backdrop'));
+        hide(panelOf(details));
+        var panel = panelOf(details);
+        if (panel) panel.style.translate = '';
+        if (!document.querySelector('.rl-deck details.rl-sheet')) {
+          document.body.classList.remove('rl-sheet-open');
+        }
+      }
+
+      function close(details) {
+        if (!details || !details.open) return;
+        if (!details.classList.contains('rl-sheet') || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+          details.removeAttribute('open');
+          cleanup(details);
+          return;
+        }
+        if (details.classList.contains('rl-sheet--out')) return;
+        details.classList.add('rl-sheet--out');
+        setTimeout(function () {
+          details.removeAttribute('open');
+          cleanup(details);
+        }, 260);
+      }
+
+      window.rlSortClose = close;
+
+      document.addEventListener('click', function (e) {
+        var btn = e.target.closest && e.target.closest('.rl-deck .hc-sort-close-btn');
+        if (btn) close(btn.closest('details'));
+      });
+
+      document.addEventListener(
+        'toggle',
+        function (e) {
+          var details = e.target;
+          if (!(details instanceof HTMLDetailsElement) || !details.closest('.rl-deck')) return;
+          if (details.open && mobile.matches) open(details);
+          else if (!details.open) cleanup(details);
+        },
+        true
+      );
+
+      document.addEventListener('keydown', function (e) {
+        if (e.key !== 'Escape') return;
+        var details = document.querySelector('.rl-deck details.rl-sheet[open]');
+        if (details) {
+          e.stopPropagation();
+          close(details);
+        }
+      }, true);
+
+      // Swipe down on the sheet (when scrolled to the top) to close it
+      var drag = null;
+      document.addEventListener('touchstart', function (e) {
+        var panel = e.target.closest && e.target.closest('.rl-deck details.rl-sheet .sorting-filter__options');
+        if (!panel || panel.scrollTop > 0 || e.target.closest('input, .rl-price__slider')) return;
+        drag = { panel: panel, y: e.touches[0].clientY, dy: 0 };
+      }, { passive: true });
+
+      document.addEventListener('touchmove', function (e) {
+        if (!drag) return;
+        drag.dy = Math.max(0, e.touches[0].clientY - drag.y);
+        drag.panel.style.translate = '0 ' + drag.dy + 'px';
+      }, { passive: true });
+
+      document.addEventListener('touchend', function () {
+        if (!drag) return;
+        var panel = drag.panel;
+        var details = panel.closest('details');
+        if (drag.dy > 90) {
+          close(details);
+        } else if (drag.dy > 0) {
+          panel.animate([{ translate: '0 ' + drag.dy + 'px' }, { translate: '0 0' }], {
+            duration: 220,
+            easing: 'cubic-bezier(0.22, 1.12, 0.36, 1)',
+          });
+          panel.style.translate = '';
+        }
+        drag = null;
+      });
+    })();
+  </script>
+{% endif %}
+
 {% stylesheet %}
   .sorting-filter__container {
     display: flex;

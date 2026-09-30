@@ -219,7 +219,8 @@
         var optionsBox = openPanel.querySelector('.sorting-filter__options');
         var summary = openPanel.querySelector('.facets__summary');
         if ((optionsBox && optionsBox.contains(e.target)) || (summary && summary.contains(e.target))) return;
-        openPanel.removeAttribute('open');
+        if (window.rlSortClose) window.rlSortClose(openPanel);
+        else openPanel.removeAttribute('open');
       },
       true
     );
@@ -283,7 +284,9 @@
         btn.textContent = '✕';
         btn.addEventListener('click', function () {
           var openPanel = document.querySelector('.facets__panel[open]');
-          if (openPanel) openPanel.removeAttribute('open');
+          if (!openPanel) return;
+          if (window.rlSortClose) window.rlSortClose(openPanel);
+          else openPanel.removeAttribute('open');
         });
         panel.appendChild(btn);
       });
