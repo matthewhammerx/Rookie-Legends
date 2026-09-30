@@ -42,6 +42,7 @@
     "badge_sale_style": "neon",
     "badge_sale_show_percent": true,
     "sort_bar_ring": "frost",
+    "zoom_price_color": "pink",
     "button_border_radius_primary": 100,
     "type_font_button_primary": "body",
     "button_text_case_primary": "uppercase",
