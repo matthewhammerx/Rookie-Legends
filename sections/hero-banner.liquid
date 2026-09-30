@@ -879,8 +879,17 @@
       video.dataset.lazyBound = 'true';
 
       var playVideo = function () {
-        video.play().catch(function () {});
+        // Lite mode (power saving): keep the poster frame instead of playing
+        if (window.rlIsLite && window.rlIsLite()) return;
+        video.play().catch(function (err) {
+          // Muted autoplay refused: iOS Low Power Mode does this
+          if (err && err.name === 'NotAllowedError' && window.rlLite) window.rlLite('autoplay-blocked');
+        });
       };
+
+      document.addEventListener('rl:lite', function () {
+        video.pause();
+      });
 
       if ('IntersectionObserver' in window) {
         var videoObserver = new IntersectionObserver(

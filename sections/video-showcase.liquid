@@ -402,7 +402,11 @@
         ensureLoaded();
         if (video) {
           var p = video.play();
-          if (p && p.catch) p.catch(function () {});
+          if (p && p.catch)
+            p.catch(function (err) {
+              if (err && err.name === 'NotAllowedError' && window.rlLite) window.rlLite('autoplay-blocked');
+              setPlayIcon(false);
+            });
         }
         if (frame) {
           var src = frame.getAttribute('data-play-src');
@@ -422,10 +426,13 @@
 
       if (playBtn) {
         playBtn.addEventListener('click', function () {
-          manuallyPaused = !manuallyPaused;
-          if (manuallyPaused) {
+          // Toggle from what's actually showing, so the first tap plays when
+          // lite mode kept the video from autoplaying
+          if (playBtn.classList.contains('is-playing')) {
+            manuallyPaused = true;
             pause();
           } else {
+            manuallyPaused = false;
             play();
           }
         });
@@ -618,6 +625,11 @@
             slide.classList.toggle('is-focused', isFocused);
 
             if (!slide._vsIsManuallyPaused || slide._vsIsManuallyPaused()) return;
+            // Lite mode: never autoplay; only stop videos that scroll out of focus
+            if (window.rlIsLite && window.rlIsLite()) {
+              if (!isFocused) slide._vsPause && slide._vsPause();
+              return;
+            }
             if (isFocused) {
               slide._vsPlay && slide._vsPlay();
             } else {
@@ -632,6 +644,11 @@
         }
 
         track.addEventListener('scroll', scheduleUpdateFocus, { passive: true });
+        document.addEventListener('rl:lite', function () {
+          slideArray.forEach(function (slide) {
+            slide._vsPause && slide._vsPause();
+          });
+        });
         window.addEventListener('resize', scheduleUpdateFocus);
         scheduleUpdateFocus();
       }

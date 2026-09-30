@@ -1,0 +1,131 @@
+{%- comment -%}
+  Lite mode: pause decorative animations and autoplay video when the phone is
+  likely saving power. Browsers don't expose Low Power Mode / Battery Saver,
+  so this uses indirect signals:
+  - Reduce Motion accessibility setting
+  - Data Saver (navigator.connection.saveData)
+  - Battery at 20% or less and not charging (Android Chrome)
+  - Muted autoplay video refused by the browser (iOS Low Power Mode does this);
+    sections call window.rlLite('autoplay-blocked') from their play() catch
+  - Frame rate steadily capped at 30fps on a touch device (iOS Low Power Mode)
+  Adds `rl-lite` to <html> and fires a `rl:lite` event on document.
+  Rendered in the <head> of every layout, before content_for_header.
+{%- endcomment -%}
+<script>
+  (function () {
+    var root = document.documentElement;
+    var KEY = 'rl-lite';
+
+    function store(value) {
+      try {
+        if (value) sessionStorage.setItem(KEY, value);
+        else sessionStorage.removeItem(KEY);
+      } catch (e) {}
+    }
+
+    function enable(reason) {
+      if (root.classList.contains('rl-lite') && root.dataset.rlLite) return;
+      root.classList.add('rl-lite');
+      root.dataset.rlLite = reason;
+      store(reason);
+      document.dispatchEvent(new CustomEvent('rl:lite', { detail: { reason: reason } }));
+    }
+
+    window.rlLite = enable;
+    window.rlIsLite = function () {
+      return root.classList.contains('rl-lite');
+    };
+
+    // Apply last page's result straight away so effects don't flash on
+    var remembered = null;
+    try {
+      remembered = sessionStorage.getItem(KEY);
+    } catch (e) {}
+    if (remembered) root.classList.add('rl-lite');
+
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return enable('reduced-motion');
+    if (navigator.connection && navigator.connection.saveData) return enable('save-data');
+
+    var checks = 0;
+    var DONE = 2; // battery + frame rate
+    function finished() {
+      checks += 1;
+      // Nothing fired this page: power saving was switched off, go back to full effects
+      if (checks === DONE && !root.dataset.rlLite && remembered) {
+        root.classList.remove('rl-lite');
+        store(null);
+      }
+    }
+
+    if (navigator.getBattery) {
+      navigator
+        .getBattery()
+        .then(function (battery) {
+          if (!battery.charging && battery.level <= 0.2) enable('low-battery');
+        })
+        .catch(function () {})
+        .then(finished);
+    } else {
+      finished();
+    }
+
+    var touch = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+    if (!touch) return finished();
+
+    // iOS Low Power Mode caps animations at ~30fps. Sample one second after load.
+    window.addEventListener('load', function () {
+      setTimeout(function () {
+        if (document.hidden) return finished();
+        // Low Power Mode gives a steady ~33ms per frame. A slow or busy phone
+        // gives uneven frames instead, so look at the median, not the average.
+        var gaps = [];
+        var start = null;
+        var last = null;
+        function tick(now) {
+          if (start === null) start = now;
+          if (last !== null) gaps.push(now - last);
+          last = now;
+          if (now - start < 1000) return requestAnimationFrame(tick);
+          gaps.sort(function (a, b) {
+            return a - b;
+          });
+          var median = gaps[Math.floor(gaps.length / 2)] || 0;
+          if (median >= 29 && median <= 38) enable('low-power-30fps');
+          finished();
+        }
+        requestAnimationFrame(tick);
+      }, 1500);
+    });
+  })();
+</script>
+
+<style>
+  /* ---- Lite mode: decorative motion off ---- */
+
+  /* Category tiles: no floating */
+  html.rl-lite [class*='collection-tile-grid-'] .collection-item {
+    animation: none !important;
+  }
+
+  /* Promo card: static glow */
+  html.rl-lite .promo-card,
+  html.rl-lite .promo-card *,
+  html.rl-lite .promo-card *::before,
+  html.rl-lite .promo-card *::after {
+    animation: none !important;
+  }
+
+  /* Video showcase: solid buttons instead of live blur */
+  html.rl-lite .video-showcase * {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+
+  /* Sort bar border and product badges: still */
+  html.rl-lite .rl-deck,
+  html.rl-lite .product-badges__badge,
+  html.rl-lite .product-badges__badge::before,
+  html.rl-lite .product-badges__badge::after {
+    animation: none !important;
+  }
+</style>
