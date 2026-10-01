@@ -624,7 +624,11 @@
       max-width: none;
       max-height: none;
       margin: 0;
-      overflow: hidden;
+      /* The panel itself is the scroller on phones (rounded corners still clip) */
+      overflow-x: hidden;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      -webkit-overflow-scrolling: touch;
       border: 1px solid rgb(255 255 255 / 0.12);
       background: rgb(20 14 24 / 0.82);
       -webkit-backdrop-filter: blur(26px) saturate(160%);
@@ -640,6 +644,14 @@
 
     .dialog-modal.search-modal__content.dialog-closing {
       animation: rl-search-float-out 180ms ease-in both;
+    }
+
+    /* Results scroll under the search bar: give it the panel's colour */
+    .search-modal .predictive-search-form__header {
+      position: sticky;
+      top: 0;
+      z-index: 3;
+      background: rgb(20 14 24 / 0.97) !important;
     }
 
     .search-modal .predictive-search-form__header-inner {
