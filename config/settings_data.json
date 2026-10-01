@@ -41,8 +41,6 @@
     "badge_sold_out_style": "neon",
     "badge_sale_style": "neon",
     "badge_sale_show_percent": true,
-    "sort_bar_ring": "frost",
-    "zoom_price_color": "pink",
     "button_border_radius_primary": 100,
     "type_font_button_primary": "body",
     "button_text_case_primary": "uppercase",
@@ -61,15 +59,12 @@
     "variant_swatch_radius": 0,
     "variant_button_radius": 0,
     "variant_button_width": "equal-width-buttons",
+    "sort_bar_ring": "frost",
+    "zoom_price_color": "pink",
     "content_for_index": [],
     "blocks": {
       "17676059084223943535": {
         "type": "shopify://apps/triplewhale/blocks/triple_pixel_snippet/483d496b-3f1a-4609-aea7-8eee3b6b7a2a",
-        "disabled": false,
-        "settings": {}
-      },
-      "5134484470793087125": {
-        "type": "shopify://apps/vitals/blocks/app-embed/aeb48102-2a5a-4f39-bdbd-d8d49f4e20b8",
         "disabled": false,
         "settings": {}
       },
@@ -120,6 +115,11 @@
           "auto_dismiss": true,
           "dismiss_delay": 5
         }
+      },
+      "5133090955657171657": {
+        "type": "shopify://apps/anti-bot/blocks/protos/4f7b8a99-358e-49b7-a381-a8863cfee64b",
+        "disabled": false,
+        "settings": {}
       }
     },
     "color_schemes": {
