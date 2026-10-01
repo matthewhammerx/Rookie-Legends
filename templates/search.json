@@ -11,85 +11,10 @@
   "sections": {
     "hero_banner_HeJjAb": {
       "type": "hero-banner",
-      "blocks": {
-        "heading_line_aVBcYN": {
-          "type": "heading_line",
-          "settings": {
-            "text": "<p>NEW</p>",
-            "font_size_desktop": 84,
-            "font_size_mobile": 44,
-            "text_style": "solid",
-            "color": "#ffffff",
-            "animate_shine": false,
-            "shine_speed": 3,
-            "uppercase": true,
-            "use_custom_font": false,
-            "font": "assistant_n7",
-            "font_weight": "800",
-            "italic": false,
-            "bold_color": "#eb00ca",
-            "bold_custom_font": false,
-            "bold_font": "assistant_n7",
-            "italic_color": "#ffffff",
-            "italic_custom_font": false,
-            "italic_font": "anton_n4",
-            "enable_glow": false,
-            "glow_color": "#ffffff",
-            "glow_size": 16,
-            "glow_strength": 55
-          }
-        },
-        "heading_line_hN6nmk": {
-          "type": "heading_line",
-          "settings": {
-            "text": "<p>ARRIVALS</p>",
-            "font_size_desktop": 96,
-            "font_size_mobile": 50,
-            "text_style": "solid",
-            "color": "#eb00ca",
-            "animate_shine": false,
-            "shine_speed": 3,
-            "uppercase": true,
-            "use_custom_font": false,
-            "font": "assistant_n7",
-            "font_weight": "800",
-            "italic": false,
-            "bold_color": "#eb00ca",
-            "bold_custom_font": false,
-            "bold_font": "assistant_n7",
-            "italic_color": "#ffffff",
-            "italic_custom_font": false,
-            "italic_font": "anton_n4",
-            "enable_glow": false,
-            "glow_color": "#ffffff",
-            "glow_size": 16,
-            "glow_strength": 55
-          }
-        },
-        "button_wL8xx6": {
-          "type": "button",
-          "settings": {
-            "label": "Shop now",
-            "link": "",
-            "open_in_new_tab": false,
-            "style": "glow",
-            "bg_color": "#ffffff",
-            "text_color": "#0b0b0d",
-            "glow_color": "#eb00ca",
-            "glow_size": 20,
-            "corner_radius": 50
-          }
-        }
-      },
-      "block_order": [
-        "heading_line_aVBcYN",
-        "heading_line_hN6nmk",
-        "button_wL8xx6"
-      ],
       "name": "Hero Banner",
       "settings": {
         "color_scheme": "",
-        "height_mode": "large",
+        "height_mode": "medium",
         "custom_height": 640,
         "custom_height_mobile": 520,
         "content_align": "left",
@@ -104,7 +29,7 @@
         "eyebrow_text": "",
         "eyebrow_color": "#eb00ca",
         "eyebrow_size": 12,
-        "subheading_text": "<p>Authentic trading cards and sealed product, curated for collectors who accept nothing less.</p>",
+        "subheading_text": "",
         "subheading_color": "#e6e6e6",
         "subheading_size": 18,
         "subheading_size_mobile": 15,
