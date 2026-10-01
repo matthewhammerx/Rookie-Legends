@@ -186,7 +186,7 @@
           "settings": {
             "text": "<p>WHERE <em>ROOKIES</em></p><p>BECOME <strong>LEGENDS.</strong></p>",
             "font_size_desktop": 88,
-            "font_size_mobile": 46,
+            "font_size_mobile": 54,
             "text_style": "legend",
             "color": "#61ffea",
             "animate_shine": false,
