@@ -1,9 +1,10 @@
 
 
 <div class="section-background color-{{ section.settings.color_scheme }}"></div>
-<div class="section section--page-width color-{{ section.settings.color_scheme }}">
+<div class="rl-sh section section--page-width color-{{ section.settings.color_scheme }}">
+  <div class="rl-sh__glow" aria-hidden="true"></div>
   <div
-    class="spacing-style search-page__header search-page__header-{{ section.id }}"
+    class="spacing-style search-page__header search-page__header-{{ section.id }} rl-sh__inner"
     style="
       --horizontal-alignment: {{ section.settings.alignment }};
       --search-heading-size-mobile: {{ section.settings.heading_size_mobile }}px;
@@ -11,31 +12,136 @@
       {% render 'spacing-style', settings: section.settings %}
     "
   >
-    {% assign heading_text = 'content.search' | t %}
+    <span class="rl-sh__eyebrow"><span class="rl-sh__dot" aria-hidden="true"></span>{{ 'content.search' | t }}</span>
 
-    {% if search.performed %}
-      {% assign heading_text = 'content.search_results' | t %}
-    {% endif %}
-
-    {% capture heading_text %}
-      <h3>{{ heading_text }}</h3>
-    {% endcapture %}
+    {%- if search.performed and search.terms != blank -%}
+      {% capture heading_text %}<h1>Results for <em>&ldquo;{{ search.terms | escape }}&rdquo;</em></h1>{% endcapture %}
+    {%- else -%}
+      {% capture heading_text %}<h1>Search the <em>vault</em></h1>{% endcapture %}
+    {%- endif -%}
 
     {% content_for 'block', id: 'heading', type: '_heading', text: heading_text %}
+
+    <p class="rl-sh__sub">
+      {%- if search.performed -%}
+        {{ search.results_count }} {% if search.results_count == 1 %}result{% else %}results{% endif %}
+      {%- else -%}
+        Cards, slabs and sealed product. Find it fast.
+      {%- endif -%}
+    </p>
+
     {% content_for 'block', id: 'search', type: '_search-input' %}
   </div>
 </div>
 
 <style>
+  /* Rookie Legends search hero: dark glow, eyebrow pill, big heading, glass pill */
+  #MainContent:has(.rl-sh) {
+    background-color: #000;
+  }
+
+  .rl-sh {
+    position: relative;
+    overflow: hidden;
+    padding-top: calc(var(--header-height, 64px) + 44px);
+    padding-bottom: 34px;
+    background: #000;
+    color: #fff;
+  }
+
+  /* Under a hero banner: no header gap, no black slab over the hero */
+  .shopify-section:not(:first-child) .rl-sh {
+    padding-top: 28px;
+    background: transparent;
+  }
+
+  .shopify-section:not(:first-child) .rl-sh__glow {
+    display: none;
+  }
+
+  .rl-sh__glow {
+    position: absolute;
+    inset: -20% -10% 0;
+    pointer-events: none;
+    background:
+      radial-gradient(42% 60% at 18% 30%, rgb(235 0 202 / 0.32), transparent 70%),
+      radial-gradient(40% 55% at 85% 20%, rgb(110 60 255 / 0.28), transparent 70%),
+      linear-gradient(to bottom, transparent 55%, #000);
+  }
+
+  .rl-sh__inner {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+    max-width: 760px;
+  }
+
+  .rl-sh__eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 14px;
+    border: 1px solid rgb(255 255 255 / 0.14);
+    border-radius: 999px;
+    background: rgb(255 255 255 / 0.06);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  .rl-sh__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 0 10px rgb(255 47 177 / 0.95);
+  }
+
+  .search-page__header-{{ section.id }} h1,
   .search-page__header-{{ section.id }} h3 {
-    font-size: var(--search-heading-size-mobile);
+    margin: 0;
+    font-family: var(--font-heading--family);
+    font-size: calc(var(--search-heading-size-mobile) * 1.5);
+    line-height: 1;
+    letter-spacing: 0.01em;
+    text-transform: uppercase;
+    color: #fff;
+    overflow-wrap: anywhere;
+  }
+
+  .search-page__header-{{ section.id }} h1 em {
+    font-style: normal;
+    background: linear-gradient(90deg, #ff2fb1, #b44cff);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .rl-sh__sub {
+    margin: -4px 0 6px;
+    font-size: 0.95rem;
+    color: rgb(255 255 255 / 0.6);
+  }
+
+  .rl-sh__inner > *:last-child {
+    width: 100%;
   }
 
   @media screen and (min-width: 750px) {
+    .rl-sh {
+      padding-top: calc(var(--header-height, 80px) + 70px);
+      padding-bottom: 46px;
+    }
+
+    .search-page__header-{{ section.id }} h1,
     .search-page__header-{{ section.id }} h3 {
-      font-size: var(--search-heading-size-desktop);
+      font-size: calc(var(--search-heading-size-desktop) * 1.6);
     }
   }
+
 
   .search-page__header-{{ section.id }} search-page-input-component {
     background: linear-gradient(165deg, rgba(40, 20, 34, 0.85), rgba(20, 10, 18, 0.75));
