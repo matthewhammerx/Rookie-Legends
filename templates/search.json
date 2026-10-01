@@ -43,7 +43,7 @@
         "enable_bg_blur": true,
         "bg_blur_amount": 5,
         "enable_overlay": true,
-        "overlay_opacity": 40,
+        "overlay_opacity": 80,
         "enable_top_fade": false,
         "top_fade_size": 20,
         "top_fade_opacity": 60,
