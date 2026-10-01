@@ -34,10 +34,11 @@
         "subheading_size": 18,
         "subheading_size_mobile": 15,
         "heading_color": "#ffffff",
-        "background_style": "image",
+        "background_style": "video",
         "background_color": "#0b0b0d",
         "background_gradient": "linear-gradient(165deg, #1a0014 0%, #000000 100%)",
         "image_position": "center",
+        "background_video": "shopify://files/videos/0923.mp4",
         "video_loop": true,
         "enable_bg_blur": false,
         "bg_blur_amount": 10,
@@ -403,7 +404,7 @@
         "columns_gap_vertical": 1,
         "padding-inline-start": 0,
         "padding-inline-end": 0,
-        "color_scheme": "scheme-5",
+        "color_scheme": "scheme-19c11d18-e700-4da7-8711-932454bead14",
         "padding-block-start": 36,
         "padding-block-end": 0
       }
