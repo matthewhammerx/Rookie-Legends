@@ -113,7 +113,7 @@
   <div class="hcs__top-content" data-testid="hcs-top-content">
     <div class="hcs__top-text">
       {%- if section.settings.heading_text != blank -%}
-        <h2 class="hcs__heading{% if section.settings.heading_glow %} hcs__heading--glow{% endif %}">
+        <h2 class="hcs__heading{% if section.settings.heading_glow %} hcs__heading--glow{% endif %}" data-text="{{ section.settings.heading_text | escape }}">
           {{ section.settings.heading_text }}
         </h2>
       {%- endif -%}
@@ -669,6 +669,30 @@
     filter:
       drop-shadow(0 0 var(--hcs-heading-glow-radius-1) var(--hcs-heading-glow-color))
       drop-shadow(0 0 var(--hcs-heading-glow-radius-2) var(--hcs-heading-glow-color));
+  }
+
+  /* Title style: solid white with an offset pink outline echo behind */
+  .hcs__top-text .hcs__heading {
+    position: relative;
+    isolation: isolate;
+    font-family: var(--font-heading--family);
+    font-weight: 800;
+    color: #fff;
+    background: none;
+    -webkit-background-clip: border-box;
+    background-clip: border-box;
+    filter: none;
+  }
+
+  .hcs__top-text .hcs__heading::after {
+    content: attr(data-text);
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    color: transparent;
+    -webkit-text-stroke: 1.5px rgb(255 47 177 / 0.85);
+    transform: translate(0.07em, 0.07em);
+    pointer-events: none;
   }
 
   .hcs__subheading {
