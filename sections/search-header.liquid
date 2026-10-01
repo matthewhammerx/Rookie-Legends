@@ -34,15 +34,168 @@
   </div>
 </div>
 
+<script>
+  // Live suggestions under the search page's own search pill, using the same
+  // predictive search results as the header search.
+  (function () {
+    var root = document.querySelector('.rl-sh');
+    if (!root || root.__rlSuggest) return;
+    root.__rlSuggest = true;
+    var form = root.querySelector('.search-page-input__parent');
+    var input = root.querySelector('input.search-page-input');
+    var suggestUrl = '{{ routes.predictive_search_url }}';
+    if (!form || !input) return;
+
+    input.setAttribute('autocomplete', 'off');
+    var panel = document.createElement('div');
+    panel.className = 'rl-sh-suggest';
+    panel.hidden = true;
+    form.appendChild(panel);
+
+    var timer = null;
+    var controller = null;
+    var last = '';
+
+    function hide() {
+      panel.hidden = true;
+    }
+
+    function load(term) {
+      if (controller) controller.abort();
+      controller = new AbortController();
+      var url = new URL(suggestUrl, location.origin);
+      url.searchParams.set('q', term);
+      url.searchParams.set('resources[limit_scope]', 'each');
+      url.searchParams.set('section_id', 'predictive-search');
+      fetch(url.toString(), { signal: controller.signal })
+        .then(function (r) { return r.ok ? r.text() : ''; })
+        .then(function (html) {
+          if (!html || input.value.trim() !== term) return;
+          panel.innerHTML = html;
+          // The search button inside the results goes to the full results page
+          panel.querySelectorAll('button[ref="viewAllButton"], .predictive-search__search-button').forEach(function (b) { b.remove(); });
+          panel.hidden = !panel.querySelector('a, [role="option"]');
+        })
+        .catch(function () {});
+    }
+
+    input.addEventListener('input', function () {
+      var term = input.value.trim();
+      clearTimeout(timer);
+      if (term.length < 2) { last = ''; hide(); return; }
+      if (term === last) return;
+      timer = setTimeout(function () { last = term; load(term); }, 200);
+    });
+
+    input.addEventListener('focus', function () {
+      if (panel.innerHTML && input.value.trim().length >= 2) panel.hidden = false;
+    });
+
+    document.addEventListener('click', function (e) {
+      if (!form.contains(e.target)) hide();
+    });
+
+    input.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') hide();
+    });
+  })();
+</script>
+
 <style>
+  /* ---- Live suggestions dropdown under the pill ---- */
+  .rl-sh .search-page-input__parent {
+    position: relative;
+    z-index: 5;
+  }
+
+  .rl-sh-suggest {
+    --color-foreground: rgb(255 255 255 / 1);
+    --color-foreground-rgb: 255 255 255;
+    --color-background: rgb(20 14 24 / 1);
+    --color-background-rgb: 20 14 24;
+    --color-border: rgb(255 255 255 / 0.1);
+
+    position: absolute;
+    top: calc(100% + 10px);
+    left: 0;
+    right: 0;
+    max-height: min(70vh, 640px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 8px 6px 14px;
+    text-align: left;
+    color: #fff;
+    border: 1px solid rgb(255 255 255 / 0.12);
+    border-radius: 24px;
+    background: rgb(20 14 24 / 0.94);
+    -webkit-backdrop-filter: blur(24px) saturate(160%);
+    backdrop-filter: blur(24px) saturate(160%);
+    box-shadow: 0 24px 60px rgb(0 0 0 / 0.55);
+    animation: rl-sh-drop 0.22s cubic-bezier(0.22, 0.9, 0.3, 1) both;
+  }
+
+  .rl-sh-suggest[hidden] {
+    display: none;
+  }
+
+  .rl-sh-suggest :is(.predictive-search-results__inner, .predictive-search-dropdown, .predictive-search-results__products) {
+    max-height: none;
+    overflow: visible;
+    background: transparent;
+  }
+
+  .rl-sh-suggest .predictive-search-results__title {
+    margin: 12px 14px 8px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgb(255 255 255 / 0.55);
+    text-align: left !important;
+  }
+
+  .rl-sh-suggest .predictive-search-results__card--product .resource-card__media {
+    border-radius: 12px;
+    overflow: hidden;
+    background: rgb(255 255 255 / 0.05);
+  }
+
+  .rl-sh-suggest .price,
+  .rl-sh-suggest .price * {
+    color: #ff2fb1;
+  }
+
+  @keyframes rl-sh-drop {
+    from {
+      opacity: 0;
+      transform: translateY(-6px);
+    }
+  }
+
+  html.rl-lite .rl-sh-suggest {
+    background: rgb(20 14 24 / 0.98);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
   /* Rookie Legends search hero: dark glow, eyebrow pill, big heading, glass pill */
   #MainContent:has(.rl-sh) {
     background-color: #000;
   }
 
+  /* Sits above the results so the suggestions dropdown can hang over them */
+  .shopify-section:has(.rl-sh) {
+    position: relative;
+    z-index: 3;
+  }
+
+  .rl-sh.section {
+    overflow: visible !important;
+  }
+
   .rl-sh {
     position: relative;
-    overflow: hidden;
+    z-index: 3;
     padding-top: calc(var(--header-height, 64px) + 44px);
     padding-bottom: 34px;
     background: #000;
@@ -61,7 +214,7 @@
 
   .rl-sh__glow {
     position: absolute;
-    inset: -20% -10% 0;
+    inset: 0;
     pointer-events: none;
     background:
       radial-gradient(42% 60% at 18% 30%, rgb(235 0 202 / 0.32), transparent 70%),
