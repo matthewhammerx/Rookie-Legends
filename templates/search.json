@@ -14,9 +14,9 @@
       "name": "Hero Banner",
       "settings": {
         "color_scheme": "",
-        "height_mode": "medium",
-        "custom_height": 640,
-        "custom_height_mobile": 520,
+        "height_mode": "custom",
+        "custom_height": 500,
+        "custom_height_mobile": 480,
         "content_align": "left",
         "content_align_mobile": "left",
         "content_vertical_align": "center",
@@ -102,7 +102,7 @@
         "heading_size_mobile": 28,
         "heading_size": 40,
         "padding-block-start": 0,
-        "padding-block-end": 0
+        "padding-block-end": 32
       }
     },
     "main": {
