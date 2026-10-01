@@ -136,9 +136,16 @@
     color: rgb(255 255 255 / 0.6);
   }
 
-  .rl-sh__inner > *:last-child {
+  /* Search pill: wide and centred (the block otherwise sizes to 50%) */
+  .rl-sh__inner .search-page-input__parent {
     width: 100%;
     max-width: 620px;
+    margin-inline: auto;
+  }
+
+  .rl-sh__inner .search-page-input__parent > * {
+    width: 100%;
+    max-width: 100% !important;
   }
 
   @media screen and (min-width: 750px) {
