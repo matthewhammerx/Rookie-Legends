@@ -1,0 +1,182 @@
+{%- comment -%}
+  Rookie Legends buttons: one look for every call-to-action button.
+  A dark glass pill with a pink > violet > ice gradient edge, uppercase
+  label, a soft pink glow, and on hover it fills with the gradient and a
+  light sweep passes over it. Add to cart is filled from the start.
+  Covers: hero banner buttons, collection showcase / popup buttons, theme
+  Button blocks (e.g. View all) and Add to cart on product pages.
+  The cart page and cart drawer are left alone.
+  Rendered in the <head> of every layout.
+{%- endcomment -%}
+<style>
+  :root {
+    --rl-btn-1: #ff2fb1;
+    --rl-btn-2: #8b5cff;
+    --rl-btn-3: #7fdbff;
+  }
+
+  html :is(
+    .hero-banner-button,
+    .hcs-button,
+    .pcoll-btn,
+    #MainContent:not(:has(cart-items-component)) :is(a.button, a.button-secondary),
+    #MainContent .product-form-buttons .button:not(.button-unstyled)
+  ) {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-height: 50px;
+    padding: 0 28px !important;
+    border: 1.5px solid transparent !important;
+    border-radius: 999px !important;
+    background:
+      linear-gradient(rgb(16 10 20 / 0.72), rgb(16 10 20 / 0.72)) padding-box,
+      linear-gradient(120deg, var(--rl-btn-1), var(--rl-btn-2) 55%, var(--rl-btn-3)) border-box !important;
+    color: #fff !important;
+    font-family: var(--font-heading--family, inherit);
+    font-size: 0.95rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    line-height: 1;
+    text-transform: uppercase;
+    text-decoration: none !important;
+    white-space: nowrap;
+    box-shadow:
+      0 12px 32px -14px rgb(255 47 177 / 0.75),
+      inset 0 1px 0 rgb(255 255 255 / 0.14) !important;
+    -webkit-backdrop-filter: blur(14px) saturate(150%);
+    backdrop-filter: blur(14px) saturate(150%);
+    transition:
+      transform 0.25s cubic-bezier(0.22, 0.9, 0.3, 1),
+      box-shadow 0.3s ease !important;
+  }
+
+  /* Gradient fill (shown on hover) and the light sweep */
+  html :is(
+    .hero-banner-button,
+    .hcs-button,
+    .pcoll-btn,
+    #MainContent:not(:has(cart-items-component)) :is(a.button, a.button-secondary),
+    #MainContent .product-form-buttons .button:not(.button-unstyled)
+  )::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    background: linear-gradient(120deg, var(--rl-btn-1), var(--rl-btn-2));
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  html :is(
+    .hero-banner-button,
+    .hcs-button,
+    .pcoll-btn,
+    #MainContent:not(:has(cart-items-component)) :is(a.button, a.button-secondary),
+    #MainContent .product-form-buttons .button:not(.button-unstyled)
+  )::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    background: linear-gradient(105deg, transparent 35%, rgb(255 255 255 / 0.3) 50%, transparent 65%);
+    transform: translateX(-120%);
+    transition: transform 0.7s ease;
+    pointer-events: none;
+  }
+
+  @media (hover: hover) {
+    html :is(
+      .hero-banner-button,
+      .hcs-button,
+      .pcoll-btn,
+      #MainContent:not(:has(cart-items-component)) :is(a.button, a.button-secondary),
+      #MainContent .product-form-buttons .button:not(.button-unstyled)
+    ):hover {
+      transform: translateY(-2px);
+      box-shadow:
+        0 16px 40px -12px rgb(255 47 177 / 0.9),
+        0 0 0 4px rgb(255 47 177 / 0.12),
+        inset 0 1px 0 rgb(255 255 255 / 0.2) !important;
+    }
+
+    html :is(
+      .hero-banner-button,
+      .hcs-button,
+      .pcoll-btn,
+      #MainContent:not(:has(cart-items-component)) :is(a.button, a.button-secondary),
+      #MainContent .product-form-buttons .button:not(.button-unstyled)
+    ):hover::before {
+      opacity: 1;
+    }
+
+    html :is(
+      .hero-banner-button,
+      .hcs-button,
+      .pcoll-btn,
+      #MainContent:not(:has(cart-items-component)) :is(a.button, a.button-secondary),
+      #MainContent .product-form-buttons .button:not(.button-unstyled)
+    ):hover::after {
+      transform: translateX(120%);
+    }
+  }
+
+  html :is(
+    .hero-banner-button,
+    .hcs-button,
+    .pcoll-btn,
+    #MainContent:not(:has(cart-items-component)) :is(a.button, a.button-secondary),
+    #MainContent .product-form-buttons .button:not(.button-unstyled)
+  ):active {
+    transform: translateY(0) scale(0.98);
+  }
+
+  /* Add to cart: filled from the start */
+  html #MainContent .product-form-buttons .button:not(.button-unstyled)::before {
+    opacity: 1;
+  }
+
+  html #MainContent .product-form-buttons .button:not(.button-unstyled):disabled {
+    opacity: 0.55;
+    transform: none;
+  }
+
+  html #MainContent .product-form-buttons .button:not(.button-unstyled):disabled::before {
+    opacity: 0.35;
+  }
+
+  /* Lite mode: no live blur, no sweep */
+  html.rl-lite :is(
+    .hero-banner-button,
+    .hcs-button,
+    .pcoll-btn,
+    #MainContent:not(:has(cart-items-component)) :is(a.button, a.button-secondary),
+    #MainContent .product-form-buttons .button:not(.button-unstyled)
+  ) {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
+  html.rl-lite :is(
+    .hero-banner-button,
+    .hcs-button,
+    .pcoll-btn,
+    #MainContent:not(:has(cart-items-component)) :is(a.button, a.button-secondary),
+    #MainContent .product-form-buttons .button:not(.button-unstyled)
+  )::after {
+    display: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html :is(.hero-banner-button, .hcs-button, .pcoll-btn, #MainContent a.button, #MainContent a.button-secondary, #MainContent .product-form-buttons .button) {
+      transition: none !important;
+      transform: none !important;
+    }
+  }
+</style>
