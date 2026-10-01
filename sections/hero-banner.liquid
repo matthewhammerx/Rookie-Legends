@@ -226,7 +226,7 @@
               -%}
               <div
                 id="HBHeadingLine-{{ block.id }}"
-                class="hero-banner__heading-line{% if block.settings.uppercase %} hero-banner__heading-line--uppercase{% endif %}{% if block.settings.text_style == 'glossy' and block.settings.animate_shine %} hero-banner__heading-line--shine{% endif %}"
+                class="hero-banner__heading-line{% if block.settings.uppercase %} hero-banner__heading-line--uppercase{% endif %}{% if block.settings.text_style == 'glossy' and block.settings.animate_shine %} hero-banner__heading-line--shine{% endif %}{% if block.settings.text_style == 'legend' %} hero-banner__heading-line--legend{% endif %}"
                 style="
                   --hbl-size: {{ block.settings.font_size_mobile }}px;
                   --hbl-size-desktop: {{ block.settings.font_size_desktop }}px;
@@ -614,14 +614,16 @@
   .hero-banner-{{ section.id }} .hero-banner__eyebrow {
     display: inline-flex;
     align-items: center;
-    padding: 6px 16px;
+    padding: 8px 18px;
     border-radius: 999px;
-    border: 1px solid color-mix(in srgb, var(--hb-accent) 45%, transparent);
-    background: color-mix(in srgb, var(--hb-accent) 14%, transparent);
+    border: 1px solid rgb(255 255 255 / 0.16);
+    background: rgb(255 255 255 / 0.07);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
     color: var(--hb-eyebrow-color);
     font-size: var(--hb-eyebrow-size);
     font-weight: 700;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.18em;
     text-transform: uppercase;
   }
 
@@ -647,6 +649,70 @@
 
   .hero-banner-{{ section.id }} .hero-banner__heading-line--uppercase {
     text-transform: uppercase;
+  }
+
+  /* Rookie Legends heading style: one condensed font, solid white words,
+     outlined *italic* words, and a moving pink > violet > ice gradient on
+     **bold** words. Overrides the per-line font/colour settings. */
+  .hero-banner-{{ section.id }} .hero-banner__heading-line--legend {
+    font-family: var(--font-heading--family) !important;
+    font-weight: 800 !important;
+    font-style: normal !important;
+    line-height: 0.9 !important;
+    letter-spacing: 0.01em;
+    text-transform: uppercase;
+    color: #fff !important;
+    background: none !important;
+    text-shadow: 0 6px 40px rgb(0 0 0 / 0.35);
+    filter: drop-shadow(0 0 28px rgb(255 47 177 / 0.22)) !important;
+  }
+
+  .hero-banner-{{ section.id }} .hero-banner__heading-line--legend p {
+    margin: 0;
+  }
+
+  .hero-banner-{{ section.id }} .hero-banner__heading-line--legend :is(em, strong) {
+    font-family: inherit !important;
+    font-weight: inherit !important;
+    font-style: normal !important;
+  }
+
+  .hero-banner-{{ section.id }} .hero-banner__heading-line--legend em {
+    color: transparent !important;
+    -webkit-text-stroke: 1.5px rgb(255 255 255 / 0.92);
+    text-shadow: none;
+  }
+
+  .hero-banner-{{ section.id }} .hero-banner__heading-line--legend strong {
+    color: transparent !important;
+    background: linear-gradient(90deg, #ff2fb1, #b44cff 35%, #7fdbff 55%, #b44cff 75%, #ff2fb1) 0 0 / 200% 100% !important;
+    -webkit-background-clip: text !important;
+    background-clip: text !important;
+    text-shadow: none;
+    filter: drop-shadow(0 0 22px rgb(255 47 177 / 0.45));
+    animation: rlLegendShine-{{ section.id }} 6s linear infinite;
+  }
+
+  @keyframes rlLegendShine-{{ section.id }} {
+    to {
+      background-position: 200% 0;
+    }
+  }
+
+  html.rl-lite .hero-banner-{{ section.id }} .hero-banner__heading-line--legend strong {
+    animation: none;
+  }
+
+  /* Eyebrow: glass pill with a glowing dot */
+  .hero-banner-{{ section.id }} .hero-banner__eyebrow::before {
+    content: '';
+    flex: none;
+    width: 7px;
+    height: 7px;
+    margin-right: 10px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 0 10px rgb(255 47 177 / 0.95);
   }
 
   .hero-banner-{{ section.id }} .hero-banner__image-block {
@@ -814,7 +880,8 @@
       transform: none;
     }
 
-    .hero-banner-{{ section.id }} .hero-banner__heading-line--shine {
+    .hero-banner-{{ section.id }} .hero-banner__heading-line--shine,
+    .hero-banner-{{ section.id }} .hero-banner__heading-line--legend strong {
       animation: none !important;
     }
   }
@@ -1480,7 +1547,8 @@
           "default": "solid",
           "options": [
             { "value": "solid", "label": "Solid" },
-            { "value": "glossy", "label": "Glossy shine" }
+            { "value": "glossy", "label": "Glossy shine" },
+            { "value": "legend", "label": "Rookie Legends (outline + gradient)" }
           ]
         },
         {
