@@ -864,6 +864,13 @@
       color: rgb(255 255 255 / 0.55);
     }
 
+    /* "Recently viewed" is capped at 1000px with visible overflow, so a long
+       list spilled over the Products list below and the tiles stacked */
+    .search-modal .recently-viewed-wrapper:not(.removing) {
+      max-height: none;
+      margin-bottom: 8px;
+    }
+
     .search-modal .predictive-search-results__wrapper-products {
       display: grid !important;
       grid-template-columns: 1fr 1fr;
