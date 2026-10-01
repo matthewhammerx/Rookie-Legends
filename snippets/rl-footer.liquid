@@ -1,0 +1,313 @@
+{%- comment -%}
+  Rookie Legends footer (styling only; content and settings unchanged).
+  - Gradient hairline on top, soft pink glow behind
+  - Email signup as a glass card with a gradient heading and a pill field
+  - Links column with a small grey label, white on hover with a pink dot
+  - Bottom bar: hairline, small grey copyright / policies, glass social circles
+  - Big outlined ROOKIE LEGENDS wordmark to close the page
+  Rendered in the <head> of every layout.
+{%- endcomment -%}
+<style>
+  /* ---- Main footer ---- */
+  .shopify-section-group-footer-group:has(.footer-content) {
+    position: relative;
+    overflow: hidden;
+    background:
+      radial-gradient(60% 120% at 12% 0%, rgb(255 47 177 / 0.16), transparent 60%),
+      radial-gradient(50% 100% at 95% 10%, rgb(139 92 255 / 0.14), transparent 60%),
+      #000 !important;
+  }
+
+  .shopify-section-group-footer-group:has(.footer-content)::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    z-index: 1;
+    background: linear-gradient(90deg, transparent, #ff2fb1 25%, #8b5cff 60%, #7fdbff 85%, transparent);
+    opacity: 0.8;
+  }
+
+  .shopify-section-group-footer-group .section-background {
+    background: transparent !important;
+  }
+
+  .shopify-section-group-footer-group .footer-content {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+    align-items: start;
+    gap: 48px;
+    padding-block: 64px 44px !important;
+  }
+
+  .shopify-section-group-footer-group .footer-content > * {
+    width: auto !important;
+    max-width: none !important;
+    margin: 0 !important;
+  }
+
+  /* Email signup card */
+  .shopify-section-group-footer-group .email-signup-block {
+    padding: 30px 30px 32px !important;
+    border: 1px solid rgb(255 255 255 / 0.1);
+    border-radius: 26px;
+    background: linear-gradient(160deg, rgb(255 47 177 / 0.12), rgb(139 92 255 / 0.07) 55%, rgb(255 255 255 / 0.02));
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.08), 0 30px 60px -30px rgb(255 47 177 / 0.35);
+  }
+
+  .shopify-section-group-footer-group .email-signup__heading {
+    margin: 0 0 6px !important;
+    font-family: var(--font-heading--family);
+    font-size: clamp(1.7rem, 3vw, 2.4rem) !important;
+    line-height: 1 !important;
+    letter-spacing: 0.01em;
+    text-transform: uppercase;
+    background: linear-gradient(90deg, #fff 20%, #ff8ad8 55%, #c58bff);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent !important;
+  }
+
+  /* Subtitle under the heading (kept off the gradient heading) */
+  .shopify-section-group-footer-group .email-signup__form::before {
+    content: 'Drops, restocks and members-only deals. No spam.';
+    display: block;
+    margin: 0 0 18px;
+    font-size: 0.92rem;
+    font-weight: 500;
+    line-height: 1.4;
+    color: rgb(255 255 255 / 0.6);
+  }
+
+  .shopify-section-group-footer-group .email-signup__form {
+    margin-top: 10px !important;
+    padding: 0 !important;
+  }
+
+  .shopify-section-group-footer-group .email-signup__input-group {
+    display: flex;
+    align-items: center;
+    min-height: 58px;
+    padding: 5px 5px 5px 22px;
+    border: 1px solid rgb(255 255 255 / 0.14) !important;
+    border-radius: 999px !important;
+    background: rgb(0 0 0 / 0.45) !important;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .shopify-section-group-footer-group .email-signup__input-group:focus-within {
+    border-color: rgb(255 47 177 / 0.7) !important;
+    box-shadow: 0 0 0 4px rgb(255 47 177 / 0.14);
+  }
+
+  .shopify-section-group-footer-group .email-signup__input {
+    flex: 1 1 auto;
+    min-width: 0;
+    padding: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    color: #fff !important;
+    font-size: 16px;
+    outline: none !important;
+  }
+
+  .shopify-section-group-footer-group .email-signup__input::placeholder {
+    color: rgb(255 255 255 / 0.45);
+  }
+
+  .shopify-section-group-footer-group .email-signup__button {
+    position: static !important;
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 48px !important;
+    height: 48px !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 50% !important;
+    color: #fff !important;
+    background: linear-gradient(135deg, #ff2fb1, #8b5cff) !important;
+    box-shadow: 0 8px 24px -8px rgb(255 47 177 / 0.8);
+    transform: none !important;
+    transition: transform 0.25s ease, box-shadow 0.25s ease !important;
+  }
+
+  .shopify-section-group-footer-group .email-signup__button:hover {
+    transform: translateX(2px) !important;
+    box-shadow: 0 10px 30px -6px rgb(255 47 177 / 0.95);
+  }
+
+  .shopify-section-group-footer-group .email-signup__button svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  /* Links column */
+  .shopify-section-group-footer-group .footer-content .group-block {
+    padding: 8px 0 0 !important;
+  }
+
+  .shopify-section-group-footer-group .footer-content .menu .details-content::before {
+    content: 'Help & policies';
+    display: block;
+    margin-bottom: 16px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: rgb(255 255 255 / 0.45);
+  }
+
+  .shopify-section-group-footer-group .footer-content .menu ul {
+    display: grid;
+    gap: 14px;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .shopify-section-group-footer-group .footer-content .menu__item {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .shopify-section-group-footer-group .footer-content .menu :is(details, nav) {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .shopify-section-group-footer-group .footer-content .menu__item a {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 0 !important;
+    font-size: 1rem;
+    font-weight: 600;
+    color: rgb(255 255 255 / 0.75) !important;
+    text-decoration: none !important;
+    transition: color 0.2s ease, transform 0.2s ease;
+  }
+
+  .shopify-section-group-footer-group .footer-content .menu__item a::before {
+    content: '';
+    position: absolute;
+    left: -14px;
+    top: 50%;
+    margin-top: -3px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #ff2fb1;
+    box-shadow: 0 0 10px #ff2fb1;
+    opacity: 0;
+    transform: scale(0.4);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+  }
+
+  .shopify-section-group-footer-group .footer-content .menu__item a:hover {
+    color: #fff !important;
+    transform: translateX(4px);
+  }
+
+  .shopify-section-group-footer-group .footer-content .menu__item a:hover::before {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* ---- Bottom bar ---- */
+  .shopify-section-group-footer-group.footer-utilities {
+    position: relative;
+    background: #000 !important;
+  }
+
+  .shopify-section-group-footer-group .utilities {
+    align-items: center !important;
+    padding-block: 22px !important;
+    border-top: 1px solid rgb(255 255 255 / 0.08);
+  }
+
+  .shopify-section-group-footer-group .utilities,
+  .shopify-section-group-footer-group .utilities a,
+  .shopify-section-group-footer-group .policy-list-trigger {
+    font-size: 0.75rem !important;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgb(255 255 255 / 0.5) !important;
+  }
+
+  .shopify-section-group-footer-group .utilities a:hover,
+  .shopify-section-group-footer-group .policy-list-trigger:hover {
+    color: #fff !important;
+  }
+
+  .shopify-section-group-footer-group .social-icons__wrapper {
+    gap: 10px !important;
+  }
+
+  .shopify-section-group-footer-group .social-icons__icon-wrapper {
+    display: grid !important;
+    place-items: center;
+    width: 40px !important;
+    height: 40px !important;
+    border: 1px solid rgb(255 255 255 / 0.12) !important;
+    border-radius: 50% !important;
+    background: rgb(255 255 255 / 0.05) !important;
+    color: rgb(255 255 255 / 0.8) !important;
+    transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, color 0.2s ease !important;
+  }
+
+  .shopify-section-group-footer-group .social-icons__icon-wrapper:hover {
+    transform: translateY(-2px);
+    color: #fff !important;
+    border-color: rgb(255 47 177 / 0.7) !important;
+    box-shadow: 0 0 0 4px rgb(255 47 177 / 0.12), 0 8px 20px -6px rgb(255 47 177 / 0.7) !important;
+  }
+
+  .shopify-section-group-footer-group .social-icons__icon {
+    width: 18px !important;
+    height: 18px !important;
+  }
+
+  /* Closing wordmark */
+  .shopify-section-group-footer-group.footer-utilities::after {
+    content: 'ROOKIE LEGENDS';
+    display: block;
+    overflow: hidden;
+    padding: 4px 0 18px;
+    font-family: var(--font-heading--family);
+    font-size: clamp(44px, 12.5vw, 210px);
+    font-weight: 800;
+    line-height: 0.82;
+    letter-spacing: 0.01em;
+    text-align: center;
+    white-space: nowrap;
+    color: transparent;
+    -webkit-text-stroke: 1px rgb(255 255 255 / 0.1);
+    background: linear-gradient(180deg, rgb(255 47 177 / 0.22), transparent 85%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    pointer-events: none;
+    user-select: none;
+  }
+
+  @media screen and (max-width: 749px) {
+    .shopify-section-group-footer-group .footer-content {
+      grid-template-columns: 1fr;
+      gap: 34px;
+      padding-block: 44px 28px !important;
+    }
+
+    .shopify-section-group-footer-group .email-signup-block {
+      padding: 24px 20px 24px !important;
+    }
+
+    .shopify-section-group-footer-group .utilities {
+      flex-direction: column;
+      gap: 16px;
+      text-align: center;
+    }
+  }
+</style>
