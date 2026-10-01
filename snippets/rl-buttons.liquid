@@ -137,15 +137,13 @@
     transform: translateY(0) scale(0.98);
   }
 
-  /* Collection showcase on desktop: button sized to sit beside the title */
-  @media screen and (min-width: 750px) {
-    /* :is(#rl-x, …) lifts specificity above the shared rule (which has an id) */
-    html :is(#rl-x, .hcs-button).hcs-button {
-      min-height: 40px !important;
-      padding: 0 20px !important;
-      font-size: 0.8rem !important;
-      letter-spacing: 0.12em !important;
-    }
+  /* Collection showcase (desktop and mobile): compact button to match the title.
+     :is(#rl-x, …) lifts specificity above the shared rule (which has an id) */
+  html :is(#rl-x, .hcs-button).hcs-button {
+    min-height: 40px !important;
+    padding: 0 20px !important;
+    font-size: 0.8rem !important;
+    letter-spacing: 0.12em !important;
   }
 
   /* Add to cart: filled from the start */
