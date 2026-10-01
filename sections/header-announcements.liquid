@@ -11,7 +11,7 @@
 <div class="section-background color-{{ section.settings.color_scheme }}{% if section.settings.rl_gradient %} rl-ann-bg{% endif %}" style="--rl-ann-a: {{ section.settings.rl_color_a }}; --rl-ann-b: {{ section.settings.rl_color_b }}; --rl-ann-text: {{ section.settings.rl_text_color }};"></div>
 <aside
   class="{% if section.settings.rl_gradient %}rl-ann {% endif %}announcement-bar spacing-style section section--{{ section.settings.section_width }} color-{{ section.settings.color_scheme }}"
-  style="{% render 'spacing-padding', settings: section.settings %}; --border-bottom-width: {{ section.settings.divider_width }}px;"
+  style="{% render 'spacing-padding', settings: section.settings %}; --border-bottom-width: {{ section.settings.divider_width }}px; --rl-ann-text: {{ section.settings.rl_text_color }};"
 >
   {% liquid
     assign autoplay = false
