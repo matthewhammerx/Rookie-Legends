@@ -224,10 +224,25 @@
   .faq-accordion-{{ section.id }} .faq-accordion__item {
     border-radius: 22px;
     border: 1px solid rgb(255 255 255 / 0.1);
-    background: rgb(22 15 27 / 0.6);
-    -webkit-backdrop-filter: blur(18px) saturate(150%);
-    backdrop-filter: blur(18px) saturate(150%);
+    /* Solid tint instead of live blur: much smoother to scroll and open */
+    background: rgb(22 15 27 / 0.88);
     box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.06), 0 18px 40px -26px rgb(0 0 0 / 0.9);
+    transition: opacity 0.25s ease, border-color 0.25s ease;
+  }
+
+  /* Performance: no greyscale filter on the faded questions, no mouse spotlight */
+  .faq-accordion-{{ section.id }} .faq-accordion__list:has(.faq-accordion__trigger[aria-expanded='true'])
+    .faq-accordion__item:not(:has(.faq-accordion__trigger[aria-expanded='true'])) {
+    filter: none;
+    opacity: 0.55;
+  }
+
+  .faq-accordion-{{ section.id }} .faq-accordion__item::before {
+    display: none;
+  }
+
+  .faq-accordion-{{ section.id }} .faq-accordion__panel {
+    transition: max-height 0.3s cubic-bezier(0.22, 0.9, 0.3, 1);
   }
 
   .faq-accordion-{{ section.id }} .faq-accordion__item:hover {
@@ -305,8 +320,6 @@
   }
 
   html.rl-lite .faq-accordion-{{ section.id }} .faq-accordion__item {
-    -webkit-backdrop-filter: none;
-    backdrop-filter: none;
     background: rgb(22 15 27 / 0.95);
   }
 </style>
@@ -355,9 +368,7 @@
       root.querySelectorAll('.faq-accordion__item').forEach(function (item) {
         if (item.dataset.faqGlowBound) return;
         item.dataset.faqGlowBound = 'true';
-        item.addEventListener('pointermove', function (e) {
-          setSpot(item, e.clientX, e.clientY);
-        });
+        // Mouse spotlight removed for performance
       });
     }
 
