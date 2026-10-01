@@ -13,7 +13,7 @@
 
   {% if section.settings.heading != blank %}
     <div class="video-showcase__head">
-      <h2 class="video-showcase__heading">{{ section.settings.heading }}</h2>
+      <h2 class="video-showcase__heading" data-text="{{ section.settings.heading | escape }}">{{ section.settings.heading }}</h2>
     </div>
   {% endif %}
 
@@ -178,10 +178,23 @@
     font-weight: 800;
     font-size: {{ section.settings.heading_size_mobile }}px;
     margin: 0;
-    background: linear-gradient(160deg, #ffffff 10%, {{ accent }} 120%);
-    -webkit-background-clip: text;
-    background-clip: text;
+    line-height: 0.95;
+    text-transform: uppercase;
+    /* White with an offset pink outline echo, like the collection titles */
+    position: relative;
+    isolation: isolate;
+    color: #fff;
+  }
+
+  .video-showcase-{{ section.id }} .video-showcase__heading::after {
+    content: attr(data-text);
+    position: absolute;
+    inset: 0;
+    z-index: -1;
     color: transparent;
+    -webkit-text-stroke: 1.5px rgb(255 47 177 / 0.85);
+    transform: translate(0.07em, 0.07em);
+    pointer-events: none;
   }
 
   @media screen and (min-width: 750px) {
