@@ -130,6 +130,56 @@
   </dialog>
 </dialog-component>
 
+<script>
+  // Rookie Legends mobile search: fit the visible screen and scroll cleanly
+  (function () {
+    var dialog = document.querySelector('#search-modal .search-modal__content');
+    if (!dialog || dialog.__rlSearch) return;
+    dialog.__rlSearch = true;
+    var mobile = window.matchMedia('(max-width: 749px)');
+    var input = dialog.querySelector('input.search-input');
+
+    // Size the panel to the visible area, so it sits above the keyboard
+    function fit() {
+      var vv = window.visualViewport;
+      dialog.style.setProperty('--rl-svh', (vv ? vv.height : window.innerHeight) + 'px');
+      dialog.style.setProperty('--rl-svt', (vv ? vv.offsetTop : 0) + 'px');
+    }
+    fit();
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', fit);
+      window.visualViewport.addEventListener('scroll', fit);
+    }
+    window.addEventListener('resize', fit);
+
+    // Swiping the results closes the keyboard, so the whole list is reachable
+    dialog.addEventListener(
+      'touchmove',
+      function (e) {
+        if (!mobile.matches || !input || document.activeElement !== input) return;
+        if (e.target.closest && e.target.closest('.predictive-search-form__content')) input.blur();
+      },
+      { passive: true }
+    );
+
+    // The theme puts focus back on the search box after any tap on empty space
+    // in the results. On phones that reopens the keyboard and jerks the panel,
+    // so keep those taps to the results on mobile.
+    var results = dialog.querySelector('.predictive-search-form__content');
+    if (results) {
+      results.addEventListener(
+        'click',
+        function (e) {
+          if (!mobile.matches) return;
+          if (e.target.closest && e.target.closest('a, button, input')) return;
+          e.stopPropagation();
+        },
+        false
+      );
+    }
+  })();
+</script>
+
 {% stylesheet %}
   /* Search modal style */
   .search-modal {
@@ -611,23 +661,36 @@
     background-color: rgba(255, 47, 177, 0.12);
   }
 
-  /*
-    Mobile: the search floats like the menu instead of filling the screen
-    edge to edge: a rounded glass panel with a gap on every side, over a dim
-    backdrop, dropping in from the top.
-  */
+  /* =====================================================================
+     Rookie Legends mobile search (rebuilt)
+     A floating glass panel like the menu: a search pill + round close
+     button on top, one results list below that is the only scroller.
+     The panel is sized to the *visible* screen (--rl-svh, set by the
+     script below), so it sits above the keyboard and nothing hides
+     behind it. Desktop keeps the theme's modal.
+     ===================================================================== */
   @media screen and (max-width: 749px) {
     .search-modal__content.dialog-modal {
-      inset: calc(10px + env(safe-area-inset-top, 0px)) 10px calc(10px + env(safe-area-inset-bottom, 0px));
+      --rl-pink: #ff2fb1;
+      --rl-gap: 10px;
+
+      inset: auto;
+      top: calc(var(--rl-svt, 0px) + var(--rl-gap) + env(safe-area-inset-top, 0px));
+      left: var(--rl-gap);
+      right: var(--rl-gap);
       width: auto;
-      /* A definite height so the theme's own results list (inside) scrolls */
-      height: calc(100dvh - 20px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+      height: calc(var(--rl-svh, 100dvh) - var(--rl-gap) * 2 - env(safe-area-inset-top, 0px));
       max-width: none;
       max-height: none;
       margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
       overflow: hidden;
+      color: #fff;
       border: 1px solid rgb(255 255 255 / 0.12);
-      background: rgb(20 14 24 / 0.82);
+      border-radius: 28px !important;
+      background: rgb(20 14 24 / 0.84);
       -webkit-backdrop-filter: blur(26px) saturate(160%);
       backdrop-filter: blur(26px) saturate(160%);
       box-shadow: 0 18px 50px rgb(0 0 0 / 0.45);
@@ -635,56 +698,11 @@
     }
 
     .dialog-modal[open].search-modal__content {
-      border-radius: 28px !important;
-      animation: rl-search-float-in 340ms cubic-bezier(0.22, 0.9, 0.3, 1) both;
+      animation: rl-sx-in 340ms cubic-bezier(0.22, 0.9, 0.3, 1) both;
     }
 
     .dialog-modal.search-modal__content.dialog-closing {
-      animation: rl-search-float-out 180ms ease-in both;
-    }
-
-    /* Height chain: panel > form (fills it) > results area (takes the rest
-       and scrolls); the search bar stays put at the top */
-    .search-modal__content predictive-search-component {
-      flex: 1 1 auto;
-      min-height: 0;
-      width: 100%;
-    }
-
-    .search-modal__content .predictive-search-form {
-      display: flex;
-      flex-direction: column;
-      width: 100%;
-      height: 100%;
-      min-height: 0;
-    }
-
-    .search-modal__content .predictive-search-form__header {
-      flex: none;
-    }
-
-    .search-modal__content .predictive-search-form__content-wrapper {
-      /* The theme offsets this by top: 100% (dropdown layout) */
-      position: relative;
-      top: 0;
-      flex: 1 1 auto;
-      min-height: 0;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .search-modal__content .predictive-search-form__content {
-      flex: 1 1 auto;
-      min-height: 0;
-      max-height: none;
-      overflow-y: auto;
-      overscroll-behavior: contain;
-      -webkit-overflow-scrolling: touch;
-    }
-
-    .search-modal .predictive-search-form__header-inner {
-      border-radius: 999px !important;
-      overflow: hidden;
+      animation: rl-sx-out 180ms ease-in both;
     }
 
     .search-modal__content::backdrop {
@@ -694,6 +712,230 @@
       backdrop-filter: none;
     }
 
+    /* ---- Layout chain: panel > form > results (the one scroller) ---- */
+    .search-modal__content predictive-search-component {
+      display: flex;
+      flex-direction: column;
+      flex: 1 1 auto;
+      width: 100%;
+      min-height: 0;
+    }
+
+    .search-modal__content .predictive-search-form {
+      display: flex;
+      flex-direction: column;
+      flex: 1 1 auto;
+      width: 100%;
+      height: auto;
+      min-height: 0;
+    }
+
+    .search-modal__content .predictive-search-form__content-wrapper {
+      position: relative !important;
+      inset: auto !important;
+      display: flex;
+      flex-direction: column;
+      flex: 1 1 auto;
+      min-height: 0;
+      max-height: none !important;
+      overflow: hidden;
+      border-radius: 0;
+      box-shadow: none;
+      transform: none;
+      will-change: auto;
+    }
+
+    .search-modal__content .predictive-search-form__content {
+      flex: 1 1 auto;
+      min-height: 0;
+      max-height: none !important;
+      overflow-x: hidden;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      -webkit-overflow-scrolling: touch;
+      touch-action: pan-y;
+      padding: 4px 14px 96px !important;
+    }
+
+    /* No scroller inside the scroller */
+    .search-modal__content :is(.predictive-search-dropdown, .predictive-search-results__inner) {
+      max-height: none !important;
+      overflow: visible !important;
+    }
+
+    /* ---- Top bar: search pill + round close ---- */
+    .search-modal .predictive-search-form__header {
+      position: static;
+      flex: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 10px 8px !important;
+      background: transparent !important;
+      border: 0 !important;
+      box-shadow: none !important;
+    }
+
+    .search-modal .predictive-search-form__header::before {
+      display: none !important;
+    }
+
+    .search-modal .predictive-search-form__header-inner {
+      flex: 1 1 auto;
+      min-width: 0;
+      height: 50px;
+      border: 1px solid rgb(255 255 255 / 0.14) !important;
+      border-radius: 999px !important;
+      background: rgb(255 255 255 / 0.07) !important;
+      overflow: hidden;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .search-modal .predictive-search-form__header-inner:focus-within {
+      border-color: rgb(255 47 177 / 0.65) !important;
+      box-shadow: 0 0 0 3px rgb(255 47 177 / 0.16);
+    }
+
+    .search-modal input.search-input {
+      height: 100%;
+      padding-block: 0 !important;
+      padding-inline: 46px 70px !important;
+      font-size: 16px; /* 16px stops iOS zooming in on focus */
+      color: #fff;
+      background: transparent !important;
+      border: 0 !important;
+      outline: none !important;
+    }
+
+    .search-modal input.search-input::placeholder {
+      color: rgb(255 255 255 / 0.5);
+    }
+
+    .search-modal .predictive-search__icon {
+      left: 16px !important;
+      width: 18px;
+      height: 18px;
+      color: rgb(255 255 255 / 0.6);
+    }
+
+    .search-modal .predictive-search__reset-button {
+      right: 6px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #fff;
+      background: rgb(255 255 255 / 0.1);
+    }
+
+    .search-modal .predictive-search__close-modal-button {
+      display: grid;
+      place-items: center;
+      flex: none;
+      width: 50px;
+      height: 50px;
+      padding: 0;
+      border: 1px solid rgb(255 255 255 / 0.14) !important;
+      border-radius: 50% !important;
+      color: #fff !important;
+      background: rgb(255 255 255 / 0.07) !important;
+    }
+
+    .search-modal .predictive-search__close-modal-button svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    /* ---- Results ---- */
+    .search-modal .predictive-search-results__title {
+      margin: 14px 4px 10px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: rgb(255 255 255 / 0.55);
+    }
+
+    .search-modal .predictive-search-results__wrapper-products {
+      display: grid !important;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px !important;
+    }
+
+    .search-modal .predictive-search-results__card--product {
+      padding: 6px;
+      border: 1px solid rgb(255 255 255 / 0.08);
+      border-radius: 18px;
+      background: rgb(255 255 255 / 0.04);
+    }
+
+    .search-modal .predictive-search-results__card--product .resource-card__media {
+      border-radius: 13px;
+      overflow: hidden;
+      background: rgb(255 255 255 / 0.05);
+    }
+
+    .search-modal .predictive-search-results__card--product .resource-card__content {
+      padding: 8px 4px 4px;
+    }
+
+    .search-modal .predictive-search-results__card--product :is(.resource-card__title, .resource-card__title *) {
+      font-size: 0.86rem !important;
+      line-height: 1.25;
+      color: #fff;
+    }
+
+    .search-modal .predictive-search-results__card--product :is(.price, .resource-card__price, .price *) {
+      font-size: 0.86rem !important;
+      font-weight: 700;
+      color: var(--rl-pink) !important;
+    }
+
+    /* Collections / pages rows: same glass tiles, no black slideshow boxes */
+    .search-modal .predictive-search-results__list:is(slideshow-component),
+    .search-modal .predictive-search-results__list :is(slideshow-container, slideshow-slides, slideshow-slide) {
+      background: transparent !important;
+    }
+
+    .search-modal .predictive-search-results__card:not(.predictive-search-results__card--product) {
+      border: 1px solid rgb(255 255 255 / 0.08) !important;
+      border-radius: 18px !important;
+      background: rgb(255 255 255 / 0.04) !important;
+    }
+
+    .search-modal .predictive-search-results__card:not(.predictive-search-results__card--product) .resource-card {
+      border: 0 !important;
+      background: transparent !important;
+      box-shadow: none !important;
+    }
+
+    /* ---- View all: floating pink pill at the bottom ---- */
+    .search-modal .predictive-search-form__footer {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: flex;
+      justify-content: center;
+      padding: 28px 14px 14px !important;
+      pointer-events: none;
+      background: linear-gradient(to top, rgb(20 14 24 / 0.95) 35%, rgb(20 14 24 / 0)) !important;
+    }
+
+    .search-modal .predictive-search__search-button {
+      pointer-events: auto;
+      min-height: 46px;
+      padding: 0 26px;
+      border: 0;
+      border-radius: 999px;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #fff;
+      background: var(--rl-pink);
+      box-shadow: 0 8px 26px rgb(255 47 177 / 0.45);
+    }
+
     html.rl-lite .search-modal__content.dialog-modal {
       background: rgb(20 14 24 / 0.97);
       -webkit-backdrop-filter: none;
@@ -701,17 +943,23 @@
     }
   }
 
-  @keyframes rl-search-float-in {
+  @keyframes rl-sx-in {
     from {
       opacity: 0;
       transform: translateY(-10px) scale(0.98);
     }
   }
 
-  @keyframes rl-search-float-out {
+  @keyframes rl-sx-out {
     to {
       opacity: 0;
       transform: translateY(-8px) scale(0.98);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .dialog-modal.search-modal__content {
+      animation-duration: 1ms !important;
     }
   }
 {% endstylesheet %}
