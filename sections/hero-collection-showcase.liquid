@@ -178,8 +178,49 @@
             <div class="hcs__card-blur" aria-hidden="true"></div>
           {%- endif -%}
 
-          {%- if on_sale and section.settings.show_sale_badge -%}
-            <span class="hcs__card-badge">{{ section.settings.sale_badge_text }}</span>
+          {%- liquid
+            assign hcs_badge_type = blank
+            if product.available == false and section.settings.show_sold_out_badge
+              assign hcs_badge_type = 'sold-out'
+            elsif on_sale and section.settings.show_sale_badge
+              assign hcs_badge_type = 'sale'
+            endif
+          -%}
+          {%- if hcs_badge_type != blank -%}
+            {%- comment -%} Same badges (style/colours from Theme settings) as the product grids {%- endcomment -%}
+            {%- liquid
+              if hcs_badge_type == 'sold-out'
+                assign badge_scheme = settings.badge_sold_out_color_scheme
+                assign badge_style = settings.badge_sold_out_style | default: 'classic'
+                assign badge_bg = settings.badge_sold_out_bg
+                assign badge_text = settings.badge_sold_out_text
+                assign badge_label = 'content.product_badge_sold_out' | t
+              else
+                assign badge_scheme = settings.badge_sale_color_scheme
+                assign badge_style = settings.badge_sale_style | default: 'classic'
+                assign badge_bg = settings.badge_sale_bg
+                assign badge_text = settings.badge_sale_text
+                assign badge_label = section.settings.sale_badge_text | default: 'Sale'
+                if settings.badge_sale_show_percent and product.compare_at_price > 0
+                  assign savings = product.compare_at_price | minus: product.price
+                  assign percent = savings | times: 100 | divided_by: product.compare_at_price
+                  if percent > 0
+                    assign badge_label = 'content.product_badge_sale_percent' | t: percent: percent
+                  endif
+                endif
+              endif
+            -%}
+            <div
+              class="hcs__badges"
+              style="--badge-border-radius: {{ settings.badge_corner_radius }}px; --badge-font-family: var(--font-{{ settings.badge_font_family }}--family); --badge-font-weight: var(--font-{{ settings.badge_font_family }}--weight); --badge-text-transform: {{ settings.badge_text_transform }};"
+            >
+              <div
+                class="product-badges__badge product-badges__badge--rectangle product-badges__badge--{{ hcs_badge_type }} product-badges__badge--style-{{ badge_style }} color-{{ badge_scheme }}"
+                {% if badge_bg != blank %}style="--color-background: {{ badge_bg }};{% if badge_text != blank %} --color-foreground: {{ badge_text }};{% endif %}"{% endif %}
+              >
+                <span class="product-badges__label">{{ badge_label }}</span>
+              </div>
+            </div>
           {%- endif -%}
 
           {%- if section.settings.enable_quick_add -%}
@@ -926,6 +967,20 @@
     }
   }
 
+  .hcs__badges {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    z-index: 3;
+    display: flex;
+    pointer-events: none;
+  }
+
+  .hcs__card:has(.product-badges__badge--sold-out) .hcs__card-image {
+    opacity: 0.55;
+    filter: grayscale(0.35);
+  }
+
   .hcs__card-badge {
     position: absolute;
     top: 10px;
@@ -1543,6 +1598,12 @@
       "info": "Mobile has no real hover, so arrows appear briefly while you're touching the carousel instead.",
       "default": true,
       "visible_if": "{{ section.settings.show_carousel_arrows }}"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_sold_out_badge",
+      "label": "Show badge on sold out items",
+      "default": true
     },
     {
       "type": "checkbox",
