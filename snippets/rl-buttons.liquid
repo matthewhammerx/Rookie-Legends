@@ -139,11 +139,12 @@
 
   /* Collection showcase on desktop: button sized to sit beside the title */
   @media screen and (min-width: 750px) {
-    html .hcs-button.hcs-button {
-      min-height: 40px;
+    /* :is(#rl-x, …) lifts specificity above the shared rule (which has an id) */
+    html :is(#rl-x, .hcs-button).hcs-button {
+      min-height: 40px !important;
       padding: 0 20px !important;
-      font-size: 0.8rem;
-      letter-spacing: 0.12em;
+      font-size: 0.8rem !important;
+      letter-spacing: 0.12em !important;
     }
   }
 
