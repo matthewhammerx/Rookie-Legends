@@ -137,6 +137,16 @@
     transform: translateY(0) scale(0.98);
   }
 
+  /* Collection showcase on desktop: button sized to sit beside the title */
+  @media screen and (min-width: 750px) {
+    html .hcs-button.hcs-button {
+      min-height: 40px;
+      padding: 0 20px !important;
+      font-size: 0.8rem;
+      letter-spacing: 0.12em;
+    }
+  }
+
   /* Add to cart: filled from the start */
   html #MainContent .product-form-buttons .button:not(.button-unstyled)::before {
     opacity: 1;
