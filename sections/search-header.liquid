@@ -69,13 +69,23 @@
       linear-gradient(to bottom, transparent 55%, #000);
   }
 
+  /* Everything centred in the middle of the page */
   .rl-sh__inner {
     position: relative;
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
     gap: 14px;
     max-width: 760px;
+    margin-inline: auto;
+    text-align: center;
+    --horizontal-alignment: center;
+  }
+
+  .rl-sh__inner > * {
+    margin-inline: auto;
+    text-align: center;
+    justify-content: center;
   }
 
   .rl-sh__eyebrow {
@@ -128,6 +138,7 @@
 
   .rl-sh__inner > *:last-child {
     width: 100%;
+    max-width: 620px;
   }
 
   @media screen and (min-width: 750px) {
