@@ -205,9 +205,12 @@
                 assign badge_bg = settings.badge_sale_bg
                 assign badge_text = settings.badge_sale_text
                 assign badge_label = section.settings.sale_badge_text | default: 'Sale'
-                if rl_ad_pct > 0 and product.compare_at_price <= product.price
+                if rl_ad_pct > 0 and product.compare_at_price > product.price
+                  assign rl_ad_noop = true
+                elsif rl_ad_pct > 0
                   assign badge_label = 'content.product_badge_sale_percent' | t: percent: rl_ad_pct
-                elsif settings.badge_sale_show_percent and product.compare_at_price > 0
+                endif
+                if product.compare_at_price > product.price and settings.badge_sale_show_percent
                   assign savings = product.compare_at_price | minus: product.price
                   assign percent = savings | times: 100 | divided_by: product.compare_at_price
                   if percent > 0
@@ -255,7 +258,8 @@
           <div class="hcs__card-content">
             <p class="hcs__card-title">{{ product.title }}</p>
             <p class="hcs__card-price">
-              {%- if rl_ad_pct > 0 and product.compare_at_price <= product.price -%}
+              {%- if rl_ad_pct > 0 and product.compare_at_price > product.price -%}{%- assign rl_ad_use = false -%}{%- elsif rl_ad_pct > 0 -%}{%- assign rl_ad_use = true -%}{%- else -%}{%- assign rl_ad_use = false -%}{%- endif -%}
+              {%- if rl_ad_use -%}
                 {%- assign rl_ad_keep = 100 | minus: rl_ad_pct -%}
                 {{ product.price | times: rl_ad_keep | divided_by: 100 | money }}
                 <span class="hcs__card-price-compare">{{ product.price | money }}</span>

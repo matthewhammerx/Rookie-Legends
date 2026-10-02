@@ -29,9 +29,12 @@
             assign badge_bg = settings.badge_sale_bg
             assign badge_text = settings.badge_sale_text
             assign badge_label = 'content.product_badge_sale' | t
-            if rl_ad_pct > 0 and product.compare_at_price <= product.price
+            if rl_ad_pct > 0 and product.compare_at_price > product.price
+              assign rl_ad_noop = true
+            elsif rl_ad_pct > 0
               assign badge_label = 'content.product_badge_sale_percent' | t: percent: rl_ad_pct
-            elsif settings.badge_sale_show_percent and product.compare_at_price > 0
+            endif
+            if product.compare_at_price > product.price and settings.badge_sale_show_percent
               assign savings = product.compare_at_price | minus: product.price
               assign percent = savings | times: 100 | divided_by: product.compare_at_price
               if percent > 0
