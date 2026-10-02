@@ -176,7 +176,9 @@
         "ambient_glow_strength": 25,
         "padding_top": 0,
         "padding_bottom": 0,
-        "pull_next_section_up": 300
+        "pull_next_section_up": 300,
+        "custom_pull_mobile": false,
+        "pull_next_section_up_mobile": 0
       }
     },
     "hero_banner_kxjWXn": {
@@ -276,7 +278,9 @@
         "ambient_glow_strength": 25,
         "padding_top": 0,
         "padding_bottom": 0,
-        "pull_next_section_up": 520
+        "pull_next_section_up": 520,
+        "custom_pull_mobile": false,
+        "pull_next_section_up_mobile": 0
       }
     },
     "ss_featured_collection_20_UEJTXd": {
@@ -653,7 +657,7 @@
           "type": "button",
           "settings": {
             "label": "Shop now · 15% Off",
-            "link": "shopify://collections/flash-sale",
+            "link": "shopify://collections/singles",
             "open_in_new_tab": false,
             "style": "glow",
             "bg_color": "#fdf576",
