@@ -1,0 +1,26 @@
+{%- doc -%}
+  Outputs the automatic-discount percent (0 if none) that applies to a
+  product, from Theme settings > Automatic discount display.
+  Shopify doesn't expose automatic discounts to themes, so the % and
+  collections are entered there and only change what is displayed;
+  the real discount is still applied at checkout.
+
+  @param {product} product
+{%- enddoc -%}
+{%- liquid
+  assign rl_pct = 0
+  if product != blank and settings.rl_ad_enabled
+    assign rl_handles = product.collections | map: 'handle'
+    if settings.rl_ad_collection_1 != blank and settings.rl_ad_percent_1 > 0
+      if rl_handles contains settings.rl_ad_collection_1.handle
+        assign rl_pct = settings.rl_ad_percent_1
+      endif
+    endif
+    if rl_pct == 0 and settings.rl_ad_collection_2 != blank and settings.rl_ad_percent_2 > 0
+      if rl_handles contains settings.rl_ad_collection_2.handle
+        assign rl_pct = settings.rl_ad_percent_2
+      endif
+    endif
+  endif
+  echo rl_pct
+-%}

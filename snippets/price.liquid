@@ -23,6 +23,18 @@
     assign price = 1999
   endif
 
+  # Automatic discount display (Theme settings > Automatic discount display)
+  capture rl_ad_pct
+    render 'rl-auto-discount', product: product_resource
+  endcapture
+  assign rl_ad_pct = rl_ad_pct | strip | plus: 0
+  if rl_ad_pct > 0 and show_compare_price == false
+    assign rl_ad_keep = 100 | minus: rl_ad_pct
+    assign compare_at_price = price
+    assign price = price | times: rl_ad_keep | divided_by: 100
+    assign show_compare_price = true
+  endif
+
   # Check if variant has volume pricing
   assign has_volume_pricing = null
   assign price_min = null
@@ -38,6 +50,10 @@
   if is_product_card
     assign price_min = product_resource.price_min
     assign price_max = product_resource.price_max
+    if rl_ad_pct > 0
+      assign price_min = price_min | times: rl_ad_keep | divided_by: 100
+      assign price_max = price_max | times: rl_ad_keep | divided_by: 100
+    endif
     assign has_volume_pricing = product_resource.quantity_price_breaks_configured? | default: false
   else
     # Product page: only use selected variant's pricing

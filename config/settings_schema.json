@@ -1514,17 +1514,50 @@
         "id": "badge_sold_out_style",
         "label": "Sold out badge style",
         "options": [
-          { "value": "classic", "label": "Classic (uses corner radius)" },
-          { "value": "pill", "label": "Pill" },
-          { "value": "tag", "label": "Slash tag" },
-          { "value": "stamp", "label": "Stamp" },
-          { "value": "outline", "label": "Outline" },
-          { "value": "foil", "label": "Holo foil (animated)" },
-          { "value": "prism", "label": "Rainbow prism (animated)" },
-          { "value": "chrome", "label": "Chrome shine (animated)" },
-          { "value": "beam", "label": "Energy beam border (animated)" },
-          { "value": "neon", "label": "Neon glow (animated)" },
-          { "value": "pulse", "label": "Pulse ring (animated)" }
+          {
+            "value": "classic",
+            "label": "Classic (uses corner radius)"
+          },
+          {
+            "value": "pill",
+            "label": "Pill"
+          },
+          {
+            "value": "tag",
+            "label": "Slash tag"
+          },
+          {
+            "value": "stamp",
+            "label": "Stamp"
+          },
+          {
+            "value": "outline",
+            "label": "Outline"
+          },
+          {
+            "value": "foil",
+            "label": "Holo foil (animated)"
+          },
+          {
+            "value": "prism",
+            "label": "Rainbow prism (animated)"
+          },
+          {
+            "value": "chrome",
+            "label": "Chrome shine (animated)"
+          },
+          {
+            "value": "beam",
+            "label": "Energy beam border (animated)"
+          },
+          {
+            "value": "neon",
+            "label": "Neon glow (animated)"
+          },
+          {
+            "value": "pulse",
+            "label": "Pulse ring (animated)"
+          }
         ],
         "default": "stamp"
       },
@@ -1533,17 +1566,50 @@
         "id": "badge_sale_style",
         "label": "Sale badge style",
         "options": [
-          { "value": "classic", "label": "Classic (uses corner radius)" },
-          { "value": "pill", "label": "Pill" },
-          { "value": "tag", "label": "Slash tag" },
-          { "value": "stamp", "label": "Stamp" },
-          { "value": "outline", "label": "Outline" },
-          { "value": "foil", "label": "Holo foil (animated)" },
-          { "value": "prism", "label": "Rainbow prism (animated)" },
-          { "value": "chrome", "label": "Chrome shine (animated)" },
-          { "value": "beam", "label": "Energy beam border (animated)" },
-          { "value": "neon", "label": "Neon glow (animated)" },
-          { "value": "pulse", "label": "Pulse ring (animated)" }
+          {
+            "value": "classic",
+            "label": "Classic (uses corner radius)"
+          },
+          {
+            "value": "pill",
+            "label": "Pill"
+          },
+          {
+            "value": "tag",
+            "label": "Slash tag"
+          },
+          {
+            "value": "stamp",
+            "label": "Stamp"
+          },
+          {
+            "value": "outline",
+            "label": "Outline"
+          },
+          {
+            "value": "foil",
+            "label": "Holo foil (animated)"
+          },
+          {
+            "value": "prism",
+            "label": "Rainbow prism (animated)"
+          },
+          {
+            "value": "chrome",
+            "label": "Chrome shine (animated)"
+          },
+          {
+            "value": "beam",
+            "label": "Energy beam border (animated)"
+          },
+          {
+            "value": "neon",
+            "label": "Neon glow (animated)"
+          },
+          {
+            "value": "pulse",
+            "label": "Pulse ring (animated)"
+          }
         ],
         "default": "foil"
       },
@@ -2492,6 +2558,59 @@
         "label": "Custom price color",
         "default": "#FF2FB1",
         "visible_if": "{{ settings.zoom_price_color == 'custom' }}"
+      }
+    ]
+  },
+  {
+    "name": "Automatic discount display",
+    "settings": [
+      {
+        "type": "paragraph",
+        "content": "Shopify doesn't share automatic discounts with the theme. Enter yours here to show the discounted price, the crossed-out original and a % OFF badge on product cards and product pages. The real discount is still applied at checkout, so keep these in sync with Discounts in your admin."
+      },
+      {
+        "type": "checkbox",
+        "id": "rl_ad_enabled",
+        "label": "Show automatic discounts",
+        "default": false
+      },
+      {
+        "type": "header",
+        "content": "Discount 1"
+      },
+      {
+        "type": "collection",
+        "id": "rl_ad_collection_1",
+        "label": "Collection"
+      },
+      {
+        "type": "range",
+        "id": "rl_ad_percent_1",
+        "label": "Discount",
+        "min": 0,
+        "max": 90,
+        "step": 1,
+        "unit": "%",
+        "default": 0
+      },
+      {
+        "type": "header",
+        "content": "Discount 2 (optional)"
+      },
+      {
+        "type": "collection",
+        "id": "rl_ad_collection_2",
+        "label": "Collection"
+      },
+      {
+        "type": "range",
+        "id": "rl_ad_percent_2",
+        "label": "Discount",
+        "min": 0,
+        "max": 90,
+        "step": 1,
+        "unit": "%",
+        "default": 0
       }
     ]
   }

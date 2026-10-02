@@ -11,7 +11,9 @@
         --badge-font-family: var(--font-{{ settings.badge_font_family }}--family); --badge-font-weight: var(--font-{{ settings.badge_font_family }}--weight); --badge-text-transform: {{ settings.badge_text_transform }};
       "
     >
-      {%- if product.available == false or product.compare_at_price > product.price -%}
+      {%- capture rl_ad_pct -%}{%- render 'rl-auto-discount', product: product -%}{%- endcapture -%}
+      {%- assign rl_ad_pct = rl_ad_pct | strip | plus: 0 -%}
+      {%- if product.available == false or product.compare_at_price > product.price or rl_ad_pct > 0 -%}
         {%- liquid
           if product.available == false
             assign badge_type = 'sold-out'
@@ -27,7 +29,9 @@
             assign badge_bg = settings.badge_sale_bg
             assign badge_text = settings.badge_sale_text
             assign badge_label = 'content.product_badge_sale' | t
-            if settings.badge_sale_show_percent and product.compare_at_price > 0
+            if rl_ad_pct > 0 and product.compare_at_price <= product.price
+              assign badge_label = 'content.product_badge_sale_percent' | t: percent: rl_ad_pct
+            elsif settings.badge_sale_show_percent and product.compare_at_price > 0
               assign savings = product.compare_at_price | minus: product.price
               assign percent = savings | times: 100 | divided_by: product.compare_at_price
               if percent > 0
