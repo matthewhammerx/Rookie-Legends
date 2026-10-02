@@ -2575,6 +2575,12 @@
         "default": false
       },
       {
+        "type": "checkbox",
+        "id": "rl_ad_show_savings",
+        "label": "Show amount saved (e.g. Save $8.40)",
+        "default": true
+      },
+      {
         "type": "header",
         "content": "Discount 1"
       },
