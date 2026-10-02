@@ -1,3 +1,12 @@
+{%- liquid
+  assign rl_show = true
+  if section.settings.rl_visibility == 'flash_only' and settings.rl_flash_mode == false
+    assign rl_show = false
+  elsif section.settings.rl_visibility == 'normal_only' and settings.rl_flash_mode
+    assign rl_show = false
+  endif
+-%}
+{%- if rl_show -%}
 {% comment %}
   Hero Banner
   A full-bleed hero (no rounded card, no side margins) that fills the
@@ -1132,6 +1141,7 @@
     document.addEventListener('shopify:section:load', init);
   })();
 </script>
+{%- endif -%}
 
 {% schema %}
 {
@@ -1577,6 +1587,18 @@
     {
       "type": "header",
       "content": "Style"
+    },
+    {
+      "type": "select",
+      "id": "rl_visibility",
+      "label": "Show this hero",
+      "info": "Lets Flash sale mode (Theme settings > Flash sale) swap heroes with one switch.",
+      "default": "always",
+      "options": [
+        { "value": "always", "label": "Always" },
+        { "value": "flash_only", "label": "Only during Flash sale mode" },
+        { "value": "normal_only", "label": "Only when Flash sale mode is off" }
+      ]
     },
     {
       "type": "select",

@@ -230,7 +230,6 @@
         "heading_line_jXARQY",
         "button_r6GPDD"
       ],
-      "disabled": true,
       "name": "MAIN HERO",
       "settings": {
         "color_scheme": "",
@@ -280,7 +279,8 @@
         "padding_bottom": 0,
         "pull_next_section_up": 520,
         "custom_pull_mobile": false,
-        "pull_next_section_up_mobile": 0
+        "pull_next_section_up_mobile": 0,
+        "rl_visibility": "normal_only"
       }
     },
     "ss_featured_collection_20_UEJTXd": {
@@ -723,7 +723,8 @@
         "padding_bottom": 0,
         "pull_next_section_up": 520,
         "custom_pull_mobile": true,
-        "pull_next_section_up_mobile": 240
+        "pull_next_section_up_mobile": 240,
+        "rl_visibility": "flash_only"
       }
     },
     "promo_card_wUJ8zm": {
@@ -1579,9 +1580,9 @@
   "order": [
     "popup_collection_gW8deG",
     "hero_banner_3DVWNR",
+    "hero_banner_wqJYde",
     "hero_banner_kxjWXn",
     "ss_featured_collection_20_UEJTXd",
-    "hero_banner_wqJYde",
     "promo_card_wUJ8zm",
     "collection_tile_grid_6qBLXx",
     "social_proof_stats_yH6V7b",
