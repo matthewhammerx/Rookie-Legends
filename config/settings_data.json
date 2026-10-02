@@ -61,6 +61,9 @@
     "variant_button_width": "equal-width-buttons",
     "sort_bar_ring": "frost",
     "zoom_price_color": "pink",
+    "rl_ad_enabled": true,
+    "rl_ad_collection_1": "singles",
+    "rl_ad_percent_1": 15,
     "content_for_index": [],
     "blocks": {
       "17676059084223943535": {
