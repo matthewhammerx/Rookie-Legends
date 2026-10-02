@@ -2577,6 +2577,21 @@
       },
       {
         "type": "header",
+        "content": "Whole store"
+      },
+      {
+        "type": "range",
+        "id": "rl_ad_percent_all",
+        "label": "Discount on every product",
+        "info": "0 = off. Discounts 1 and 2 below take priority for their collections.",
+        "min": 0,
+        "max": 90,
+        "step": 1,
+        "unit": "%",
+        "default": 0
+      },
+      {
+        "type": "header",
         "content": "Discount 1"
       },
       {

@@ -124,6 +124,9 @@
           elsif settings.rl_ad_collection_2 != blank and section.settings.collection.handle == settings.rl_ad_collection_2.handle
             assign hcs_sale_pct = settings.rl_ad_percent_2
           endif
+          if hcs_sale_pct == 0 and settings.rl_ad_percent_all > 0
+            assign hcs_sale_pct = settings.rl_ad_percent_all
+          endif
         endif
       -%}
       {%- if hcs_sale_pct > 0 -%}

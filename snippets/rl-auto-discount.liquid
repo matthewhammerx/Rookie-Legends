@@ -25,6 +25,9 @@
         assign rl_pct = settings.rl_ad_percent_2
       endif
     endif
+    if rl_pct == 0 and settings.rl_ad_percent_all > 0
+      assign rl_pct = settings.rl_ad_percent_all
+    endif
   endif
   echo rl_pct
 -%}
