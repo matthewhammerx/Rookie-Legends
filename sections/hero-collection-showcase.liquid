@@ -259,6 +259,11 @@
                 {%- assign rl_ad_keep = 100 | minus: rl_ad_pct -%}
                 {{ product.price | times: rl_ad_keep | divided_by: 100 | money }}
                 <span class="hcs__card-price-compare">{{ product.price | money }}</span>
+                {%- if settings.rl_ad_show_savings -%}
+                  {%- assign rl_ad_saved = product.price | times: rl_ad_keep | divided_by: 100 -%}
+                  {%- assign rl_ad_saved = product.price | minus: rl_ad_saved -%}
+                  <span class="rl-save">Save {{ rl_ad_saved | money }}</span>
+                {%- endif -%}
               {%- else -%}
                 {{ product.price | money }}
                 {%- if on_sale -%}
