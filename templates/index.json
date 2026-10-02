@@ -682,7 +682,7 @@
         "content_vertical_align": "center",
         "content_vertical_align_mobile": "center",
         "content_vertical_offset": -210,
-        "content_vertical_offset_mobile": -220,
+        "content_vertical_offset_mobile": -100,
         "heading_vertical_offset": 0,
         "heading_vertical_offset_mobile": 0,
         "content_max_width": 720,
