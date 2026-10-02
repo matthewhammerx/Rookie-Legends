@@ -226,7 +226,7 @@
               -%}
               <div
                 id="HBHeadingLine-{{ block.id }}"
-                class="hero-banner__heading-line{% if block.settings.uppercase %} hero-banner__heading-line--uppercase{% endif %}{% if block.settings.text_style == 'glossy' and block.settings.animate_shine %} hero-banner__heading-line--shine{% endif %}{% if block.settings.text_style == 'legend' %} hero-banner__heading-line--legend{% endif %}"
+                class="hero-banner__heading-line{% if block.settings.uppercase %} hero-banner__heading-line--uppercase{% endif %}{% if block.settings.text_style == 'glossy' and block.settings.animate_shine %} hero-banner__heading-line--shine{% endif %}{% if block.settings.text_style == 'legend' %} hero-banner__heading-line--legend{% endif %}{% if block.settings.text_style == 'echo' %} hero-banner__heading-line--echo{% endif %}"
                 style="
                   --hbl-size: {{ block.settings.font_size_mobile }}px;
                   --hbl-size-desktop: {{ block.settings.font_size_desktop }}px;
@@ -269,6 +269,9 @@
                 {{ block.shopify_attributes }}
               >
                 {{ block.settings.text }}
+                {%- if block.settings.text_style == 'echo' -%}
+                  <span class="hero-banner__echo" aria-hidden="true">{{ block.settings.text }}</span>
+                {%- endif -%}
               </div>
               <style>
                 {%- if block.settings.use_custom_font -%}
@@ -884,6 +887,47 @@
     .hero-banner-{{ section.id }} .hero-banner__heading-line--legend strong {
       animation: none !important;
     }
+  }
+
+
+  /* White title with an offset pink outline echo (matches the section titles) */
+  .hero-banner-{{ section.id }} .hero-banner__heading-line--echo {
+    position: relative;
+    isolation: isolate;
+    font-family: var(--font-heading--family) !important;
+    font-weight: 800 !important;
+    font-style: normal !important;
+    line-height: 0.95 !important;
+    text-transform: uppercase;
+    color: #fff !important;
+    background: none !important;
+    filter: none !important;
+    animation: none !important;
+  }
+
+  .hero-banner-{{ section.id }} .hero-banner__heading-line--echo :is(em, strong) {
+    font-family: inherit !important;
+    font-weight: inherit !important;
+    font-style: normal !important;
+    color: inherit !important;
+  }
+
+  .hero-banner-{{ section.id }} .hero-banner__heading-line--echo p {
+    margin: 0;
+  }
+
+  .hero-banner-{{ section.id }} .hero-banner__echo {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    color: transparent;
+    -webkit-text-stroke: 1.5px rgb(255 47 177 / 0.85);
+    transform: translate(0.07em, 0.07em);
+    pointer-events: none;
+  }
+
+  .hero-banner-{{ section.id }} .hero-banner__echo :is(em, strong) {
+    color: transparent !important;
   }
 
   /* ================= Flash sale theme (neon #D5FF00) =================
@@ -1637,7 +1681,8 @@
           "options": [
             { "value": "solid", "label": "Solid" },
             { "value": "glossy", "label": "Glossy shine" },
-            { "value": "legend", "label": "Rookie Legends (outline + gradient)" }
+            { "value": "legend", "label": "Rookie Legends (outline + gradient)" },
+            { "value": "echo", "label": "White + pink outline echo (section titles)" }
           ]
         },
         {
