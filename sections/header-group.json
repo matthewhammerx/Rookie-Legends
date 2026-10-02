@@ -13,6 +13,7 @@
   "sections": {
     "ss_sticky_countdown_kUiAhh": {
       "type": "ss-sticky-countdown",
+      "disabled": true,
       "name": "SS - Sticky countdown bar",
       "settings": {
         "mode": "fixed_date",
@@ -55,7 +56,7 @@
         "number_size_mobile": 20,
         "label_size": 13,
         "title_color": "#ffffff",
-        "number_color": "#0b0d02",
+        "number_color": "#FFFFFF",
         "label_color": "#c9c9c9",
         "tile_bg": "#d5ff00",
         "code_color": "#ffffff",
@@ -64,8 +65,7 @@
         "bg_color": "#0a0a0a",
         "bg_gradient": "radial-gradient(rgba(45, 55, 0, 1), rgba(14, 10, 18, 1) 55%, rgba(5, 5, 5, 1) 100%)",
         "glow_color": "#d5ff00"
-      },
-      "disabled": true
+      }
     },
     "header_announcements_3jPQ9g": {
       "type": "header-announcements",
