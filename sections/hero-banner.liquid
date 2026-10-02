@@ -128,7 +128,8 @@
     --hb-ambient-color: {{ ambient_glow_rgba }};
     --hb-image-position: {{ section.settings.image_position }};
     padding-block: {{ section.settings.padding_top }}px {{ section.settings.padding_bottom }}px;
-    margin-bottom: -{{ section.settings.pull_next_section_up }}px;
+    --hb-pull: -{{ section.settings.pull_next_section_up }}px;
+    --hb-pull-mobile: -{% if section.settings.custom_pull_mobile %}{{ section.settings.pull_next_section_up_mobile }}{% else %}{{ section.settings.pull_next_section_up }}{% endif %}px;
   "
 >
   <div class="hero-banner__media" aria-hidden="true">
@@ -930,6 +931,18 @@
     color: transparent !important;
   }
 
+
+  /* Pull the next section up (desktop / mobile) */
+  .hero-banner-{{ section.id }} {
+    margin-bottom: var(--hb-pull);
+  }
+
+  @media screen and (max-width: 749px) {
+    .hero-banner-{{ section.id }} {
+      margin-bottom: var(--hb-pull-mobile);
+    }
+  }
+
   /* ================= Flash sale theme (neon #D5FF00) =================
      Same design as the Rookie Legends style, new colour. */
   .hero-banner-{{ section.id }}.hero-banner--flash {
@@ -1631,6 +1644,23 @@
       "step": 10,
       "unit": "px",
       "default": 0
+    },
+    {
+      "type": "checkbox",
+      "id": "custom_pull_mobile",
+      "label": "Different pull on mobile",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "pull_next_section_up_mobile",
+      "label": "Pull next section up (mobile)",
+      "min": 0,
+      "max": 600,
+      "step": 10,
+      "unit": "px",
+      "default": 0,
+      "visible_if": "{{ section.settings.custom_pull_mobile }}"
     }
   ],
   "blocks": [
