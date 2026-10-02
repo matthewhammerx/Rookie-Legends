@@ -257,10 +257,10 @@
             <p class="hcs__card-price">
               {%- if rl_ad_pct > 0 and product.compare_at_price <= product.price -%}
                 {%- assign rl_ad_keep = 100 | minus: rl_ad_pct -%}
-                {{ product.price | times: rl_ad_keep | divided_by: 100 | money }}
+                {{ product.price | times: rl_ad_keep | plus: 50 | divided_by: 100 | money }}
                 <span class="hcs__card-price-compare">{{ product.price | money }}</span>
                 {%- if settings.rl_ad_show_savings -%}
-                  {%- assign rl_ad_saved = product.price | times: rl_ad_keep | divided_by: 100 -%}
+                  {%- assign rl_ad_saved = product.price | times: rl_ad_keep | plus: 50 | divided_by: 100 -%}
                   {%- assign rl_ad_saved = product.price | minus: rl_ad_saved -%}
                   <span class="rl-save">Save {{ rl_ad_saved | money }}</span>
                 {%- endif -%}

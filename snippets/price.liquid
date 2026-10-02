@@ -31,7 +31,7 @@
   if rl_ad_pct > 0 and show_compare_price == false
     assign rl_ad_keep = 100 | minus: rl_ad_pct
     assign compare_at_price = price
-    assign price = price | times: rl_ad_keep | divided_by: 100
+    assign price = price | times: rl_ad_keep | plus: 50 | divided_by: 100
     assign rl_ad_saved = compare_at_price | minus: price
     assign show_compare_price = true
   endif
@@ -52,8 +52,8 @@
     assign price_min = product_resource.price_min
     assign price_max = product_resource.price_max
     if rl_ad_pct > 0
-      assign price_min = price_min | times: rl_ad_keep | divided_by: 100
-      assign price_max = price_max | times: rl_ad_keep | divided_by: 100
+      assign price_min = price_min | times: rl_ad_keep | plus: 50 | divided_by: 100
+      assign price_max = price_max | times: rl_ad_keep | plus: 50 | divided_by: 100
     endif
     assign has_volume_pricing = product_resource.quantity_price_breaks_configured? | default: false
   else
