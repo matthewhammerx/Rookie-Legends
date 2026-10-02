@@ -220,6 +220,20 @@
         <span class="hero-banner__eyebrow">{{ section.settings.eyebrow_text }}</span>
       {%- endif -%}
 
+      {%- liquid
+        assign hb_sale_pct = 0
+        if settings.rl_ad_enabled and collection != blank and template.name == 'collection'
+          if settings.rl_ad_collection_1 != blank and collection.handle == settings.rl_ad_collection_1.handle
+            assign hb_sale_pct = settings.rl_ad_percent_1
+          elsif settings.rl_ad_collection_2 != blank and collection.handle == settings.rl_ad_collection_2.handle
+            assign hb_sale_pct = settings.rl_ad_percent_2
+          endif
+        endif
+      -%}
+      {%- if hb_sale_pct > 0 -%}
+        <span class="hero-banner__sale-pill">{{ hb_sale_pct }}% off · Sale</span>
+      {%- endif -%}
+
       {%- assign heading_line_count = 0 -%}
       {%- for block in section.blocks -%}
         {%- if block.type == 'heading_line' -%}{%- assign heading_line_count = heading_line_count | plus: 1 -%}{%- endif -%}
@@ -950,6 +964,45 @@
     .hero-banner-{{ section.id }} {
       margin-bottom: var(--hb-pull-mobile);
     }
+  }
+
+
+  /* Sale pill (collection pages with an automatic discount): LIMITED TIME style */
+  .hero-banner-{{ section.id }} .hero-banner__sale-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 18px;
+    border: 1px solid rgb(213 255 0 / 0.5);
+    border-radius: 999px;
+    background: rgb(213 255 0 / 0.08);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    color: #d5ff00;
+    font-size: var(--hb-eyebrow-size, 0.75rem);
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+
+  .hero-banner-{{ section.id }} .hero-banner__sale-pill::before {
+    content: '';
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #d5ff00;
+    box-shadow: 0 0 12px #d5ff00;
+    animation: rlSaleBlink-{{ section.id }} 1.2s steps(2, jump-none) infinite;
+  }
+
+  @keyframes rlSaleBlink-{{ section.id }} {
+    50% {
+      opacity: 0.25;
+    }
+  }
+
+  html.rl-lite .hero-banner-{{ section.id }} .hero-banner__sale-pill::before {
+    animation: none;
   }
 
   /* ================= Flash sale theme (neon #D5FF00) =================

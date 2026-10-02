@@ -778,10 +778,9 @@
     background: rgb(213 255 0 / 0.1);
     color: #d5ff00;
     font-size: 0.72rem;
-    font-weight: 800;
-    letter-spacing: 0.16em;
+    font-weight: 700;
+    letter-spacing: 0.18em;
     text-transform: uppercase;
-    box-shadow: 0 0 18px -6px rgb(213 255 0 / 0.6);
   }
 
   .hcs__sale-pill::before {
@@ -791,6 +790,17 @@
     border-radius: 50%;
     background: #d5ff00;
     box-shadow: 0 0 10px #d5ff00;
+    animation: hcsSaleBlink 1.2s steps(2, jump-none) infinite;
+  }
+
+  @keyframes hcsSaleBlink {
+    50% {
+      opacity: 0.25;
+    }
+  }
+
+  html.rl-lite .hcs__sale-pill::before {
+    animation: none;
   }
 
   .hcs__subheading {
