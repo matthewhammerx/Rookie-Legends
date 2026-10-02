@@ -310,8 +310,9 @@
     line-height: 1;
   }
 
-  .rl-fbar__unit :is(b, i) {
-    color: inherit !important;
+  .rl-ann.announcement-bar .rl-fbar .rl-fbar__unit,
+  .rl-ann.announcement-bar .rl-fbar .rl-fbar__unit :is(b, i) {
+    color: var(--rl-fbar-neon, #d5ff00) !important;
   }
 
   .rl-fbar__unit b {
