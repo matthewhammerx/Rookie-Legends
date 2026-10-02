@@ -254,6 +254,33 @@
             "glow_strength": 55
           }
         },
+        "heading_line_ax8z79": {
+          "type": "heading_line",
+          "settings": {
+            "text": "<p><strong>ALL SINGLES</strong></p>",
+            "font_size_desktop": 40,
+            "font_size_mobile": 36,
+            "text_style": "echo",
+            "color": "#fdf576",
+            "animate_shine": false,
+            "shine_speed": 3,
+            "uppercase": true,
+            "use_custom_font": false,
+            "font": "baskervville_i7",
+            "font_weight": "800",
+            "italic": false,
+            "bold_color": "#eb00ca",
+            "bold_custom_font": false,
+            "bold_font": "assistant_n7",
+            "italic_color": "#ffffff",
+            "italic_custom_font": false,
+            "italic_font": "anton_n4",
+            "enable_glow": false,
+            "glow_color": "#ffffff",
+            "glow_size": 16,
+            "glow_strength": 55
+          }
+        },
         "countdown_ibCUQk": {
           "type": "countdown",
           "settings": {
@@ -297,6 +324,7 @@
         "image_9rw6g4",
         "heading_line_466axT",
         "heading_line_HJU4KM",
+        "heading_line_ax8z79",
         "countdown_ibCUQk",
         "button_CXRmka"
       ],
