@@ -100,7 +100,7 @@
 
 <div
   id="HeroBanner-{{ section.id }}"
-  class="hero-banner-{{ section.id }} hero-banner color-{{ section.settings.color_scheme }}{% if section.settings.rl_theme == 'flash' %} hero-banner--flash{% endif %}"
+  class="hero-banner-{{ section.id }} hero-banner color-{{ section.settings.color_scheme }}{% if section.settings.rl_theme == 'flash' or section.settings.rl_theme == 'auto' and settings.rl_flash_mode %} hero-banner--flash{% endif %}"
   style="
     --hb-accent: {{ accent }};
     --hb-heading-color: {{ section.settings.heading_color }};
@@ -889,8 +889,8 @@
   /* ================= Flash sale theme (neon #D5FF00) =================
      Same design as the Rookie Legends style, new colour. */
   .hero-banner-{{ section.id }}.hero-banner--flash {
-    --hb-accent: #d5ff00;
-    --rl-flash: #d5ff00;
+    --hb-accent: {{ settings.rl_flash_color | default: '#d5ff00' }};
+    --rl-flash: {{ settings.rl_flash_color | default: '#d5ff00' }};
     --rl-flash-2: #f4ffb0;
     --rl-flash-deep: #8fb800;
   }
@@ -1529,7 +1529,8 @@
       "default": "default",
       "options": [
         { "value": "default", "label": "Rookie Legends (pink)" },
-        { "value": "flash", "label": "Flash sale (neon yellow)" }
+        { "value": "flash", "label": "Flash sale (neon yellow)" },
+        { "value": "auto", "label": "Follow Flash sale mode (Theme settings)" }
       ]
     },
     {

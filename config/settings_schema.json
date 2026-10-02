@@ -2613,5 +2613,32 @@
         "default": 0
       }
     ]
+  },
+  {
+    "name": "Flash sale",
+    "settings": [
+      {
+        "type": "paragraph",
+        "content": "One switch for the whole site: turns the announcement bar neon and every Hero banner whose Color theme is 'Follow Flash sale mode'. A hero set to 'Flash sale (neon yellow)' also turns the announcement bar neon on that page."
+      },
+      {
+        "type": "checkbox",
+        "id": "rl_flash_mode",
+        "label": "Flash sale mode",
+        "default": false
+      },
+      {
+        "type": "color",
+        "id": "rl_flash_color",
+        "label": "Flash color",
+        "default": "#D5FF00"
+      },
+      {
+        "type": "color",
+        "id": "rl_flash_text",
+        "label": "Announcement text on flash color",
+        "default": "#0B0D02"
+      }
+    ]
   }
 ]
