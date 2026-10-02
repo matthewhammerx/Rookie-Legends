@@ -633,8 +633,8 @@
           "type": "countdown",
           "settings": {
             "year": "2026",
-            "month": "09",
-            "day": "15",
+            "month": "10",
+            "day": "04",
             "hour": "04",
             "minute": "00",
             "days_text": "Days",
@@ -657,7 +657,7 @@
           "type": "button",
           "settings": {
             "label": "Shop now · 15% Off",
-            "link": "shopify://collections/singles",
+            "link": "shopify://collections/flash-sale",
             "open_in_new_tab": false,
             "style": "glow",
             "bg_color": "#fdf576",
@@ -680,7 +680,7 @@
         "color_scheme": "",
         "height_mode": "custom",
         "custom_height": 1200,
-        "custom_height_mobile": 1000,
+        "custom_height_mobile": 800,
         "content_align": "center",
         "content_align_mobile": "center",
         "content_vertical_align": "center",
@@ -723,7 +723,7 @@
         "padding_bottom": 0,
         "pull_next_section_up": 520,
         "custom_pull_mobile": true,
-        "pull_next_section_up_mobile": 320
+        "pull_next_section_up_mobile": 240
       }
     },
     "promo_card_wUJ8zm": {
