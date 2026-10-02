@@ -571,10 +571,10 @@
         "heading_line_466axT": {
           "type": "heading_line",
           "settings": {
-            "text": "<p>Flash sale</p>",
+            "text": "<p>FLASH <em>SALE</em></p>",
             "font_size_desktop": 84,
             "font_size_mobile": 44,
-            "text_style": "solid",
+            "text_style": "legend",
             "color": "#ffffff",
             "animate_shine": false,
             "shine_speed": 3,
@@ -598,15 +598,15 @@
         "heading_line_HJU4KM": {
           "type": "heading_line",
           "settings": {
-            "text": "<p>15% OFF</p>",
+            "text": "<p><strong>15% OFF</strong></p>",
             "font_size_desktop": 76,
             "font_size_mobile": 60,
-            "text_style": "solid",
+            "text_style": "legend",
             "color": "#fdf576",
             "animate_shine": false,
             "shine_speed": 3,
             "uppercase": true,
-            "use_custom_font": true,
+            "use_custom_font": false,
             "font": "baskervville_i7",
             "font_weight": "800",
             "italic": false,
@@ -684,7 +684,7 @@
         "heading_vertical_offset": 0,
         "heading_vertical_offset_mobile": 0,
         "content_max_width": 720,
-        "eyebrow_text": "",
+        "eyebrow_text": "Limited time",
         "eyebrow_color": "#eb00ca",
         "eyebrow_size": 12,
         "subheading_text": "<p>ENDS IN:</p>",
@@ -714,7 +714,8 @@
         "ambient_glow_strength": 25,
         "padding_top": 0,
         "padding_bottom": 0,
-        "pull_next_section_up": 0
+        "pull_next_section_up": 0,
+        "rl_theme": "flash"
       }
     },
     "promo_card_wUJ8zm": {
