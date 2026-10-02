@@ -159,6 +159,11 @@
       ],
       "name": "t:names.announcement_bar",
       "settings": {
+        "rl_gradient": true,
+        "rl_animate": true,
+        "rl_color_a": "#ff2fb1",
+        "rl_color_b": "#4f8dff",
+        "rl_text_color": "#ffffff",
         "speed": 4,
         "section_width": "page-width",
         "color_scheme": "scheme-735f3bc4-4003-4e8c-816a-f48390dab17f",
