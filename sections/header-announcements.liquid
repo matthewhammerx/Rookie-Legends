@@ -23,7 +23,7 @@
   %}
 
   {%- if settings.rl_flash_mode -%}
-    {%- if settings.rl_flash_link != blank -%}<a class="rl-fbar" style="--rl-fbar-neon: {{ settings.rl_flash_color | default: '#d5ff00' }};" href="{{ settings.rl_flash_link }}" data-rl-fbar data-end="{{ settings.rl_flash_end | escape }}">{%- else -%}<div class="rl-fbar" style="--rl-fbar-neon: {{ settings.rl_flash_color | default: '#d5ff00' }};" data-rl-fbar data-end="{{ settings.rl_flash_end | escape }}">{%- endif -%}
+    {%- if settings.rl_flash_link != blank -%}<a class="rl-fbar" style="--rl-fbar-neon: {{ settings.rl_flash_color | default: '#d5ff00' }};" href="{{ settings.rl_flash_link }}" data-rl-fbar data-end="{{ settings.rl_flash_end_year }}-{{ settings.rl_flash_end_month }}-{{ settings.rl_flash_end_day }} {{ settings.rl_flash_end_hour }}:{{ settings.rl_flash_end_minute }}">{%- else -%}<div class="rl-fbar" style="--rl-fbar-neon: {{ settings.rl_flash_color | default: '#d5ff00' }};" data-rl-fbar data-end="{{ settings.rl_flash_end_year }}-{{ settings.rl_flash_end_month }}-{{ settings.rl_flash_end_day }} {{ settings.rl_flash_end_hour }}:{{ settings.rl_flash_end_minute }}">{%- endif -%}
       <span class="rl-fbar__text"><span class="rl-fbar__bolt" aria-hidden="true">⚡</span>{{ settings.rl_flash_bar_text | escape }}</span>
       <span class="rl-fbar__timer" aria-label="Time left">
         <span class="rl-fbar__unit"><b data-u="d">00</b><i>d</i></span>
