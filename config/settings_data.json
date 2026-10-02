@@ -64,7 +64,7 @@
     "rl_ad_enabled": true,
     "rl_ad_collection_1": "singles",
     "rl_ad_percent_1": 15,
-    "rl_flash_mode": true,
+    "rl_flash_mode": false,
     "content_for_index": [],
     "blocks": {
       "17676059084223943535": {
