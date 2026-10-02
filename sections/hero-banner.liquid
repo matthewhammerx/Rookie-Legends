@@ -942,8 +942,8 @@
     color: #fff !important;
   }
 
-  html .hero-banner-{{ section.id }}.hero-banner--flash .hero-banner-button::before {
-    background: linear-gradient(120deg, var(--rl-flash), var(--rl-flash-2));
+  html .hero-banner-{{ section.id }}.hero-banner--flash :is(#rl-x, .hero-banner-button).hero-banner-button::before {
+    background: linear-gradient(120deg, var(--rl-flash), var(--rl-flash-2)) !important;
   }
 
   @media (hover: hover) {
