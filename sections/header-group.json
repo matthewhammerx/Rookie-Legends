@@ -64,7 +64,8 @@
         "bg_color": "#0a0a0a",
         "bg_gradient": "radial-gradient(rgba(45, 55, 0, 1), rgba(14, 10, 18, 1) 55%, rgba(5, 5, 5, 1) 100%)",
         "glow_color": "#d5ff00"
-      }
+      },
+      "disabled": true
     },
     "header_announcements_3jPQ9g": {
       "type": "header-announcements",

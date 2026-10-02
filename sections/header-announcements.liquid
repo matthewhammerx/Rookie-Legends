@@ -22,6 +22,50 @@
     endif
   %}
 
+  {%- if settings.rl_flash_mode -%}
+    {%- if settings.rl_flash_link != blank -%}<a class="rl-fbar" href="{{ settings.rl_flash_link }}" data-rl-fbar data-end="{{ settings.rl_flash_end | escape }}">{%- else -%}<div class="rl-fbar" data-rl-fbar data-end="{{ settings.rl_flash_end | escape }}">{%- endif -%}
+      <span class="rl-fbar__text"><span class="rl-fbar__bolt" aria-hidden="true">⚡</span>{{ settings.rl_flash_bar_text | escape }}</span>
+      <span class="rl-fbar__timer" aria-label="Time left">
+        <span class="rl-fbar__unit"><b data-u="d">00</b><i>d</i></span>
+        <span class="rl-fbar__unit"><b data-u="h">00</b><i>h</i></span>
+        <span class="rl-fbar__unit"><b data-u="m">00</b><i>m</i></span>
+        <span class="rl-fbar__unit"><b data-u="s">00</b><i>s</i></span>
+      </span>
+    {%- if settings.rl_flash_link != blank -%}</a>{%- else -%}</div>{%- endif -%}
+    <script>
+      (function () {
+        var bar = document.querySelector('[data-rl-fbar]');
+        if (!bar || bar.__rl) return;
+        bar.__rl = true;
+        // End time is Montreal wall time; convert to an exact instant (handles DST)
+        var m = (bar.dataset.end || '').match(/(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})/);
+        if (!m) return;
+        var wall = Date.UTC(+m[1], +m[2] - 1, +m[3], +m[4], +m[5]);
+        function offset(ts) {
+          var p = {};
+          new Intl.DateTimeFormat('en-US', { timeZone: 'America/Toronto', hourCycle: 'h23', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' })
+            .formatToParts(new Date(ts)).forEach(function (x) { p[x.type] = x.value; });
+          return Date.UTC(+p.year, +p.month - 1, +p.day, +p.hour, +p.minute, +p.second) - ts;
+        }
+        var end = wall - offset(wall);
+        end = wall - offset(end);
+        var els = {};
+        bar.querySelectorAll('[data-u]').forEach(function (e) { els[e.dataset.u] = e; });
+        function pad(n) { return (n < 10 ? '0' : '') + n; }
+        function tick() {
+          var t = Math.max(0, end - Date.now());
+          var s = Math.floor(t / 1000);
+          els.d.textContent = pad(Math.floor(s / 86400));
+          els.h.textContent = pad(Math.floor((s % 86400) / 3600));
+          els.m.textContent = pad(Math.floor((s % 3600) / 60));
+          els.s.textContent = pad(s % 60);
+          if (t <= 0) { bar.classList.add('is-ended'); clearInterval(iv); }
+        }
+        var iv = setInterval(tick, 1000);
+        tick();
+      })();
+    </script>
+  {%- else -%}
   <announcement-bar-component
     class="announcement-bar__slider"
     {% if autoplay == true %}
@@ -36,6 +80,7 @@
       {% content_for 'blocks' %}
     </div>
   </announcement-bar-component>
+  {%- endif -%}
 </aside>
 
 {% stylesheet %}
@@ -218,6 +263,83 @@
   html:has(.hero-banner--flash) .rl-ann.announcement-bar .announcement-bar__text,
   .rl-ann.announcement-bar.rl-ann--flashmode .announcement-bar__text {
     text-shadow: none;
+  }
+
+  /* ---- Flash countdown bar (Flash sale mode) ---- */
+  .rl-fbar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 6px 14px;
+    padding: 2px 8px;
+    color: var(--rl-flash-text, #0b0d02) !important;
+    text-decoration: none !important;
+    grid-column: 1 / -1;
+  }
+
+  .rl-fbar__text {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--font-heading--family);
+    font-weight: 800;
+    font-size: 0.95rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .rl-fbar__bolt {
+    font-size: 0.9em;
+  }
+
+  .rl-fbar__timer {
+    display: inline-flex;
+    gap: 5px;
+  }
+
+  .rl-fbar__unit {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 1px;
+    padding: 3px 7px;
+    border-radius: 8px;
+    background: rgb(11 13 2 / 0.88);
+    color: var(--rl-flash-a, #d5ff00);
+    font-family: var(--font-heading--family);
+    line-height: 1;
+  }
+
+  .rl-fbar__unit b {
+    font-size: 0.95rem;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .rl-fbar__unit i {
+    font-style: normal;
+    font-size: 0.65rem;
+    font-weight: 700;
+    opacity: 0.75;
+    text-transform: uppercase;
+  }
+
+  .rl-fbar.is-ended .rl-fbar__timer {
+    opacity: 0.5;
+  }
+
+  @media screen and (max-width: 749px) {
+    .rl-fbar {
+      gap: 4px 10px;
+    }
+
+    .rl-fbar__text {
+      font-size: 0.82rem;
+    }
+
+    .rl-fbar__unit b {
+      font-size: 0.85rem;
+    }
   }
 {% endstylesheet %}
 

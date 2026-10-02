@@ -2639,6 +2639,28 @@
         "id": "rl_flash_text",
         "label": "Announcement text on flash color",
         "default": "#0B0D02"
+      },
+      {
+        "type": "header",
+        "content": "Flash countdown bar"
+      },
+      {
+        "type": "text",
+        "id": "rl_flash_bar_text",
+        "label": "Bar text",
+        "default": "Flash sale · 15% off ends in"
+      },
+      {
+        "type": "text",
+        "id": "rl_flash_end",
+        "label": "Ends (Montreal time)",
+        "info": "Format: YYYY-MM-DD HH:MM, 24h, Montreal/Eastern time. E.g. 2026-10-05 00:00 = midnight Sunday night.",
+        "default": "2026-10-05 00:00"
+      },
+      {
+        "type": "url",
+        "id": "rl_flash_link",
+        "label": "Bar link"
       }
     ]
   }
