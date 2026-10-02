@@ -765,6 +765,17 @@
     pointer-events: none;
   }
 
+  /* With a sale pill above the title, keep the button level with the title */
+  @media screen and (min-width: 750px) {
+    .hcs__top-content:has(.hcs__sale-pill) {
+      align-items: flex-end;
+    }
+
+    .hcs__top-content:has(.hcs__sale-pill) .hcs__top-actions {
+      padding-bottom: 2px;
+    }
+  }
+
   /* Small sale pill above the title when the collection has an automatic discount */
   .hcs__sale-pill {
     display: inline-flex;
