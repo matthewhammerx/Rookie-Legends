@@ -1,0 +1,17 @@
+{%- comment -%}
+  Flash sale mode (Theme settings > Flash sale) swaps the header bars:
+  on  = the flash countdown bar shows and the regular announcement bar hides
+  off = the regular announcement bar shows and the countdown bar hides
+  The countdown bar is the "SS - Sticky countdown bar" in the Header group.
+{%- endcomment -%}
+<style>
+  {%- if settings.rl_flash_mode -%}
+    .shopify-section-group-header-group:has(.announcement-bar) {
+      display: none !important;
+    }
+  {%- else -%}
+    [id$='__ss_sticky_countdown_kUiAhh'] {
+      display: none !important;
+    }
+  {%- endif -%}
+</style>
