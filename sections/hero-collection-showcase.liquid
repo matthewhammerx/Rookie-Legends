@@ -114,7 +114,11 @@
     <div class="hcs__top-text">
       {%- liquid
         assign hcs_sale_pct = 0
-        if settings.rl_ad_enabled and section.settings.collection != blank
+        assign rl_ad_on = settings.rl_ad_enabled
+        if settings.rl_flash_mode
+          assign rl_ad_on = true
+        endif
+        if rl_ad_on and section.settings.collection != blank
           if settings.rl_ad_collection_1 != blank and section.settings.collection.handle == settings.rl_ad_collection_1.handle
             assign hcs_sale_pct = settings.rl_ad_percent_1
           elsif settings.rl_ad_collection_2 != blank and section.settings.collection.handle == settings.rl_ad_collection_2.handle

@@ -222,7 +222,11 @@
 
       {%- liquid
         assign hb_sale_pct = 0
-        if settings.rl_ad_enabled and collection != blank and template.name == 'collection'
+        assign rl_ad_on = settings.rl_ad_enabled
+        if settings.rl_flash_mode
+          assign rl_ad_on = true
+        endif
+        if rl_ad_on and collection != blank and template.name == 'collection'
           if settings.rl_ad_collection_1 != blank and collection.handle == settings.rl_ad_collection_1.handle
             assign hb_sale_pct = settings.rl_ad_percent_1
           elsif settings.rl_ad_collection_2 != blank and collection.handle == settings.rl_ad_collection_2.handle

@@ -2572,7 +2572,8 @@
         "type": "checkbox",
         "id": "rl_ad_enabled",
         "label": "Show automatic discounts",
-        "default": false
+        "default": false,
+        "info": "Also turns on automatically while Flash sale mode is on."
       },
       {
         "type": "header",
@@ -2619,7 +2620,7 @@
     "settings": [
       {
         "type": "paragraph",
-        "content": "One switch for the whole site: turns the announcement bar neon and every Hero banner whose Color theme is 'Follow Flash sale mode'. A hero set to 'Flash sale (neon yellow)' also turns the announcement bar neon on that page."
+        "content": "One switch for the whole site: shows the Flash sale hero (heroes set to 'Only during Flash sale mode'), turns the announcement bar neon, and turns on Automatic discount display (badges, crossed-out prices, sale pills) using the collections and % set there. Your real discount still comes from Shopify Discounts."
       },
       {
         "type": "checkbox",

@@ -9,7 +9,11 @@
 {%- enddoc -%}
 {%- liquid
   assign rl_pct = 0
-  if product != blank and settings.rl_ad_enabled
+  assign rl_ad_on = settings.rl_ad_enabled
+  if settings.rl_flash_mode
+    assign rl_ad_on = true
+  endif
+  if product != blank and rl_ad_on
     assign rl_handles = product.collections | map: 'handle'
     if settings.rl_ad_collection_1 != blank and settings.rl_ad_percent_1 > 0
       if rl_handles contains settings.rl_ad_collection_1.handle
