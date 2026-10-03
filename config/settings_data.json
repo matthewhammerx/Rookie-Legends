@@ -64,7 +64,12 @@
     "rl_ad_enabled": true,
     "rl_ad_collection_1": "singles",
     "rl_ad_percent_1": 15,
-    "rl_flash_mode": true,
+    "rl_flash_mode": false,
+    "rl_flash_end_year": "2026",
+    "rl_flash_end_month": "10",
+    "rl_flash_end_day": "05",
+    "rl_flash_end_hour": "00",
+    "rl_flash_end_minute": "00",
     "content_for_index": [],
     "blocks": {
       "17676059084223943535": {
@@ -829,12 +834,7 @@
           "selected_variant_hover_border_color": "#1a1a1a"
         }
       }
-    },
-    "rl_flash_end_year": "2026",
-    "rl_flash_end_month": "10",
-    "rl_flash_end_day": "05",
-    "rl_flash_end_hour": "00",
-    "rl_flash_end_minute": "00"
+    }
   },
   "presets": {
     "Savor": {
