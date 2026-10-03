@@ -309,7 +309,7 @@
           "type": "button",
           "settings": {
             "label": "Shop now · 15% Off",
-            "link": "shopify://collections/flash-sale",
+            "link": "shopify://collections/singles",
             "open_in_new_tab": false,
             "style": "glow",
             "bg_color": "#fdf576",
